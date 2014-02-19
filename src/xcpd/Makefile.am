@@ -19,6 +19,9 @@ MAINTAINERCLEANFILES = Makefile.in
 sbin_PROGRAMS = xcpd
 xcpd_SOURCES = xcpd.cc
 xcpd_LDADD = \
+	../xdpd/libxdpd_wrap.la\
+	$(LIBS)\
+	../xdpd/openflow/libxdpd_openflow.la\
 	$(LIBS)\
 	$(FM_LIB)\
 	-lpthread \

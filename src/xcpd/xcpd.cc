@@ -99,7 +99,7 @@ int main(int argc, char** argv){
 
 	//Load plugins
 	optind=0;
-
+    plugin_manager::init(argc, argv);
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
 
