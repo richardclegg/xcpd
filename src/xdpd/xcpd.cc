@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <rofl/platform/unix/cunixenv.h>
+#include <rofl/datapath/afa/fwd_module.h>
 #include <rofl/common/utils/c_logger.h>
-#include "../xdpd/management/switch_manager.h"
-#include "../xdpd/management/port_manager.h"
-#include "../xdpd/management/plugin_manager.h"
+#include "management/switch_manager.h"
+#include "management/port_manager.h"
+#include "management/plugin_manager.h"
 
 using namespace rofl;
 using namespace xdpd;
@@ -14,7 +15,7 @@ using namespace xdpd;
 extern int optind;
 
 //TODO: Redirect C loggers to the output log
-#define XDPD_LOG_FILE "XDPD.log"
+#define XDPD_LOG_FILE "xdpd.log"
 
 //Handler to stop ciosrv
 void interrupt_handler(int dummy=0) {
@@ -25,7 +26,7 @@ void interrupt_handler(int dummy=0) {
 //Prints version and build numbers and exits
 void dump_version(){
 	//Print version and exit
-	ROFL_INFO("The eXtensible OpenFlow Control path daemon (XDPD)\n");	
+	ROFL_INFO("The eXtensible OpenFlow Datapath daemon (xDPd)\n");	
 	ROFL_INFO("Version: %s\n",XDPD_VERSION);
 
 #ifdef XDPD_BUILD
@@ -44,7 +45,7 @@ void dump_version(){
 }
 
 /*
- * XDPD Main routine
+ * xDPd Main routine
  */
 int main(int argc, char** argv){
 
@@ -73,7 +74,7 @@ int main(int argc, char** argv){
 		
 		/* update defaults */
 		env_parser.update_default_option("logfile", XDPD_LOG_FILE);
-		env_parser.add_option(coption(true, NO_ARGUMENT, 'v', "version", "Retrieve XDPD version and exit", std::string("")));
+		env_parser.add_option(coption(true, NO_ARGUMENT, 'v', "version", "Retrieve xDPd version and exit", std::string("")));
 
 		//Parse
 		env_parser.parse_args();
@@ -93,24 +94,36 @@ int main(int argc, char** argv){
 		}
 	}
 
+	//Forwarding module initialization
+	if(fwd_module_init() != AFA_SUCCESS){
+		ROFL_INFO("Init driver failed\n");	
+		exit(-1);
+	}
 
 	//Init the ciosrv.
 	ciosrv::init();
 
 	//Load plugins
 	optind=0;
-    plugin_manager::init(argc, argv);
+	plugin_manager::init(argc, argv);
+
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
 
 	//Printing nice trace
 	ROFL_INFO("\nCleaning the house...\n");	
 
+	//Destroy all state
+	switch_manager::destroy_all_switches();
 
+	//Let plugin manager destroy all registered plugins
+	plugin_manager::destroy();
+	
 	//ciosrv destroy
 	ciosrv::destroy();
 
-
+	//Call fwd_module to shutdown
+	fwd_module_destroy();
 	
 	ROFL_INFO("House cleaned!\nGoodbye\n");
 	

@@ -60,7 +60,6 @@ m4_include([config/versioning.m4])
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
-	src/xcpd/Makefile
 	src/xdpd/Makefile
 	src/xdpd/fwd-modules/Makefile
 	src/xdpd/management/Makefile
