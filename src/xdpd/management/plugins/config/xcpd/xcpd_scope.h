@@ -17,7 +17,7 @@ namespace xdpd {
 class xcpd_scope:public scope {
 
 public:
-	xcpd_scope(std::string scope_name, bool mandatory=false);
+	xcpd_scope(std::string scope_name="xcpd", bool mandatory=false);
 		
 protected:
 	virtual void post_validate(libconfig::Setting& setting, bool dry_run);
