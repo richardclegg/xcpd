@@ -15,7 +15,7 @@ using namespace xdpd;
 extern int optind;
 
 //TODO: Redirect C loggers to the output log
-#define XDPD_LOG_FILE "xdpd.log"
+#define XDPD_LOG_FILE "xcpd.log"
 
 //Handler to stop ciosrv
 void interrupt_handler(int dummy=0) {
@@ -26,7 +26,7 @@ void interrupt_handler(int dummy=0) {
 //Prints version and build numbers and exits
 void dump_version(){
 	//Print version and exit
-	ROFL_INFO("The eXtensible OpenFlow Datapath daemon (xDPd)\n");	
+	ROFL_INFO("The eXtensible OpenFlow Control Path daemon (xCPd)\n");	
 	ROFL_INFO("Version: %s\n",XDPD_VERSION);
 
 #ifdef XDPD_BUILD

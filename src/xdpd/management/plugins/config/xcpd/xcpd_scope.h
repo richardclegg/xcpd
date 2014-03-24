@@ -9,7 +9,7 @@
 * @file xcpd_scope.h 
 * @author richard@richardclegg.org
 *
-* @brief Openflow libconfig file hierarchy 
+* @brief Openflow libconfig file for configuring control path daemon
 * 
 */
 namespace xdpd {
