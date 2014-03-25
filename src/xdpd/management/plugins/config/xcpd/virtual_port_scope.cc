@@ -7,6 +7,7 @@ using namespace xdpd;
 using namespace rofl;
 
 #define VPORT_ASSOCIATED_PHYSICAL_PORT "physical"
+#define VPORT_ASSOCIATED_VLAN "vlan"
 
 virtual_port_scope::virtual_port_scope(std::string name, bool mandatory):scope(name, mandatory){
 
@@ -15,16 +16,28 @@ virtual_port_scope::virtual_port_scope(std::string name, bool mandatory):scope(n
 void virtual_port_scope::post_validate(libconfig::Setting& setting, bool dry_run){
 //Detect existing subscopes (for virtual ports) and register
  	for(int i = 0; i<setting.getLength(); ++i){
-		register_subscope(std::string(setting[i].getName()), new one_port_scope(setting[i].getName()));
+		register_subscope(std::string(setting[i].getName()), new switch_vports_scope(setting[i].getName()));
 	}
 }
 
+switch_vports_scope::switch_vports_scope(std::string name, bool mandatory):scope(name, mandatory){
+    switch_name= name;
+    
+}
 
+void switch_vports_scope::post_validate(libconfig::Setting& setting, bool dry_run){
+//Detect existing subscopes (for virtual ports) and register
+ 	for(int i = 0; i<setting.getLength(); ++i){
+        one_port_scope ops= one_port_scope(setting[i].getName());
+		register_subscope(std::string(setting[i].getName()), &ops);
+	}
+}
 
 one_port_scope::one_port_scope(std::string name, bool mandatory):scope(name, mandatory){
     port_name= name;
     register_parameter(VPORT_ASSOCIATED_PHYSICAL_PORT, true);
-    ROFL_WARN("Found virtual port switch: %s\n", name.c_str());
+    register_parameter(VPORT_ASSOCIATED_VLAN, false);
+    ROFL_INFO("Found virtual port switch: %s\n", name.c_str());
 }
 
 void one_port_scope::post_validate(libconfig::Setting& setting, bool dry_run){

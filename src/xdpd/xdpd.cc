@@ -8,6 +8,7 @@
 #include "management/switch_manager.h"
 #include "management/port_manager.h"
 #include "management/plugin_manager.h"
+#include "management/control_manager.h"
 
 using namespace rofl;
 using namespace xdpd;
@@ -49,7 +50,7 @@ void dump_version(){
  */
 int main(int argc, char** argv){
 
-
+    
 	//Check for root privileges 
 	if(geteuid() != 0){
 		ROFL_ERR("ERROR: Root permissions are required to run %s\n",argv[0]);	
@@ -93,6 +94,8 @@ int main(int argc, char** argv){
 					ident.c_str());
 		}
 	}
+    
+    control_manager::is_data_path();
 
 	//Forwarding module initialization
 	if(fwd_module_init() != AFA_SUCCESS){

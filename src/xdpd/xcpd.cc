@@ -8,6 +8,7 @@
 #include "management/switch_manager.h"
 #include "management/port_manager.h"
 #include "management/plugin_manager.h"
+#include "management/control_manager.h"
 
 using namespace rofl;
 using namespace xdpd;
@@ -74,7 +75,7 @@ int main(int argc, char** argv){
 		
 		/* update defaults */
 		env_parser.update_default_option("logfile", XDPD_LOG_FILE);
-		env_parser.add_option(coption(true, NO_ARGUMENT, 'v', "version", "Retrieve xDPd version and exit", std::string("")));
+		env_parser.add_option(coption(true, NO_ARGUMENT, 'v', "version", "Retrieve xcPd version and exit", std::string("")));
 
 		//Parse
 		env_parser.parse_args();
@@ -93,8 +94,9 @@ int main(int argc, char** argv){
 					ident.c_str());
 		}
 	}
-
-	//Forwarding module initialization
+    
+    control_manager::set_control_path();
+    	//Forwarding module initialization
 	if(fwd_module_init() != AFA_SUCCESS){
 		ROFL_INFO("Init driver failed\n");	
 		exit(-1);

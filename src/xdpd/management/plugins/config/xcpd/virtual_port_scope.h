@@ -15,6 +15,8 @@
 
 namespace xdpd {
 
+// Top level config just says "This is part of config for virtual ports
+
 class virtual_port_scope:public scope {
 	
 public:
@@ -25,10 +27,27 @@ protected:
 
 };
 
+// Next level config defines which switch within xdpd we define virtual
+// ports for
+
+class switch_vports_scope:public scope  {
+    
+    private:
+        std::string switch_name;
+    public:
+        switch_vports_scope(std::string scope_name, bool mandatory=false);
+
+    protected:
+        virtual void post_validate(libconfig::Setting& setting, bool dry_run);
+    
+};
+
+// Lowest level config defines nature of virtual port
+
 class one_port_scope:public scope {
     
-    std::string port_name;
-    
+    private:
+        std::string port_name;
     public:
         one_port_scope(std::string scope_name, bool mandatory=false);
 
