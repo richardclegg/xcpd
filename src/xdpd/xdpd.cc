@@ -95,7 +95,8 @@ int main(int argc, char** argv){
 		}
 	}
     
-    control_manager::is_data_path();
+    // Indicate that this is xdpd not xcpd
+    control_manager::Instance()->is_data_path();
 
 	//Forwarding module initialization
 	if(fwd_module_init() != AFA_SUCCESS){

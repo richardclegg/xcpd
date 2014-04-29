@@ -3,6 +3,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "../../../../management/control_manager.h"
 
 using namespace xdpd;
 using namespace rofl;
@@ -17,6 +18,8 @@ xcpd_scope::xcpd_scope(std::string name, bool mandatory):scope(name, mandatory){
 }
 
 void xcpd_scope::post_validate(libconfig::Setting& setting, bool dry_run){
+    if (dry_run)
+        return;
     caddress higher_controller;
     std::string ip = setting[XCPD_HIGHER_CONTROLLER_IP];
     unsigned int port= setting[XCPD_HIGHER_CONTROLLER_PORT];
@@ -27,4 +30,6 @@ void xcpd_scope::post_validate(libconfig::Setting& setting, bool dry_run){
 		//IPv6
 		higher_controller = caddress(AF_INET6, ip.c_str(), port); 
 	}
+    control_manager::Instance()->set_higher_address(higher_controller);
+    
 }
