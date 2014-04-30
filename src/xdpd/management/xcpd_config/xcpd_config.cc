@@ -1,6 +1,7 @@
 #include "xcpd_config.h"
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/common/utils/c_logger.h>
+#include "xcpd_scope.h"
 
 
 using namespace xdpd;
@@ -59,6 +60,9 @@ xcpd_config_scope::xcpd_config_scope():scope("config", true){
 	
 	//Interfaces subhierarchy
 	register_subscope(new xcpd_interfaces_scope());
+    
+    //xcpd config
+    register_subscope(new xcpd_scope());
     
 }
 

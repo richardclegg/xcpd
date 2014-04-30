@@ -3,7 +3,7 @@
 #define CONFIG_XCPD_PLUGIN_H 
 
 #include <rofl/common/caddress.h>
-#include "../scope.h"
+#include "../plugins/config/scope.h"
 
 /**
 * @file xcpd_scope.h 
