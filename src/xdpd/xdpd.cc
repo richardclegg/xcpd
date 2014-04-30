@@ -8,7 +8,6 @@
 #include "management/switch_manager.h"
 #include "management/port_manager.h"
 #include "management/plugin_manager.h"
-#include "management/control_manager.h"
 
 using namespace rofl;
 using namespace xdpd;
@@ -94,9 +93,6 @@ int main(int argc, char** argv){
 					ident.c_str());
 		}
 	}
-    
-    // Indicate that this is xdpd not xcpd
-    control_manager::Instance()->is_data_path();
 
 	//Forwarding module initialization
 	if(fwd_module_init() != AFA_SUCCESS){

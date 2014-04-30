@@ -7,7 +7,7 @@
 #include <rofl/common/utils/c_logger.h>
 #include "management/switch_manager.h"
 #include "management/port_manager.h"
-#include "management/plugin_manager.h"
+#include "management/xcpd_config/xcpd_config.h"
 #include "management/control_manager.h"
 
 using namespace rofl;
@@ -108,9 +108,10 @@ int main(int argc, char** argv){
 	//Init the ciosrv.
 	ciosrv::init();
 
-	//Load plugins
+	//Don't need all plugins, just a variant of the config plugins
 	optind=0;
-	plugin_manager::init(argc, argv);
+    xcpd_config *c= new xcpd_config();
+	c->init(argc, argv);
 
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
@@ -122,7 +123,7 @@ int main(int argc, char** argv){
 	switch_manager::destroy_all_switches();
 
 	//Let plugin manager destroy all registered plugins
-	plugin_manager::destroy();
+	free(c);
 	
 	//ciosrv destroy
 	ciosrv::destroy();

@@ -5,7 +5,6 @@
 //sub scopes
 #include "openflow/openflow_scope.h" 
 #include "interfaces/interfaces_scope.h" 
-#include "xcpd/xcpd_scope.h"
 
 using namespace xdpd;
 using namespace rofl;
@@ -28,8 +27,6 @@ config_scope::config_scope():scope("config", true){
 	//Interfaces subhierarchy
 	register_subscope(new interfaces_scope());
     
-    //xcpd subhierarchy
-    register_subscope(new xcpd_scope());	
 }
 
 config_scope::~config_scope(){

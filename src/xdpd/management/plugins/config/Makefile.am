@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS=xcpd interfaces openflow 
+SUBDIRS=interfaces openflow 
 
 noinst_LTLIBRARIES = libxdpd_mgmt_config.la
 
