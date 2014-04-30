@@ -25,7 +25,8 @@ config_scope::config_scope():scope("config", true){
 	register_subscope(new openflow_scope());
 	
 	//Interfaces subhierarchy
-	register_subscope(new interfaces_scope());	
+	register_subscope(new interfaces_scope());
+    
 }
 
 config_scope::~config_scope(){

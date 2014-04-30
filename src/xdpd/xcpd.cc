@@ -7,7 +7,8 @@
 #include <rofl/common/utils/c_logger.h>
 #include "management/switch_manager.h"
 #include "management/port_manager.h"
-#include "management/plugin_manager.h"
+#include "management/xcpd_config/xcpd_config.h"
+#include "management/control_manager.h"
 
 using namespace rofl;
 using namespace xdpd;
@@ -15,7 +16,7 @@ using namespace xdpd;
 extern int optind;
 
 //TODO: Redirect C loggers to the output log
-#define XDPD_LOG_FILE "xdpd.log"
+#define XDPD_LOG_FILE "xcpd.log"
 
 //Handler to stop ciosrv
 void interrupt_handler(int dummy=0) {
@@ -26,7 +27,7 @@ void interrupt_handler(int dummy=0) {
 //Prints version and build numbers and exits
 void dump_version(){
 	//Print version and exit
-	ROFL_INFO("The eXtensible OpenFlow Datapath daemon (xDPd)\n");	
+	ROFL_INFO("The eXtensible OpenFlow Control Path daemon (xCPd)\n");	
 	ROFL_INFO("Version: %s\n",XDPD_VERSION);
 
 #ifdef XDPD_BUILD
@@ -49,7 +50,7 @@ void dump_version(){
  */
 int main(int argc, char** argv){
 
-    
+
 	//Check for root privileges 
 	if(geteuid() != 0){
 		ROFL_ERR("ERROR: Root permissions are required to run %s\n",argv[0]);	
@@ -74,7 +75,7 @@ int main(int argc, char** argv){
 		
 		/* update defaults */
 		env_parser.update_default_option("logfile", XDPD_LOG_FILE);
-		env_parser.add_option(coption(true, NO_ARGUMENT, 'v', "version", "Retrieve xDPd version and exit", std::string("")));
+		env_parser.add_option(coption(true, NO_ARGUMENT, 'v', "version", "Retrieve xcPd version and exit", std::string("")));
 
 		//Parse
 		env_parser.parse_args();
@@ -93,20 +94,26 @@ int main(int argc, char** argv){
 					ident.c_str());
 		}
 	}
-
-	//Forwarding module initialization
-	if(fwd_module_init() != AFA_SUCCESS){
-		ROFL_INFO("Init driver failed\n");	
-		exit(-1);
-	}
+    // Indicate that this is xcpd not xdpd
+    
+    control_manager::Instance()->set_control_path();
+    control_manager::Instance()->init();
+    
+    	//Forwarding module initialization
+	//if(fwd_module_init() != AFA_SUCCESS){
+	//	ROFL_INFO("Init driver failed\n");	
+	//	exit(-1);
+	//}
 
 	//Init the ciosrv.
 	ciosrv::init();
 
-	//Load plugins
+	//Don't need all plugins, just a variant of the config plugins
 	optind=0;
-	plugin_manager::init(argc, argv);
-
+    xcpd_config *c= new xcpd_config();
+    ROFL_INFO("New config created\n");
+	c->init(argc, argv);
+    ROFL_INFO("Running\n");
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
 
@@ -117,7 +124,7 @@ int main(int argc, char** argv){
 	switch_manager::destroy_all_switches();
 
 	//Let plugin manager destroy all registered plugins
-	plugin_manager::destroy();
+	free(c);
 	
 	//ciosrv destroy
 	ciosrv::destroy();
