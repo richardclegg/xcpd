@@ -13,7 +13,6 @@ AC_LANG_POP([C++])
 #Add files
 AC_CONFIG_FILES([
 	src/xdpd/management/plugins/config/Makefile
-    src/xdpd/management/plugins/config/xcpd/Makefile
 	src/xdpd/management/plugins/config/interfaces/Makefile
 	src/xdpd/management/plugins/config/openflow/Makefile
 ])

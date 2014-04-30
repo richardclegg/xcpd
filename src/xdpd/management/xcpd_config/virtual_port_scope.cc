@@ -13,23 +13,25 @@ virtual_port_scope::virtual_port_scope(std::string name, bool mandatory):scope(n
 
 }
 
-void virtual_port_scope::post_validate(libconfig::Setting& setting, bool dry_run){
+void virtual_port_scope::pre_validate(libconfig::Setting& setting, bool dry_run){
 //Detect existing subscopes (for virtual ports) and register
  	for(int i = 0; i<setting.getLength(); ++i){
+        ROFL_INFO("Subscope for port %s\n", setting[i].getName());
 		register_subscope(std::string(setting[i].getName()), new switch_vports_scope(setting[i].getName()));
 	}
 }
 
 switch_vports_scope::switch_vports_scope(std::string name, bool mandatory):scope(name, mandatory){
     switch_name= name;
-    
+    ROFL_INFO("Registering new switch vports scope %s\n", name.c_str());
 }
 
-void switch_vports_scope::post_validate(libconfig::Setting& setting, bool dry_run){
+void switch_vports_scope::pre_validate(libconfig::Setting& setting, bool dry_run){
 //Detect existing subscopes (for virtual ports) and register
  	for(int i = 0; i<setting.getLength(); ++i){
-        one_port_scope ops= one_port_scope(setting[i].getName());
-		register_subscope(std::string(setting[i].getName()), &ops);
+        one_port_scope *ops=  new one_port_scope(setting[i].getName());
+        ROFL_INFO("Sub-Subscope for port %s\n", setting[i].getName());
+		register_subscope(std::string(setting[i].getName()), ops);
 	}
 }
 

@@ -12,5 +12,4 @@ libxdpd_mgmt_config_la_SOURCES = \
 libxdpd_mgmt_config_la_LIBADD = \
 	interfaces/libxdpd_mgmt_config_interfaces.la\
 	openflow/libxdpd_mgmt_config_openflow.la\
-	xcpd/libxdpd_mgmt_config_openflow.la \
 	-lconfig++

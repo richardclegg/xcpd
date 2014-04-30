@@ -2,7 +2,7 @@
 #ifndef CONFIG_XCPD_VPORT_PLUGIN_H
 #define CONFIG_XCPD_VPORT_PLUGIN_H 
 
-#include "../scope.h"
+#include "../plugins/config/scope.h"
 
 /**
 * @file virtual_port_scope.h 
@@ -23,7 +23,7 @@ public:
 	virtual_port_scope(std::string scope_name="virtual-ports", bool mandatory=false);
 
 protected:
-    virtual void post_validate(libconfig::Setting& setting, bool dry_run);
+    virtual void pre_validate(libconfig::Setting& setting, bool dry_run);
 
 };
 
@@ -38,7 +38,7 @@ class switch_vports_scope:public scope  {
         switch_vports_scope(std::string scope_name, bool mandatory=false);
 
     protected:
-        virtual void post_validate(libconfig::Setting& setting, bool dry_run);
+        virtual void pre_validate(libconfig::Setting& setting, bool dry_run);
     
 };
 

@@ -100,10 +100,10 @@ int main(int argc, char** argv){
     control_manager::Instance()->init();
     
     	//Forwarding module initialization
-	if(fwd_module_init() != AFA_SUCCESS){
-		ROFL_INFO("Init driver failed\n");	
-		exit(-1);
-	}
+	//if(fwd_module_init() != AFA_SUCCESS){
+	//	ROFL_INFO("Init driver failed\n");	
+	//	exit(-1);
+	//}
 
 	//Init the ciosrv.
 	ciosrv::init();
@@ -111,8 +111,9 @@ int main(int argc, char** argv){
 	//Don't need all plugins, just a variant of the config plugins
 	optind=0;
     xcpd_config *c= new xcpd_config();
+    ROFL_INFO("New config created\n");
 	c->init(argc, argv);
-
+    ROFL_INFO("Running\n");
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
 
