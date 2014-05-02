@@ -1,6 +1,6 @@
 AC_INIT(xdpd, 0.3, xdpd@bisdn.de, xdpd)
 AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_CONFIG_MACRO_DIR([m4])
 AC_GNU_SOURCE
 

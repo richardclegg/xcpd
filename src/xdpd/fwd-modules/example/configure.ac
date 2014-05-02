@@ -1,6 +1,6 @@
 AC_INIT(xdpd - Example fwd-module, 0.3, rofl@bisdn.de,  xdpd_example_fm)
 AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_CONFIG_MACRO_DIR([m4])
 AC_GNU_SOURCE
 
