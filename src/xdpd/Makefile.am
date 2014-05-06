@@ -16,7 +16,7 @@ libxdpd_wrap_la_LIBADD = \
 	$(FM_LIB)
 
 #Main program
-sbin_PROGRAMS = xdpd 
+sbin_PROGRAMS = xdpd
 xdpd_SOURCES = cmm.cc xdpd.cc
 xdpd_LDADD = \
 	libxdpd_wrap.la\
