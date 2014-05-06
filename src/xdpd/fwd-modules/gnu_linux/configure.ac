@@ -1,6 +1,6 @@
 AC_INIT(xdpd - GNU/Linux fwd-module, 0.3, rofl@bisdn.de, xdpd_gnu_linux_fm)
 AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
+AM_INIT_AUTOMAKE([-Wall foreign ])
 AC_CONFIG_MACRO_DIR([m4])
 AC_GNU_SOURCE
 

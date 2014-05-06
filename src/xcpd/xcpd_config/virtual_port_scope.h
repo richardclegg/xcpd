@@ -2,7 +2,7 @@
 #ifndef CONFIG_XCPD_VPORT_PLUGIN_H
 #define CONFIG_XCPD_VPORT_PLUGIN_H 
 
-#include "../plugins/config/scope.h"
+#include "../../xdpd/management/plugins/config/scope.h"
 
 /**
 * @file virtual_port_scope.h 

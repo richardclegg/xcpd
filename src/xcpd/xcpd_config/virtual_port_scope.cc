@@ -16,7 +16,7 @@ virtual_port_scope::virtual_port_scope(std::string name, bool mandatory):scope(n
 void virtual_port_scope::pre_validate(libconfig::Setting& setting, bool dry_run){
 //Detect existing subscopes (for virtual ports) and register
  	for(int i = 0; i<setting.getLength(); ++i){
-        ROFL_INFO("Subscope for port %s\n", setting[i].getName());
+        ROFL_INFO("Subscope for switch %s\n", setting[i].getName());
 		register_subscope(std::string(setting[i].getName()), new switch_vports_scope(setting[i].getName()));
 	}
 }

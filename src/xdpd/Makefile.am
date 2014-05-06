@@ -16,17 +16,7 @@ libxdpd_wrap_la_LIBADD = \
 	$(FM_LIB)
 
 #Main program
-sbin_PROGRAMS = xdpd xcpd
-xcpd_SOURCES = cmm.cc xcpd.cc
-xcpd_LDADD = \
-        libxdpd_wrap.la\
-        $(LIBS)\
-        openflow/libxdpd_openflow.la\
-        -lrofl_pipeline \
-        $(FM_LIB)\
-        -lpthread \
-        -lrofl \
-        -ldl
+sbin_PROGRAMS = xdpd 
 xdpd_SOURCES = cmm.cc xdpd.cc
 xdpd_LDADD = \
 	libxdpd_wrap.la\

@@ -5,10 +5,10 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/datapath/afa/fwd_module.h>
 #include <rofl/common/utils/c_logger.h>
-#include "management/switch_manager.h"
-#include "management/port_manager.h"
-#include "management/xcpd_config/xcpd_config.h"
-#include "management/control_manager.h"
+//#include "../xdpd/management/switch_manager.h"
+//#include "../xdpd/management/port_manager.h"
+#include "xcpd_config/xcpd_config.h"
+#include "control_manager.h"
 
 using namespace rofl;
 using namespace xdpd;
@@ -111,7 +111,7 @@ int main(int argc, char** argv){
 	//Don't need all plugins, just a variant of the config plugins
 	optind=0;
     xcpd_config *c= new xcpd_config();
-    ROFL_INFO("New config created\n");
+    ROFL_INFO("Reading config\n");
 	c->init(argc, argv);
     ROFL_INFO("Running\n");
 	//ciosrv run. Only will stop in Ctrl+C
@@ -121,7 +121,7 @@ int main(int argc, char** argv){
 	ROFL_INFO("\nCleaning the house...\n");	
 
 	//Destroy all state
-	switch_manager::destroy_all_switches();
+	//switch_manager::destroy_all_switches();
 
 	//Let plugin manager destroy all registered plugins
 	free(c);
@@ -130,7 +130,7 @@ int main(int argc, char** argv){
 	ciosrv::destroy();
 
 	//Call fwd_module to shutdown
-	fwd_module_destroy();
+	//fwd_module_destroy();
 	
 	ROFL_INFO("House cleaned!\nGoodbye\n");
 	

@@ -3,8 +3,8 @@
 #define CONFIG_XCPD_PLUGIN_H 
 #include <libconfig.h++> 
 #include <rofl/common/caddress.h>
-#include "../plugins/config/scope.h"
-#include "../plugin_manager.h"
+#include "../../xdpd/management/plugins/config/scope.h"
+#include "../../xdpd/management/plugin_manager.h"
 
 /**
 * @file xcpd_scope.h 
