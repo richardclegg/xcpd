@@ -5,6 +5,8 @@
 #ifndef CONTROL_MANAGER_H
 #define CONTROL_MANAGER_H 
 #include <rofl/common/crofbase.h>
+#include <vector>
+#include <string>
 
 /**
 * @file control_manager.h
@@ -21,24 +23,60 @@ namespace xdpd {
 class control_manager {
     
     private:
+        static const int PASSIVE_CONNECTION=1;
+        static const int ACTIVE_CONNECTION=2;
         static control_manager* cm_instance;
-        bool code_is_xdpd;  // Is the program xdpd or xcpd
         caddress switch_addr;
-        caddress higher_controller_addr;
+        std::string switch_ip;
+        int switch_port;
+        caddress higher_addr;
+        std::string higher_ip;
+        int higher_port;
+        caddress xcpd_addr;
+        std::string xcpd_ip;
+        int xcpd_port;
         control_manager(){};  // Private constructor
         control_manager(control_manager const&){}; // private copy
         control_manager& operator=(control_manager const&); // private assign
+        std::string switch_name;  // Name of switch to be used
+        std::vector<std::string> port_names;  // Ports of switch
+        int switch_to_xcpd_conn;
+        int xcpd_to_control_conn;
         
     public:
-        void init();                 // Initialise singleton
-        bool is_data_path();         // Return true if xdpd
-        void set_control_path();         // Set xcpd
-        void set_data_path();         // Set xdpd
         static control_manager *Instance();
+        
+        void init();                 // Initialise singleton
+
         void set_higher_address(caddress &);
         caddress get_higher_address();
+        void set_xcpd_address(caddress &);
+        caddress get_xcpd_address();
         void set_switch_address(caddress &);
         caddress get_switch_address();
+        void set_switch_ip(std::string);
+        std::string get_switch_ip();
+        void set_switch_port(int);
+        int get_switch_port();
+        void set_xcpd_ip(std::string);
+        std::string get_xcpd_ip();
+        void set_xcpd_port(int);
+        int get_xcpd_port();
+        void set_higher_ip(std::string);
+        std::string get_higher_ip();
+        void set_higher_port(int);
+        int get_higher_port();       
+        void set_switch_name(std::string);
+        std::string get_switch_name();
+        void add_port(std::string);
+        int no_ports();
+        int get_port_no(std::string);
+        void set_switch_to_xcpd_conn_passive();
+        void set_switch_to_xcpd_conn_active();        
+        bool is_switch_to_xcpd_conn_active();
+        void set_xcpd_to_control_conn_passive();
+        void set_xcpd_to_control_conn_active();        
+        bool is_xcpd_to_control_conn_active();        
 };
 
 }

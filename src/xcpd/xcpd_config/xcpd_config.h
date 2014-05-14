@@ -6,6 +6,7 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/common/cerror.h>
 #include "../../xdpd/management/plugins/config/scope.h"
+#include "../control_manager.h"
 /**
 * @file xcpd_config.h
 * @author Richard Clegg richard@richardclegg.org
@@ -61,8 +62,7 @@ class xcpd_openflow_scope:public scope {
 	
 public:
 	xcpd_openflow_scope(std::string scope_name="openflow", bool mandatory=true);
-		
-protected:
+        
 	
 };
 
@@ -70,13 +70,16 @@ class xcpd_of_lsis_scope:public scope {
 	
 public:
 	xcpd_of_lsis_scope(std::string scope_name="logical-switches", bool mandatory=true);
-		
+protected:
+	virtual void pre_validate(libconfig::Setting& setting, bool dry_run);
 };
 
 class xcpd_lsi_scope:public scope {
 	
 public:
 	xcpd_lsi_scope(std::string scope_name, bool mandatory=false);
+protected:
+	virtual void post_validate(libconfig::Setting& setting, bool dry_run);
 };
 }// namespace xdpd 
 

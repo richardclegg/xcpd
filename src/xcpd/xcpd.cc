@@ -94,9 +94,8 @@ int main(int argc, char** argv){
 					ident.c_str());
 		}
 	}
-    // Indicate that this is xcpd not xdpd
+    // Initialise control_manager
     
-    control_manager::Instance()->set_control_path();
     control_manager::Instance()->init();
     
     	//Forwarding module initialization
