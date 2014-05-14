@@ -14,6 +14,29 @@
 using namespace rofl;
 using namespace xdpd;
 
+virtual_port::virtual_port(std::string n, int port) {
+    name= n;
+    real_port= port;
+    vlan= NO_VLAN;
+}
+
+virtual_port::virtual_port(std::string n, int port,int v) {
+    name= n;
+    real_port= port;
+    vlan= v;
+}
+
+int virtual_port::get_real_port()
+{
+    return real_port;
+}
+
+int virtual_port::get_vlan()
+{
+    return vlan;
+}
+
+
 control_manager* control_manager::cm_instance= NULL;
 
 
@@ -41,6 +64,7 @@ void control_manager::init()
     port_names= std::vector<std::string>();
     switch_to_xcpd_conn= ACTIVE_CONNECTION;
     xcpd_to_control_conn= ACTIVE_CONNECTION;
+    ports= std::vector<virtual_port>();
 }
 
 void control_manager::set_higher_address(caddress &c)
@@ -199,5 +223,19 @@ bool control_manager::is_xcpd_to_control_conn_active()
     return xcpd_to_control_conn == ACTIVE_CONNECTION;
 }
 
+
+int control_manager::get_no_ports()
+{
+    return ports.size();
+}
+
+void control_manager::add_vport(virtual_port vp) {
+    ports.push_back(vp);
+}
+
+virtual_port control_manager::get_vport(int p) 
+{
+    return ports[p];
+}
 
 

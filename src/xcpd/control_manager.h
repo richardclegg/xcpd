@@ -19,7 +19,24 @@
 using namespace rofl;
 
 namespace xdpd {
+
+// Class represents a single port recognised by xcpd control    
+class virtual_port {
+    private:
+        static const int NO_VLAN= -1;
+        std::string name;
+        int real_port;
+        int vlan;
     
+    public:
+        virtual_port(std::string, int);
+        virtual_port(std::string n, int,int);
+        
+        int get_real_port();
+        int get_vlan();
+};
+
+// Class represents control_manager
 class control_manager {
     
     private:
@@ -42,6 +59,7 @@ class control_manager {
         std::vector<std::string> port_names;  // Ports of switch
         int switch_to_xcpd_conn;
         int xcpd_to_control_conn;
+        std::vector<virtual_port> ports;
         
     public:
         static control_manager *Instance();
@@ -76,8 +94,13 @@ class control_manager {
         bool is_switch_to_xcpd_conn_active();
         void set_xcpd_to_control_conn_passive();
         void set_xcpd_to_control_conn_active();        
-        bool is_xcpd_to_control_conn_active();        
+        bool is_xcpd_to_control_conn_active(); 
+        
+        int get_no_ports();
+        void add_vport(virtual_port);
+        virtual_port get_vport(int);
 };
+
 
 }
 

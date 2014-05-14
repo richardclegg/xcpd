@@ -128,7 +128,9 @@ void xcpd_of_lsis_scope::pre_validate(libconfig::Setting& setting, bool dry_run)
     }
 	//Detect existing subscopes (logical switches) and register
     register_subscope(std::string(setting[0].getName()), new xcpd_lsi_scope(setting[0].getName()));
-    control_manager::Instance()->set_switch_name(setting[0].getName());
+    if (dry_run) {
+        control_manager::Instance()->set_switch_name(setting[0].getName());
+    }
 }
 
 
@@ -203,7 +205,7 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
 		std::string port = setting[XCPD_PORTS][i];
 		if(port != ""){
             port_count++;
-            if (!dry_run) {
+            if (dry_run) {
                 control_manager::Instance()->add_port(port);
                 //ROFL_INFO("%s added port\n",port.c_str());
             }	

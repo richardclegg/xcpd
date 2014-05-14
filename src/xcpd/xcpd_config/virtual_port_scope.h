@@ -32,8 +32,6 @@ protected:
 
 class switch_vports_scope:public scope  {
     
-    private:
-        std::string switch_name;
     public:
         switch_vports_scope(std::string scope_name, bool mandatory=false);
 
@@ -43,7 +41,6 @@ class switch_vports_scope:public scope  {
 };
 
 // Lowest level config defines nature of virtual port
-
 class one_port_scope:public scope {
     
     private:
