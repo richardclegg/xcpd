@@ -5,10 +5,9 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/datapath/afa/fwd_module.h>
 #include <rofl/common/utils/c_logger.h>
-//#include "../xdpd/management/switch_manager.h"
-//#include "../xdpd/management/port_manager.h"
 #include "xcpd_config/xcpd_config.h"
 #include "control_manager.h"
+#include "cportvlan_mapper.h"
 
 using namespace rofl;
 using namespace xdpd;
