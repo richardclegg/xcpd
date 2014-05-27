@@ -110,7 +110,7 @@ int main(int argc, char** argv){
     xcpd_config *c= new xcpd_config();
     ROFL_INFO("Reading config\n");
 	c->init(argc, argv);
-    ROFL_INFO("Running\n");
+    
     cportvlan_mapper mapper;
     for (int i=0; i < cm->no_vports(); i++) {
         virtual_port vp= cm->get_vport(i);
@@ -128,6 +128,22 @@ int main(int argc, char** argv){
             //    vp.get_vlan());
         }
     }
+    ROFL_INFO("Running\n");
+    
+    bool indpt= cm->is_switch_to_xcpd_conn_active();
+    bool inctl=  !cm->is_xcpd_to_control_conn_active();
+    caddress dptaddr= cm->get_switch_address();
+    caddress ctladdr= cm->get_higher_address();
+    
+    std::cout << "DPE connections will be " << (indpt?"PASSIVE at ":"ACTIVE to ") << dptaddr.c_str() << "." << std::endl;
+	std::cout << "Controller connections will be " << (inctl?"PASSIVE at ":"ACTIVE to ") << ctladdr.c_str() << "." << std::endl;
+
+    morpheus morph (mapper, indpt, dptaddr, inctl, ctladdr);
+        
+        
+    
+    
+    ROFL_INFO("Connecting to switch and controller\n");
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
 

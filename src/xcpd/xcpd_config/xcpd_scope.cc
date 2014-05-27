@@ -27,7 +27,9 @@ xcpd_scope::xcpd_scope(std::string name, bool mandatory):scope(name, mandatory){
 
 void xcpd_scope::post_validate(libconfig::Setting& setting, bool dry_run){
     
+    //ROFL_INFO("Reading XCPD scope\n");
     if((setting.exists(XCPD_MODE))){
+        
 		std::string mode= setting[XCPD_MODE];
 		if( mode == XCPD_PASSIVE_MODE){
 			control_manager::Instance()->set_xcpd_to_control_conn_passive();
@@ -73,7 +75,6 @@ void xcpd_scope::post_validate(libconfig::Setting& setting, bool dry_run){
         }
         control_manager::Instance()->set_switch_port(port);
         
-    }     
-    
+    }       
        
 }

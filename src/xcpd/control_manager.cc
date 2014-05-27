@@ -210,22 +210,26 @@ void control_manager::set_switch_to_xcpd_conn_active()
      
 bool control_manager::is_switch_to_xcpd_conn_active()
 {
-    return switch_to_xcpd_conn == ACTIVE_CONNECTION;
+    return (switch_to_xcpd_conn == ACTIVE_CONNECTION);
 }
 
 void control_manager::set_xcpd_to_control_conn_passive()
 {
+    //cout << "Controller connection PASSIVE" << endl;
     xcpd_to_control_conn= PASSIVE_CONNECTION;
 }
     
 void control_manager::set_xcpd_to_control_conn_active()
 {
+    //cout << "Controller connection ACTIVE" << endl;
     xcpd_to_control_conn= ACTIVE_CONNECTION;
 }
         
 bool control_manager::is_xcpd_to_control_conn_active()
 {
-    return xcpd_to_control_conn == ACTIVE_CONNECTION;
+    //cout << "Controller connection " << xcpd_to_control_conn << endl;
+    //cout << "Which is " <<  (xcpd_to_control_conn == ACTIVE_CONNECTION) << endl;
+    return (xcpd_to_control_conn == ACTIVE_CONNECTION);
 }
 
 
