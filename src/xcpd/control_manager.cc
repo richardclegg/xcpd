@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "control_manager.h"
+#include <iostream>
+
+using namespace std;
 
 /**
 * @file control_manager.cc
@@ -18,12 +21,14 @@ virtual_port::virtual_port(std::string n, int port) {
     name= n;
     real_port= port;
     vlan= NO_VLAN;
+    //cout << "New Port phys:" << port << " NO VLAN" << endl;
 }
 
 virtual_port::virtual_port(std::string n, int port,int v) {
     name= n;
     real_port= port;
     vlan= v;
+    //cout << "New Port phys:" << port << " VLAN " << v << endl;
 }
 
 int virtual_port::get_real_port()
@@ -224,7 +229,7 @@ bool control_manager::is_xcpd_to_control_conn_active()
 }
 
 
-int control_manager::get_no_ports()
+int control_manager::no_vports()
 {
     return ports.size();
 }

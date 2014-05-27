@@ -66,8 +66,7 @@ void one_port_scope::post_validate(libconfig::Setting& setting, bool dry_run){
             throw eConfParseError(); 
         }
         if((setting.exists(VPORT_ASSOCIATED_VLAN))){
-            //vlan= setting[VPORT_ASSOCIATED_VLAN];
-            vlan=1;
+            vlan= setting[VPORT_ASSOCIATED_VLAN];
             vlan_set= true;
         }
         if (vlan_set) {

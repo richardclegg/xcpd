@@ -23,12 +23,13 @@ namespace xdpd {
 // Class represents a single port recognised by xcpd control    
 class virtual_port {
     private:
-        static const int NO_VLAN= -1;
+        
         std::string name;
         int real_port;
         int vlan;
     
     public:
+        static const int NO_VLAN= -1;
         virtual_port(std::string, int);
         virtual_port(std::string n, int,int);
         
@@ -96,7 +97,7 @@ class control_manager {
         void set_xcpd_to_control_conn_active();        
         bool is_xcpd_to_control_conn_active(); 
         
-        int get_no_ports();
+        int no_vports();
         void add_vport(virtual_port);
         virtual_port get_vport(int);
 };

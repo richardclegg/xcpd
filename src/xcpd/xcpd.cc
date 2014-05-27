@@ -7,7 +7,10 @@
 #include <rofl/common/utils/c_logger.h>
 #include "xcpd_config/xcpd_config.h"
 #include "control_manager.h"
+#include "morpheus.h"
 #include "cportvlan_mapper.h"
+#include <string>
+
 
 using namespace rofl;
 using namespace xdpd;
@@ -96,15 +99,10 @@ int main(int argc, char** argv){
 	}
     // Initialise control_manager
     
-    control_manager::Instance()->init();
+    control_manager *cm= control_manager::Instance();
     
-    	//Forwarding module initialization
-	//if(fwd_module_init() != AFA_SUCCESS){
-	//	ROFL_INFO("Init driver failed\n");	
-	//	exit(-1);
-	//}
-
-	//Init the ciosrv.
+    cm->init();
+    
 	ciosrv::init();
 
 	//Don't need all plugins, just a variant of the config plugins
@@ -114,7 +112,22 @@ int main(int argc, char** argv){
 	c->init(argc, argv);
     ROFL_INFO("Running\n");
     cportvlan_mapper mapper;
-    
+    for (int i=0; i < cm->no_vports(); i++) {
+        virtual_port vp= cm->get_vport(i);
+        cportvlan_mapper::port_spec_t::PORT rp(vp.get_real_port()+1);
+        if ( vp.get_vlan() == virtual_port::NO_VLAN) {
+            mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(rp),  
+                PV_VLANID_T::NONE  ));
+            
+           // ROFL_INFO("Added vport, real port %d\n",vp.get_real_port());
+        } else {
+            cportvlan_mapper::port_spec_t::VLANID vl(vp.get_vlan());
+            mapper.add_virtual_port( cportvlan_mapper::port_spec_t( PV_PORT_T(rp), 
+               vl));
+            //ROFL_INFO("Added vport, real port %d VLAN %d\n",vp.get_real_port(),
+            //    vp.get_vlan());
+        }
+    }
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
 
