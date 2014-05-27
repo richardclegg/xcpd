@@ -128,6 +128,13 @@ int main(int argc, char** argv){
             //    vp.get_vlan());
         }
     }
+    
+    rofl::csyslog::set_all_debug_levels(rofl::csyslog::DBG);
+
+//	rofl::csyslog::set_all_debug_levels(rofl::csyslog::INFO);
+	rofl::csyslog::set_debug_level("ciosrv", "emergency");
+	rofl::csyslog::set_debug_level("cthread", "emergency");
+    rofl::ciosrv::init();
     ROFL_INFO("Running\n");
     
     bool indpt= cm->is_switch_to_xcpd_conn_active();

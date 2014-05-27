@@ -2,6 +2,7 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/common/utils/c_logger.h>
 #include "xcpd_scope.h"
+#include <iostream>
 
 
 using namespace xdpd;
@@ -151,8 +152,10 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
 		if( mode == XCPD_PASSIVE_MODE){
             active= false;
 			control_manager::Instance()->set_switch_to_xcpd_conn_passive();
+            //std::cout << "Switch passive" << std::endl;
 		} else if(mode == XCPD_ACTIVE_MODE){	
              control_manager::Instance()->set_switch_to_xcpd_conn_active();
+             //std::cout << "Switch active" << std::endl;
         } else if(dry_run) {
             ROFL_WARN("%s: Unable to parse mode.. assuming ACTIVE\n", 
                 setting.getPath().c_str()); 
@@ -161,6 +164,11 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
     }
 
     if (!active) {
+        if (setting.exists(XCPD_BIND_ADDRESS_PORT) ||
+           setting.exists(XCPD_BIND_ADDRESS_IP) ) {
+            ROFL_ERR("bind-address settings ignored in passive mode -- use master-controller\n");
+                throw eConfParseError(); 	
+        }
         //Parse master controller IP if it exists
         if(setting.exists(XCPD_MASTER_CONTROLLER_IP)){
             std::string ip = setting[XCPD_MASTER_CONTROLLER_IP];
@@ -176,12 +184,17 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
                     
             }
             control_manager::Instance()->set_xcpd_port(port);
-            
+            //std::cout << "Setting port to "<< port << std::endl;
         }
     } else {
+        if (setting.exists(XCPD_MASTER_CONTROLLER_PORT) ||
+           setting.exists(XCPD_MASTER_CONTROLLER_IP) ) {
+            ROFL_ERR("master-controller settings ignored in passive mode -- use bind-address\n");
+                throw eConfParseError(); 	
+        }
         if(setting.exists(XCPD_BIND_ADDRESS_IP)){
             std::string addr = setting[XCPD_BIND_ADDRESS_IP];
-            control_manager::Instance()->set_xcpd_ip(addr);
+            control_manager::Instance()->set_switch_ip(addr);
         }
 
         if(setting.exists(XCPD_BIND_ADDRESS_PORT)){
@@ -191,7 +204,8 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
                 throw eConfParseError(); 	
 				
             }
-            control_manager::Instance()->set_xcpd_port(port);
+            control_manager::Instance()->set_switch_port(port);
+            //std::cout << "Setting port to "<< port << std::endl;
         }
     }
     
