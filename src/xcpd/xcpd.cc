@@ -70,6 +70,7 @@ int main(int argc, char** argv){
 	memset(s_dbg, 0, sizeof(s_dbg));
 	snprintf(s_dbg, sizeof(s_dbg)-1, "%d", (int)csyslog::DBG);
 
+
 	{ //Make valgrind happy
 		cunixenv env_parser(argc, argv);
 		
@@ -113,6 +114,8 @@ int main(int argc, char** argv){
     ROFL_INFO("Reading config\n");
 	c->init(argc, argv);
     ROFL_INFO("Running\n");
+    cportvlan_mapper mapper;
+    
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
 
