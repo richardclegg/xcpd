@@ -11,7 +11,6 @@
 #include "cportvlan_mapper.h"
 #include <string>
 
-
 using namespace rofl;
 using namespace xdpd;
 
@@ -136,7 +135,7 @@ int main(int argc, char** argv){
 	rofl::csyslog::set_debug_level("cthread", "emergency");
     rofl::ciosrv::init();
     ROFL_INFO("Running\n");
-    
+    ROFL_DEBUG("Debugging switched on for xcpd.\n");
     bool indpt= cm->is_switch_to_xcpd_conn_active();
     bool inctl=  !cm->is_xcpd_to_control_conn_active();
     caddress dptaddr= cm->get_switch_address();
@@ -146,9 +145,6 @@ int main(int argc, char** argv){
 	std::cout << "Controller connections will be " << (inctl?"PASSIVE at ":"ACTIVE to ") << ctladdr.c_str() << "." << std::endl;
 
     morpheus morph (mapper, indpt, dptaddr, inctl, ctladdr);
-        
-        
-    
     
     ROFL_INFO("Connecting to switch and controller\n");
 	//ciosrv run. Only will stop in Ctrl+C
