@@ -3,7 +3,7 @@
 
 // TODO translation check
 
-morpheus::csh_table_mod::csh_table_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg ):chandlersession_base(parent) {
+morpheus::csh_table_mod::csh_table_mod(morpheus * parent, const int timer_opaque, rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg ):chandlersession_base(parent, timer_opaque) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_table_mod(src, msg);
 	}

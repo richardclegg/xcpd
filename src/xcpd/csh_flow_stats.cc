@@ -1,7 +1,7 @@
 
 #include "csh_flow_stats.h"
 
-morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent) {
+morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, const int timer_opaque, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent, timer_opaque) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_flow_stats_request(src, msg);
 	}

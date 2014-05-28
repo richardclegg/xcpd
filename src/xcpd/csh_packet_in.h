@@ -9,7 +9,7 @@
 
 class morpheus::csh_packet_in : public morpheus::chandlersession_base {
 public:
-csh_packet_in(morpheus * parent, const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg );
+csh_packet_in(morpheus * parent, const int timer_opaque, const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg );
 bool process_packet_in ( const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg );
 ~csh_packet_in();
 std::string asString() const;

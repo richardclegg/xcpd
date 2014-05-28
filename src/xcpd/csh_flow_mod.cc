@@ -6,7 +6,7 @@
 
 #include "csh_flow_mod.h"
 
-morpheus::csh_flow_mod::csh_flow_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent) {
+morpheus::csh_flow_mod::csh_flow_mod(morpheus * parent, const int timer_opaque, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent, timer_opaque) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_flow_mod(src, msg);
 	}

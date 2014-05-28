@@ -1,7 +1,7 @@
 
 #include "csh_set_config.h"
 
-morpheus::csh_set_config::csh_set_config(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_set_config * const msg ):chandlersession_base(parent) {
+morpheus::csh_set_config::csh_set_config(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, const rofl::cofmsg_set_config * const msg ):chandlersession_base(parent, timer_opaque) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_set_config(src, msg);
 	}

@@ -1,7 +1,7 @@
 
 #include "csh_aggregate_stats.h"
 
-morpheus::csh_aggregate_stats::csh_aggregate_stats(morpheus * parent, const rofl::cofctl * const src, rofl::cofmsg_aggr_stats_request * const msg):chandlersession_base(parent) {
+morpheus::csh_aggregate_stats::csh_aggregate_stats(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, rofl::cofmsg_aggr_stats_request * const msg):chandlersession_base(parent, timer_opaque) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_aggr_stats_request(src, msg);
 	}

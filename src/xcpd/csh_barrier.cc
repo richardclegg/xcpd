@@ -1,7 +1,7 @@
 
 #include "csh_barrier.h"
 
-morpheus::csh_barrier::csh_barrier(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_barrier_request * const msg):chandlersession_base(parent) {
+morpheus::csh_barrier::csh_barrier(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, const rofl::cofmsg_barrier_request * const msg):chandlersession_base(parent, timer_opaque) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_barrier_request(src, msg);
 	}

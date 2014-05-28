@@ -1,7 +1,7 @@
 
 #include "csh_table_stats.h"
 
-morpheus::csh_table_stats::csh_table_stats(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_table_stats_request * const msg):chandlersession_base(parent) {
+morpheus::csh_table_stats::csh_table_stats(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, const rofl::cofmsg_table_stats_request * const msg):chandlersession_base(parent, timer_opaque) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_table_stats_request(src, msg);
 	}

@@ -2,7 +2,7 @@
 #include "csh_packet_out.h"
 
 // TODO translation check
-morpheus::csh_packet_out::csh_packet_out(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_packet_out * const msg ):chandlersession_base(parent) {
+morpheus::csh_packet_out::csh_packet_out(morpheus * parent, const int timer_opaque, rofl::cofctl * const src, rofl::cofmsg_packet_out * const msg ):chandlersession_base(parent, timer_opaque) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_packet_out(src, msg);
 	}

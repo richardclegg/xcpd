@@ -33,7 +33,8 @@ protected:
 
 morpheus * m_parent;
 bool m_completed;
-chandlersession_base( morpheus * parent );
+int m_lifetime_timer_opaque;	// this is the opaque value that this session should use to register a timeout timer, or -1 if it isn;t being used (e.g. a session handling a message which doesn't require an ACK or reply)
+chandlersession_base( morpheus * parent, int timer_opaque );
 
 public:
 
@@ -41,6 +42,7 @@ virtual std::string asString() const;
 virtual bool isCompleted();
 virtual void handle_error (rofl::cofdpt *src, rofl::cofmsg *msg);
 virtual void handle_error (rofl::cofctl *src, rofl::cofmsg *msg);
+virtual void handle_timeout (int opaque);
 virtual ~chandlersession_base();
 void push_features(uint32_t new_capabilities, uint32_t new_actions);
 

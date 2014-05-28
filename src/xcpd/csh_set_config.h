@@ -7,7 +7,7 @@
 
 class morpheus::csh_set_config : public morpheus::chandlersession_base {
 public:
-csh_set_config(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_set_config * const msg );
+csh_set_config(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, const rofl::cofmsg_set_config * const msg );
 bool process_set_config ( const rofl::cofctl * const src, const rofl::cofmsg_set_config * const msg );
 ~csh_set_config();
 std::string asString() const;
