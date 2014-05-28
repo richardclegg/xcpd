@@ -4,12 +4,13 @@
 #ifndef HARDWARE_MANAGER_H
 #define HARDWARE_MANAGER_H 
 #include <string>
+#include <vector>
 
 class hardware_manager
 {
     public:
         hardware_manager() {};
         ~hardware_manager() {};
-        virtual void init(std::string) {};
+        virtual void init(std::vector<std::string>) {};
 };
 #endif

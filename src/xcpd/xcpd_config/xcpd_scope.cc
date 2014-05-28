@@ -89,30 +89,32 @@ void xcpd_scope::post_validate(libconfig::Setting& setting, bool dry_run){
         }
         control_manager::Instance()->set_switch_port(port);
     }
-    if (setting.exists(QUEUE_COMMAND_HANDLING)) {
+    if (dry_run && setting.exists(QUEUE_COMMAND_HANDLING)) {
         control_manager::Instance()->set_queue_command_handling
             (parse_command_handling(setting,setting[QUEUE_COMMAND_HANDLING]));
     }
-    if (setting.exists(PORT_STAT_HANDLING)) {
+    if (dry_run && setting.exists(PORT_STAT_HANDLING)) {
         control_manager::Instance()->set_port_stat_handling
             (parse_command_handling(setting,setting[PORT_STAT_HANDLING]));
     }
-    if (setting.exists(PORT_CONFIG_HANDLING)) {
+    if (dry_run && setting.exists(PORT_CONFIG_HANDLING)) {
         control_manager::Instance()->set_port_config_handling
             (parse_command_handling(setting,setting[PORT_CONFIG_HANDLING]));
     }
-    if (setting.exists(HARDWARE_MANAGER)) {
+    if (dry_run && setting.exists(HARDWARE_MANAGER)) {
         parse_hardware_manager(setting,setting[HARDWARE_MANAGER]);
     }
 }
 
 void xcpd_scope::parse_hardware_manager(libconfig::Setting& setting,std::string hm)
 {
-    std::string parms="";
+    std::vector<std::string> parms= std::vector<std::string>();
     if (setting.exists(HARDWARE_PARMS)) {
-        std::string p= setting[HARDWARE_PARMS];
-        parms= p;
-    }
+        for(int i=0; i<setting[HARDWARE_PARMS].getLength(); ++i){
+            std::string s= setting[HARDWARE_PARMS][i];
+            parms.push_back(s);
+        }
+    } 
     if (hm == HARDWARE_PLANET_GEPON) {
         planet_gepon_manager *hwm = new planet_gepon_manager();
         control_manager::Instance()->set_hardware_manager(hwm,parms);

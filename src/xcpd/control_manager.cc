@@ -70,6 +70,9 @@ void control_manager::init()
     switch_to_xcpd_conn= ACTIVE_CONNECTION;
     xcpd_to_control_conn= ACTIVE_CONNECTION;
     ports= std::vector<virtual_port>();
+    queue_command_handling= PASSTHROUGH_COMMAND;
+    port_stat_handling= PASSTHROUGH_COMMAND;
+    port_config_handling= PASSTHROUGH_COMMAND;
     hm= NULL;
 }
 
@@ -253,7 +256,7 @@ hardware_manager *control_manager::get_hardware_manager()
     return hm;
 }
 
-void control_manager::set_hardware_manager(hardware_manager *h,std::string parms)
+void control_manager::set_hardware_manager(hardware_manager *h,std::vector<std::string> parms)
 {
     hm= h;
     h->init(parms);

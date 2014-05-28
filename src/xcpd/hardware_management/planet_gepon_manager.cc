@@ -13,6 +13,7 @@ planet_gepon_manager::planet_gepon_manager()
 planet_gepon_manager::~planet_gepon_manager()
 {
 }
-void planet_gepon_manager::init(std::string parms)
+
+void planet_gepon_manager::init(std::vector<std::string> parms)
 {
 }

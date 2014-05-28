@@ -111,7 +111,7 @@ class control_manager {
         void add_vport(virtual_port);
         virtual_port get_vport(int);
         hardware_manager *get_hardware_manager();
-        void set_hardware_manager(hardware_manager *, std::string);
+        void set_hardware_manager(hardware_manager *, std::vector<std::string>);
         int get_queue_command_handling();
         void set_queue_command_handling(int);
         int get_port_stat_handling();

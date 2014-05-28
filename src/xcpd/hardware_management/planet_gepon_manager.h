@@ -5,7 +5,6 @@
 #ifndef PLANET_GEPON_MANAGER_H
 #define PLANET_GEPON_MANAGER_H 
 
-#include <string>
 #include "hardware_manager.h"
 
 class planet_gepon_manager : public hardware_manager
@@ -13,7 +12,7 @@ class planet_gepon_manager : public hardware_manager
     public:
         planet_gepon_manager();
         ~planet_gepon_manager();
-        void init(std::string);
+        void init(std::vector<std::string>);
 };
 
 #endif
