@@ -4,7 +4,8 @@
 #include <libconfig.h++> 
 #include <rofl/common/caddress.h>
 #include "../../xdpd/management/plugins/config/scope.h"
-#include "../../xdpd/management/plugin_manager.h"
+//#include "../../xdpd/management/plugin_manager.h"
+#include <string>
 
 /**
 * @file xcpd_scope.h 
@@ -22,6 +23,10 @@ public:
 		
 protected:
 	virtual void post_validate(libconfig::Setting& setting, bool dry_run);
+
+private:
+    int parse_command_handling(libconfig::Setting& , std::string);
+    void parse_hardware_manager(libconfig::Setting& , std::string);
 };
 
 }// namespace xdpd 

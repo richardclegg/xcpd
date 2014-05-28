@@ -7,6 +7,7 @@
 #include <rofl/common/crofbase.h>
 #include <vector>
 #include <string>
+#include "hardware_management/hardware_manager.h"
 
 /**
 * @file control_manager.h
@@ -41,9 +42,13 @@ class virtual_port {
 class control_manager {
     
     private:
+        // is a connection passive or active 
         static const int PASSIVE_CONNECTION=1;
         static const int ACTIVE_CONNECTION=2;
+        
+
         static control_manager* cm_instance;
+        hardware_manager *hm;
         caddress switch_addr;
         std::string switch_ip;
         int switch_port;
@@ -61,12 +66,18 @@ class control_manager {
         int switch_to_xcpd_conn;
         int xcpd_to_control_conn;
         std::vector<virtual_port> ports;
+        int queue_command_handling;
+        int port_stat_handling;
+        int port_config_handling;
+
         
     public:
+        // Ways in which we can deal with "problem" commands
+        static const int DROP_COMMAND=1;
+        static const int PASSTHROUGH_COMMAND= 2;
+        static const int HARDWARE_SPECIFIC_COMMAND= 3;
         static control_manager *Instance();
-        
         void init();                 // Initialise singleton
-
         void set_higher_address(caddress &);
         caddress get_higher_address();
         void set_xcpd_address(caddress &);
@@ -96,10 +107,18 @@ class control_manager {
         void set_xcpd_to_control_conn_passive();
         void set_xcpd_to_control_conn_active();        
         bool is_xcpd_to_control_conn_active(); 
-        
         int no_vports();
         void add_vport(virtual_port);
         virtual_port get_vport(int);
+        hardware_manager *get_hardware_manager();
+        void set_hardware_manager(hardware_manager *, std::string);
+        int get_queue_command_handling();
+        void set_queue_command_handling(int);
+        int get_port_stat_handling();
+        void set_port_stat_handling(int);
+        int get_port_config_handling();
+        void set_port_config_handling(int);
+
 };
 
 

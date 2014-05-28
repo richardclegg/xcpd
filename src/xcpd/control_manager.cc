@@ -70,6 +70,7 @@ void control_manager::init()
     switch_to_xcpd_conn= ACTIVE_CONNECTION;
     xcpd_to_control_conn= ACTIVE_CONNECTION;
     ports= std::vector<virtual_port>();
+    hm= NULL;
 }
 
 void control_manager::set_higher_address(caddress &c)
@@ -247,4 +248,43 @@ virtual_port control_manager::get_vport(int p)
     return ports[p];
 }
 
+hardware_manager *control_manager::get_hardware_manager()
+{
+    return hm;
+}
 
+void control_manager::set_hardware_manager(hardware_manager *h,std::string parms)
+{
+    hm= h;
+    h->init(parms);
+}
+
+int control_manager::get_queue_command_handling()
+{
+    return queue_command_handling;
+}
+
+void control_manager::set_queue_command_handling(int h)
+{
+    queue_command_handling= h;
+}
+
+int control_manager::get_port_stat_handling()
+{
+    return port_stat_handling;
+}
+
+void control_manager::set_port_stat_handling(int h) 
+{
+    port_stat_handling= h;
+}
+
+int control_manager::get_port_config_handling()
+{
+    return port_config_handling;
+}
+
+void control_manager::set_port_config_handling(int h)
+{
+    port_config_handling= h;
+}
