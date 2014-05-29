@@ -35,6 +35,7 @@ public:
 	class csh_table_stats;
 	class cport_stats_session;
 	class csh_flow_stats;
+    class csh_port_stats;
 	class csh_aggregate_stats;
 	class cqueue_stats_session;
 	class csh_packet_in;
@@ -155,13 +156,14 @@ void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions
 
 	virtual void handle_desc_stats_request(rofl::cofctl *ctl, rofl::cofmsg_desc_stats_request * msg );
 	virtual void handle_desc_stats_reply(rofl::cofdpt * dpt, rofl::cofmsg_desc_stats_reply * msg );
-	
+
 	virtual void handle_table_stats_request(rofl::cofctl *ctl, rofl::cofmsg_table_stats_request * msg );
 	virtual void handle_table_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_table_stats_reply * msg );
 
 	virtual void handle_set_config(rofl::cofctl *ctl, rofl::cofmsg_set_config * msg );
 
 	virtual void handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port_stats_request * msg );
+    virtual void handle_port_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_port_stats_reply * msg );
 	virtual void handle_flow_stats_request(rofl::cofctl *ctl, rofl::cofmsg_flow_stats_request * msg );
 	virtual void handle_aggregate_stats_request(rofl::cofctl *ctl, rofl::cofmsg_aggr_stats_request * msg );
 	virtual void handle_aggregate_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_aggr_stats_reply * msg );
@@ -241,6 +243,7 @@ friend std::ostream & operator<< (std::ostream & os, const morpheus & morph);
 #include "csh_set_config.h"
 #include "csh_table_mod.h"
 #include "csh_table_stats.h"
+#include "csh_port_stats.h"
 #include "morpheus_nested.h"
 
 #endif // UCL_EE_MORPHEUS_H

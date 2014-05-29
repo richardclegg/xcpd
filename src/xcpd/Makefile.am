@@ -18,6 +18,7 @@ xcpd_SOURCES = xcpd.cc \
 	csh_packet_in.cc \
 	csh_packet_out.cc \
 	csh_port_mod.cc \
+	csh_port_stats.cc \
 	csh_set_config.cc \
 	csh_table_mod.cc \
 	csh_table_stats.cc \

@@ -334,6 +334,17 @@ void morpheus::handle_desc_stats_reply(rofl::cofdpt * src, rofl::cofmsg_desc_sta
 	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_desc_stats_reply, morpheus::csh_desc_stats, process_desc_stats_reply )
 }
 
+void morpheus::handle_port_stats_request(rofl::cofctl *src, rofl::cofmsg_port_stats_request *msg) {
+	static const char * func = __FUNCTION__;
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_port_stats_request, morpheus::csh_port_stats )
+}
+void morpheus::handle_port_stats_reply(rofl::cofdpt * src, rofl::cofmsg_port_stats_reply * msg) {
+	static const char * func = __FUNCTION__;
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_port_stats_reply, morpheus::csh_port_stats, process_port_stats_reply )
+}
+
+
+
 void morpheus::handle_set_config(rofl::cofctl *src, rofl::cofmsg_set_config *msg) {
 	static const char * func = __FUNCTION__;
 	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::csh_set_config)
@@ -382,11 +393,6 @@ void morpheus::handle_barrier_reply ( rofl::cofdpt * src, rofl::cofmsg_barrier_r
 	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_barrier_reply, morpheus::csh_barrier, process_barrier_reply )
 }
 
-void morpheus::handle_port_stats_request(rofl::cofctl *src, rofl::cofmsg_port_stats_request *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
-	delete(msg);
-}
 void morpheus::handle_flow_stats_request(rofl::cofctl *src, rofl::cofmsg_flow_stats_request *msg) {
 // see ./examples/etherswitch/etherswitch.cc:95
 	static const char * func = __FUNCTION__;
