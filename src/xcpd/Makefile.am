@@ -32,4 +32,3 @@ xcpd_LDADD = \
 	-lpthread \
 	-lrofl \
 	-ldl
-
