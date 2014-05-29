@@ -1,5 +1,6 @@
 
 #include "csh_barrier.h"
+#include <rofl/common/utils/c_logger.h>
 
 morpheus::csh_barrier::csh_barrier(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_barrier_request * const msg):chandlersession_base(parent) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
@@ -20,6 +21,12 @@ bool morpheus::csh_barrier::process_barrier_reply ( const rofl::cofdpt * const s
 	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	m_parent->send_barrier_reply(m_parent->get_ctl(), m_request_xid );
+	m_completed = true;
+	return m_completed;
+}
+
+bool morpheus::csh_barrier::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
 	m_completed = true;
 	return m_completed;
 }

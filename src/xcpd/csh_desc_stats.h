@@ -14,6 +14,7 @@ public:
 csh_desc_stats(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_desc_stats_request * const msg);
 bool process_desc_stats_request ( const rofl::cofctl * const src, const rofl::cofmsg_desc_stats_request * const msg );
 bool process_desc_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_desc_stats_reply * const msg );
+bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
 ~csh_desc_stats();
 std::string asString() const;
 

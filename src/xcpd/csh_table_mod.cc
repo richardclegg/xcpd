@@ -1,5 +1,6 @@
 
 #include "csh_table_mod.h"
+#include <rofl/common/utils/c_logger.h>
 
 // TODO translation check
 
@@ -11,6 +12,12 @@ morpheus::csh_table_mod::csh_table_mod(morpheus * parent, rofl::cofctl * const s
 bool morpheus::csh_table_mod::process_table_mod ( rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	m_parent->send_table_mod_message( m_parent->get_dpt(), msg->get_table_id(), msg->get_config() );
+	m_completed = true;
+	return m_completed;
+}
+
+bool morpheus::csh_table_mod::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
 	m_completed = true;
 	return m_completed;
 }

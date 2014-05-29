@@ -135,10 +135,19 @@ flowentry_db_t m_flowentry_db;
 bool indpt, inctl;
 rofl::caddress dptaddr, ctladdr;
 
+const int m_crof_timer_opaque_offset;	// the minimum opaque value for the session timeout timers, so supplied to register_timer
+const int m_crof_timer_opaque_max;	// the largest number above offset for the opaque values - this will also be the largest size of m_session_timeout_timers
+int m_last_crof_timer_opaque;
+unsigned int max_session_lifetime;	// the maximum time, in seconds, that a session can live. If the 
+std::vector <class chandlersession_base *> m_session_timers;	// a vector containing pointers to active sessions. The index is the the opaque value passed to register_timer less m_crof_timer_opaque_offset
+mutable pthread_rwlock_t m_session_timers_lock;	// a lock for m_session_timers
+
 void init_dpe();
 
 // uint32_t set_supported_actions (uint32_t new_actions);
 void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions);
+
+//int register_session_timer(unsigned seconds);	// returns the opaque value for the new timer
 
 // crofbase overrides
 	virtual void handle_dpath_open (rofl::cofdpt *);
@@ -147,12 +156,10 @@ void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions
 	virtual void handle_ctrl_close (rofl::cofctl *);
 	virtual void handle_features_request(rofl::cofctl *ctl, rofl::cofmsg_features_request * msg );
 	virtual void handle_features_reply(rofl::cofdpt * dpt, rofl::cofmsg_features_reply * msg );
-	virtual void handle_error (rofl::cofdpt *, rofl::cofmsg *msg);
+//	virtual void handle_error (rofl::cofdpt *, rofl::cofmsg *msg);
 	virtual void handle_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_get_config_request * msg );
 	virtual void handle_get_config_reply(rofl::cofdpt * dpt, rofl::cofmsg_get_config_reply * msg );
 	
-	
-
 	virtual void handle_desc_stats_request(rofl::cofctl *ctl, rofl::cofmsg_desc_stats_request * msg );
 	virtual void handle_desc_stats_reply(rofl::cofdpt * dpt, rofl::cofmsg_desc_stats_reply * msg );
 	
@@ -216,6 +223,9 @@ public:
 	bool addFlowentryTranslation ( const morpheus::flowentry & untranslated, const morpheus::flowentry & translated );
 	bool removeFlowentryTranslation ( const morpheus::flowentry & untranslated );
 
+// void register_session_timer(int opaque, morpheus::chandlersession_base *, unsigned seconds);
+int register_session_timer(morpheus::chandlersession_base *, unsigned seconds);
+void cancel_session_timer(int opaque);
 
 uint32_t get_supported_actions();
 uint32_t get_supported_features() { return m_supported_features; }

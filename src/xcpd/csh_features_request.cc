@@ -4,7 +4,7 @@
 #include <rofl/common/openflow/openflow10.h>
 #include <rofl/common/cerror.h>
 #include <rofl/common/openflow/cofaction.h>
-
+#include <rofl/common/utils/c_logger.h>
 
 morpheus::csh_features_request::csh_features_request(morpheus * parent):chandlersession_base(parent),m_local_request(true) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
@@ -73,6 +73,12 @@ bool morpheus::csh_features_request::process_features_reply ( const rofl::cofdpt
 		m_parent->send_features_reply(m_parent->get_ctl(), m_request_xid, dpid, msg->get_n_buffers(), msg->get_n_tables(), capabilities, 0, of10_actions_bitmap, virtualportlist );	// TODO get_action_bitmap is OF1.0 only
 		m_completed = true;
 	}
+	return m_completed;
+}
+
+bool morpheus::csh_features_request::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
+	m_completed = true;
 	return m_completed;
 }
 

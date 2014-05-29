@@ -21,6 +21,8 @@
  * There should be a database of match structs that were received as part of a flow mod, and their translated counter-parts so they could be quickly looked up and swapped back
  * During a packet-in - what to do with the buffer-id? Because we've sent a packet fragment up in the message, but the switch's buffer has a different version of the packet => should be ok, as switch won't be making changes to stored packet and will forward when asked.
  * in Flow-mod - if the incoming virtual port is actually untagged should we set this in match? Can;t really do that in cofmatch (no access to vid_mask). Should we include a vlan_strip action always anyway?
+ * 
+ * add morpheus::register_session_timer and morpheus::cancel_session_timer so that session handlers can create and respond to their own timing events
  */
 
 // class morpheus;
@@ -33,16 +35,18 @@ protected:
 
 morpheus * m_parent;
 bool m_completed;
+int m_lifetime_timer_opaque;	// this is the opaque value that this session should use to register a timeout timer, or -1 if it isn;t being used (e.g. a session handling a message which doesn't require an ACK or reply)
 chandlersession_base( morpheus * parent );
 
 public:
 
 virtual std::string asString() const;
 virtual bool isCompleted();
-virtual void handle_error (rofl::cofdpt *src, rofl::cofmsg *msg);
-virtual void handle_error (rofl::cofctl *src, rofl::cofmsg *msg);
+virtual bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);	// returns whether this session has completed
+virtual void handle_timeout (int opaque);
 virtual ~chandlersession_base();
 void push_features(uint32_t new_capabilities, uint32_t new_actions);
+virtual void setLifetimeTimerOpaque( int timer_opaque );
 
 };
 

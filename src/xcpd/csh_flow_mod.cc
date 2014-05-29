@@ -3,6 +3,7 @@
 #include <rofl/common/openflow/openflow10.h>
 #include <rofl/common/cerror.h>
 #include <rofl/common/openflow/cofaction.h>
+#include <rofl/common/utils/c_logger.h>
 
 #include "csh_flow_mod.h"
 
@@ -211,6 +212,12 @@ std::cout << "TP" << __LINE__ << std::endl;
 	std::cout << ", match: " << entry.match.c_str();
 	std::cout << ", actions: " << entry.actions.c_str() << " }" << std::endl;
 	m_parent->send_flow_mod_message( m_parent->get_dpt(), entry );
+	m_completed = true;
+	return m_completed;
+}
+
+bool morpheus::csh_flow_mod::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
 	m_completed = true;
 	return m_completed;
 }
