@@ -121,9 +121,9 @@ void morpheus::set_supported_dpe_features (uint32_t new_capabilities, uint32_t n
 uint32_t morpheus::get_supported_actions() {
 	if(!m_dpe_supported_actions_valid) {	// for when get_supported_actions is called before set_supported_features
 		// we have no information on supported actions from the DPE, so we're going to have to ask ourselves.
-		int timeout_opaque_value = 0;
-		{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); timeout_opaque_value = register_session_timer(max_session_lifetime); }
-		std::auto_ptr < morpheus::csh_features_request > s ( new morpheus::csh_features_request ( this, timeout_opaque_value ) );
+//		{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); timeout_opaque_value = register_session_timer(max_session_lifetime); }
+		std::auto_ptr < morpheus::csh_features_request > s ( new morpheus::csh_features_request ( this ) );
+		{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); register_session_timer(s.get(), max_session_lifetime); }
 		std::cout << __FUNCTION__ << ": sent request for features. Waiting..";
 		unsigned wait_time = 5;
 		while(wait_time && !s->isCompleted()) {
@@ -219,11 +219,10 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	std::cout << " Following new DPE connection, sending features request.." << std::endl;
 
 	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
-	int timeout_opaque_value = 0;
-	{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); timeout_opaque_value = register_session_timer(max_session_lifetime); }
-	morpheus::csh_features_request * s = new morpheus::csh_features_request ( this, timeout_opaque_value );	// this isn;t a memory leak - the object was registered with the xid database
+//	int timeout_opaque_value = 0;
+	morpheus::csh_features_request * s = new morpheus::csh_features_request ( this );	// this isn;t a memory leak - the object was registered with the xid database
 	if(!s) std::cout << "Dummy message to prevent above line being optimised out." << std::endl;
-
+	{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); register_session_timer( s, max_session_lifetime); }
 	if(!m_master){
 		if(inctl) rpc_listen_for_ctls(ctladdr);
 		else rpc_connect_to_ctl(PROXYOFPVERSION,5,ctladdr);
@@ -251,21 +250,27 @@ void morpheus::cancel_session_timer(int opaque) {
 }
 */
 
-int morpheus::register_session_timer(unsigned seconds) {
+int morpheus::register_session_timer(morpheus::chandlersession_base * s, unsigned seconds) {
+// int morpheus::register_session_timer(unsigned seconds) {
 	int opaque = m_last_crof_timer_opaque - m_crof_timer_opaque_offset;
 	int off;
 	for(off = 0; off < m_crof_timer_opaque_max; ++off) {
 		if(!m_session_timers[(opaque+off)%m_crof_timer_opaque_max]) { opaque += off; break; }	// found a null entry - it can be our next opaque
 	}
 	if(off==m_crof_timer_opaque_max) throw std::range_error("Ran out of session timer opaque values.");
-	opaque += m_crof_timer_opaque_offset;
+	opaque += (off+m_crof_timer_opaque_offset);
+	m_session_timers[opaque] = s;
 	register_timer(opaque, seconds);
+	s->setLifetimeTimerOpaque(opaque);
+	std::cout << "Just registered session " << std::hex << s << " with opaque " << std::hex << opaque << std::endl;
 	m_last_crof_timer_opaque = opaque;
 	return opaque;
 }
 
 void morpheus::handle_timeout ( int opaque ) {
 	std::cout << "****" << __FUNCTION__ << " called with opaque = " << opaque << std::endl;
+	
+	// TODO make sure to remove *all* instances of the pointer to the session from the m_session_timers array (scan for value in array, swap with 0, delete whats pointed to by array
 }
 /*
 void morpheus::handle_error ( rofl::cofdpt * src, rofl::cofmsg_error * msg ) {
@@ -290,9 +295,8 @@ void morpheus::handle_error ( rofl::cofdpt * src, rofl::cofmsg_error * msg ) {
 		std::cout << func << ": Duplicate ctl xid (" << msg->get_xid() << ") found. Dropping new "<< TOSTRING(MSG_TYPE) << " message." << std::endl; \
 		} else { \
 		try { \
-			int timeout_opaque_value = 0; \
-			{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); timeout_opaque_value = register_session_timer(max_session_lifetime); } \
-			std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, timeout_opaque_value, src, msg ) ); \
+			std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
+			{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); register_session_timer(s.get(), max_session_lifetime); } \
 			if(!s->isCompleted()) s.release(); \
 		} catch(rofl::cerror &e) { std::cout << "unhandled rofl::cerror: " << e.desc << std::endl; assert(false); } \
 		catch (...) { std::cout << "unhandled exception"; assert(false); } \
@@ -330,9 +334,8 @@ void morpheus::handle_error ( rofl::cofdpt * src, rofl::cofmsg_error * msg ) {
 		std::cout << func << ": Duplicate xid (" << msg->get_xid() << ") found. Dropping new message." << std::endl;\
 		} else {\
 		try { \
-			int timeout_opaque_value = 0; \
-			{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); timeout_opaque_value = register_session_timer(max_session_lifetime); } \
-			std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, timeout_opaque_value, src, msg ) ); \
+			std::auto_ptr < SESSION_TYPE > s ( new SESSION_TYPE ( this, src, msg ) ); \
+			{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); register_session_timer(s.get(), max_session_lifetime); } \
 			if(s->isCompleted()) { remove_session(s.get()); } \
 			else { /* s.release(); */ std::cout << func << " failed to complete session!" << std::endl; assert(false); } \
 		 } catch(rofl::cerror &e) { std::cout << "unhandled rofl::cerror: " << e.desc << std::endl; assert(false); } \

@@ -11,9 +11,10 @@ protected:
 uint32_t m_request_xid;
 
 public:
-csh_barrier(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, const rofl::cofmsg_barrier_request * const msg);
+csh_barrier(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_barrier_request * const msg);
 bool process_barrier_request ( const rofl::cofctl * const src, const rofl::cofmsg_barrier_request * const msg );
 bool process_barrier_reply ( const rofl::cofdpt * const src, rofl::cofmsg_barrier_reply * const msg );
+bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
 ~csh_barrier();
 std::string asString() const;
 

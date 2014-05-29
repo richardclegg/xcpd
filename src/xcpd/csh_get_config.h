@@ -15,9 +15,10 @@ uint32_t m_request_xid;
 
 public:
 
-csh_get_config(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, const rofl::cofmsg_get_config_request * const msg);
+csh_get_config(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_get_config_request * const msg);
 bool process_config_request ( const rofl::cofctl * const src, const rofl::cofmsg_get_config_request * const msg );
 bool process_config_reply ( const rofl::cofdpt * const src, rofl::cofmsg_get_config_reply * const msg );
+bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
 ~csh_get_config();
 std::string asString() const;
 

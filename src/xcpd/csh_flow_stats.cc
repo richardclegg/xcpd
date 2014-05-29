@@ -1,7 +1,8 @@
 
 #include "csh_flow_stats.h"
+#include <rofl/common/utils/c_logger.h>
 
-morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, const int timer_opaque, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent, timer_opaque) {
+morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_flow_stats_request(src, msg);
 	}
@@ -66,6 +67,12 @@ bool morpheus::csh_flow_stats::process_flow_stats_reply ( rofl::cofdpt * const s
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	rofl::cofdesc_stats_reply reply(src->get_version(),"morpheus_mfr_desc","morpheus_hw_desc","morpheus_sw_desc","morpheus_serial_num","morpheus_dp_desc");
 	m_parent->send_desc_stats_reply(m_parent->get_ctl(), m_request_xid, reply, false );
+	m_completed = true;
+	return m_completed;
+}
+
+bool morpheus::csh_flow_stats::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
 	m_completed = true;
 	return m_completed;
 }

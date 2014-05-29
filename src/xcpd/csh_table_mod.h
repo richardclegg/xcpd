@@ -11,8 +11,9 @@
 // TODO translation check
 class morpheus::csh_table_mod : public morpheus::chandlersession_base {
 public:
-csh_table_mod(morpheus * parent, const int timer_opaque, rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg );
+csh_table_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg );
 bool process_table_mod ( rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg );
+bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
 ~csh_table_mod();
 std::string asString() const;
 };

@@ -2,7 +2,7 @@
 #include "csh_port_mod.h"
 
 // TODO translation check
-morpheus::csh_port_mod::csh_port_mod(morpheus * parent, const int timer_opaque, rofl::cofctl * const src, rofl::cofmsg_port_mod * const msg ):chandlersession_base(parent, timer_opaque) {
+morpheus::csh_port_mod::csh_port_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_port_mod * const msg ):chandlersession_base(parent) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_port_mod(src, msg);
 	}

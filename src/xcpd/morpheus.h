@@ -147,7 +147,7 @@ void init_dpe();
 // uint32_t set_supported_actions (uint32_t new_actions);
 void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions);
 
-int register_session_timer(unsigned seconds);	// returns the opaque value for the new timer
+//int register_session_timer(unsigned seconds);	// returns the opaque value for the new timer
 
 // crofbase overrides
 	virtual void handle_dpath_open (rofl::cofdpt *);
@@ -160,8 +160,6 @@ int register_session_timer(unsigned seconds);	// returns the opaque value for th
 	virtual void handle_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_get_config_request * msg );
 	virtual void handle_get_config_reply(rofl::cofdpt * dpt, rofl::cofmsg_get_config_reply * msg );
 	
-	
-
 	virtual void handle_desc_stats_request(rofl::cofctl *ctl, rofl::cofmsg_desc_stats_request * msg );
 	virtual void handle_desc_stats_reply(rofl::cofdpt * dpt, rofl::cofmsg_desc_stats_reply * msg );
 	
@@ -225,8 +223,9 @@ public:
 	bool addFlowentryTranslation ( const morpheus::flowentry & untranslated, const morpheus::flowentry & translated );
 	bool removeFlowentryTranslation ( const morpheus::flowentry & untranslated );
 
-//	void register_session_timer(int opaque, unsigned seconds);
-//	void cancel_session_timer(int opaque);
+// void register_session_timer(int opaque, morpheus::chandlersession_base *, unsigned seconds);
+int register_session_timer(morpheus::chandlersession_base *, unsigned seconds);
+void cancel_session_timer(int opaque);
 
 uint32_t get_supported_actions();
 uint32_t get_supported_features() { return m_supported_features; }

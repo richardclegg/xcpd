@@ -4,16 +4,16 @@
 #include <rofl/common/openflow/openflow10.h>
 #include <rofl/common/cerror.h>
 #include <rofl/common/openflow/cofaction.h>
+#include <rofl/common/utils/c_logger.h>
 
-
-morpheus::csh_features_request::csh_features_request(morpheus * parent, const int timer_opaque ):chandlersession_base(parent, timer_opaque),m_local_request(true) {
+morpheus::csh_features_request::csh_features_request(morpheus * parent):chandlersession_base(parent),m_local_request(true) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	uint32_t newxid = m_parent->send_features_request( m_parent->get_dpt() );
 	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
 	m_completed = false;
 	}
 
-morpheus::csh_features_request::csh_features_request(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, const rofl::cofmsg_features_request * const msg):chandlersession_base(parent, timer_opaque ),m_local_request(false) {
+morpheus::csh_features_request::csh_features_request(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_features_request * const msg):chandlersession_base(parent),m_local_request(false) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_features_request(src, msg);
 	}
@@ -73,6 +73,12 @@ bool morpheus::csh_features_request::process_features_reply ( const rofl::cofdpt
 		m_parent->send_features_reply(m_parent->get_ctl(), m_request_xid, dpid, msg->get_n_buffers(), msg->get_n_tables(), capabilities, 0, of10_actions_bitmap, virtualportlist );	// TODO get_action_bitmap is OF1.0 only
 		m_completed = true;
 	}
+	return m_completed;
+}
+
+bool morpheus::csh_features_request::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
+	m_completed = true;
 	return m_completed;
 }
 

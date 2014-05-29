@@ -1,7 +1,8 @@
 
 #include "csh_aggregate_stats.h"
+#include <rofl/common/utils/c_logger.h>
 
-morpheus::csh_aggregate_stats::csh_aggregate_stats(morpheus * parent, const int timer_opaque, const rofl::cofctl * const src, rofl::cofmsg_aggr_stats_request * const msg):chandlersession_base(parent, timer_opaque) {
+morpheus::csh_aggregate_stats::csh_aggregate_stats(morpheus * parent, const rofl::cofctl * const src, rofl::cofmsg_aggr_stats_request * const msg):chandlersession_base(parent) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_aggr_stats_request(src, msg);
 	}
@@ -22,6 +23,12 @@ bool morpheus::csh_aggregate_stats::process_aggr_stats_reply ( rofl::cofdpt * co
 	assert(!m_completed);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	m_parent->send_aggr_stats_reply(m_parent->get_ctl(), m_request_xid, msg->get_aggr_stats(), false ); // TODO how to deal with "more" flag (last arg)
+	m_completed = true;
+	return m_completed;
+}
+
+bool morpheus::csh_aggregate_stats::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
 	m_completed = true;
 	return m_completed;
 }

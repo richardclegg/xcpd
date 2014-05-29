@@ -1,7 +1,8 @@
 
 #include "csh_packet_in.h"
+#include <rofl/common/utils/c_logger.h>
 
-morpheus::csh_packet_in::csh_packet_in(morpheus * parent, const int timer_opaque, const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg ):chandlersession_base(parent, timer_opaque) {
+morpheus::csh_packet_in::csh_packet_in(morpheus * parent, const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg ):chandlersession_base(parent) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_packet_in(src, msg);
 	}
@@ -74,6 +75,12 @@ std::cout << "TP" << __LINE__ << std::endl;
 	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, vport.first, match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
 //	m_parent->send_packet_in_message(master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
 	std::cout << __FUNCTION__ << " : packet_in forwarded to " << master->c_str() << "." << std::endl;
+	m_completed = true;
+	return m_completed;
+}
+
+bool morpheus::csh_packet_in::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
 	m_completed = true;
 	return m_completed;
 }
