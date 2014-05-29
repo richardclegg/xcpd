@@ -5,7 +5,7 @@ SUBDIRS= xcpd_config hardware_management
 #Main program
 sbin_PROGRAMS = xcpd 
 xcpd_SOURCES = xcpd.cc \
-	control_manager.cc \ 
+	control_manager.cc \
 	cportvlan_mapper.cc \
 	cportvlan_messagetranslator.cc \
 	csh_aggregate_stats.cc \
