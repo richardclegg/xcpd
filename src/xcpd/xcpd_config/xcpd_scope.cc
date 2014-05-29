@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "../control_manager.h"
-#include "../hardware_management/planet_gepon_manager.h"
+#include "../hardware_management/hardware_manager.h"
 
 using namespace xdpd;
 using namespace rofl;

@@ -28,7 +28,7 @@ xcpd_LDADD = \
 	xcpd_config/libxdpd_xcpd_cfg.la\
 	../xdpd/management/plugins/config/libxdpd_mgmt_config.la \
 	../xdpd/management/libxdpd_mgmt.la \
-	../xcpd/hardware_management/libxcpd_hardware.la
+	hardware_management/libxcpd_hardware.la \
 	-lpthread \
 	-lrofl \
 	-ldl

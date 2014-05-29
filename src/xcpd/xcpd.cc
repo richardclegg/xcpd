@@ -141,9 +141,11 @@ int main(int argc, char** argv){
     caddress dptaddr= cm->get_switch_address();
     caddress ctladdr= cm->get_higher_address();
     
-    std::cout << "DPE connections will be " << (indpt?"PASSIVE at ":"ACTIVE to ") << dptaddr.c_str() << "." << std::endl;
-	std::cout << "Controller connections will be " << (inctl?"PASSIVE at ":"ACTIVE to ") << ctladdr.c_str() << "." << std::endl;
-
+    ROFL_DEBUG("Controller connections will be %s %s\n ", 
+    (inctl?"PASSIVE at ":"ACTIVE to "), ctladdr.c_str());
+    ROFL_DEBUG("DPE connections will be %s %s\n", 
+        (indpt?"PASSIVE at ":"ACTIVE to "),  dptaddr.c_str());
+    
     morpheus morph (mapper, indpt, dptaddr, inctl, ctladdr);
     
     ROFL_INFO("Connecting to switch and controller\n");

@@ -15,6 +15,8 @@
 *
 * @brief Manages control path daemon parameters
 * Singleton contains configuration information
+* Accesses look like this
+* control_manager.Instance()->get_higher_address();
 */
 
 using namespace rofl;
