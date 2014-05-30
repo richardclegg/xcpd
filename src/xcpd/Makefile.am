@@ -23,7 +23,8 @@ xcpd_SOURCES = xcpd.cc \
 	csh_table_mod.cc \
 	csh_table_stats.cc \
 	morpheus.cc \
-	morpheus_nested.cc
+	morpheus_nested.cc \
+	flow_entry_translate.cc
 	
 xcpd_LDADD = \
 	xcpd_config/libxdpd_xcpd_cfg.la\

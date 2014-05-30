@@ -144,6 +144,7 @@ morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const ro
 	// TODO validate actual ports in port map against interrogated ports from DPE? if actual ports aren't available then from the interface as adminisrtatively down?
 	pthread_rwlock_init(&m_sessions_lock, 0);
 	init_dpe();
+    fet= flow_entry_translate();
 }
 
 morpheus::~morpheus() {
