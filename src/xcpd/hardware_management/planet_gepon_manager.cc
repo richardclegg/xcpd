@@ -30,3 +30,12 @@ bool planet_gepon_manager::process_port_mod
          __PRETTY_FUNCTION__);
     throw rofl::eInval();
 }
+
+bool planet_gepon_manager::process_port_stats_request 
+    ( rofl::cofctl * const ctl, 
+            rofl::cofmsg_port_stats_request * const msg)
+{
+    ROFL_ERR("Process_port_stats_request not written for planet GEPON %s\n",
+         __PRETTY_FUNCTION__);
+    throw rofl::eInval();
+}

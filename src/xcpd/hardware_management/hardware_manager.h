@@ -17,8 +17,10 @@ class hardware_manager
 {
     public:
         virtual void init(std::vector<std::string>)= 0;
-        virtual bool process_port_mod ( rofl::cofctl * const ctl, 
-            rofl::cofmsg_port_mod * const msg)= 0;
+        virtual bool process_port_mod ( rofl::cofctl * const , 
+            rofl::cofmsg_port_mod * const)= 0;
+        virtual bool process_port_stats_request( rofl::cofctl * const, 
+            rofl::cofmsg_port_stats_request * const)= 0;
 };
 
 class planet_gepon_manager : public hardware_manager
@@ -29,6 +31,8 @@ class planet_gepon_manager : public hardware_manager
         void init(std::vector<std::string>);
         bool process_port_mod ( rofl::cofctl * const ctl, 
             rofl::cofmsg_port_mod * const msg);
+        bool process_port_stats_request( rofl::cofctl * const, 
+            rofl::cofmsg_port_stats_request * const);
 };
 
 #endif
