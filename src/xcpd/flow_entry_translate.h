@@ -3,21 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <rofl/common/openflow/cflowentry.h>
-#include <map>
+#include <vector>
 
 using namespace rofl;
 
-class compare_fe {
-    public:
-      bool operator()(const cflowentry &, const cflowentry &);
-};
 
 class flow_entry_translate {
     
     private:
-        std::map < cflowentry , cflowentry ,compare_fe> translate;
-        std::map < cflowentry ,  cflowentry ,compare_fe> untranslate;
-        
+        std::vector < cflowentry> translate;
+        std::vector < cflowentry> untranslate;
+        bool match_fe (cflowentry &, cflowentry &);
     public:
         flow_entry_translate();
         ~flow_entry_translate() {};
