@@ -4,6 +4,7 @@
 
 #include <rofl/common/openflow/cflowentry.h>
 #include <vector>
+#include <cportvlan_mapper.h>
 
 using namespace rofl;
 
@@ -11,6 +12,7 @@ using namespace rofl;
 class flow_entry_translate {
     
     private:
+        cportvlan_mapper mapper;
         std::vector < cflowentry> translate;
         std::vector < cflowentry> untranslate;
         bool match_fe (cflowentry &, cflowentry &);

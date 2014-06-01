@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "flow_entry_translate.h"
+#include <rofl/common/cerror.h>
+#include <rofl/common/utils/c_logger.h>
+
 
 bool flow_entry_translate::match_fe(cflowentry &f1, cflowentry &f2)
 {
@@ -44,13 +47,20 @@ void flow_entry_translate::add_flow_entry( cflowentry &fe) {
 }
 
 void flow_entry_translate::del_flow_entry(cflowentry &fe) {
-    
-    for (unsigned int i= 0; i < translate.size(); i++) {
+    unsigned int i;
+    for (i= 0; i < translate.size(); i++) {
         if (match_fe(translate[i],fe)) {
-            std::cout << "match";
+            break;
         }
     }
-    
+    if (i == translate.size()) {
+        ROFL_ERR
+        ("Unable to find translation match for flow entry %s in %s\n", 
+        fe.c_str(),__PRETTY_FUNCTION__);
+        throw rofl::eInval();
+    }
+    translate.erase (translate.begin()+i);
+    untranslate.erase (untranslate.begin()+i);
 }
 
 cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
@@ -58,5 +68,13 @@ cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 }
 
 cflowentry flow_entry_translate::untrans_flow_entry(cflowentry &fe) {
-    return fe;
+    for (unsigned int i= 0; i < translate.size(); i++) {
+        if (match_fe(translate[i],fe)) {
+            return untranslate[i];
+        }
+    }
+    ROFL_ERR
+    ("Unable to find translation match for flow entry %s in %s\n", 
+        fe.c_str(),__PRETTY_FUNCTION__);
+    throw rofl::eInval();
 }
