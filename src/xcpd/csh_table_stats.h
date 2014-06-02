@@ -9,7 +9,7 @@
 class morpheus::csh_table_stats : public morpheus::chandlersession_base {
 	
 protected:
-uint32_t m_request_xid;
+// uint32_t m_request_xid;
 
 public:
 csh_table_stats(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_table_stats_request * const msg);

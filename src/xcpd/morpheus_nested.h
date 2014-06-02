@@ -35,8 +35,9 @@ protected:
 
 morpheus * m_parent;
 bool m_completed;
-int m_lifetime_timer_opaque;	// this is the opaque value that this session should use to register a timeout timer, or -1 if it isn;t being used (e.g. a session handling a message which doesn't require an ACK or reply)
-chandlersession_base( morpheus * parent );
+int m_lifetime_timer_opaque;	// this is lifetime timer associated with this session, or -1 if it isn't being used (e.g. a session handling a message which doesn't require an ACK or reply)
+const uint32_t m_request_xid;
+chandlersession_base( morpheus * parent, uint32_t xid );
 
 public:
 
@@ -47,6 +48,8 @@ virtual void handle_timeout (int opaque);
 virtual ~chandlersession_base();
 void push_features(uint32_t new_capabilities, uint32_t new_actions);
 virtual void setLifetimeTimerOpaque( int timer_opaque );
+virtual int getLifetimeTimerOpaque() const;
+virtual uint32_t getOriginalXID() const;
 
 };
 

@@ -2,17 +2,18 @@
 #include "csh_desc_stats.h"
 #include <rofl/common/utils/c_logger.h>
 
-morpheus::csh_desc_stats::csh_desc_stats(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_desc_stats_request * const msg):chandlersession_base(parent) {
+morpheus::csh_desc_stats::csh_desc_stats(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_desc_stats_request * const msg):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_desc_stats_request(src, msg);
 	}
 
 bool morpheus::csh_desc_stats::process_desc_stats_request ( const rofl::cofctl * const src, const rofl::cofmsg_desc_stats_request * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	m_request_xid = msg->get_xid();
+//	m_request_xid = msg->get_xid();
 	uint32_t newxid = m_parent->send_desc_stats_request(m_parent->get_dpt(), msg->get_stats_flags());
-	if( ! m_parent->associate_xid( true, m_request_xid, this ) ) std::cout << "Problem associating ctl xid in " << __FUNCTION__ << std::endl;
-	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
+//	if( ! m_parent->associate_xid( true, m_request_xid, this ) ) std::cout << "Problem associating ctl xid in " << __FUNCTION__ << std::endl;
+//	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
+	if( ! m_parent->associate_xid( m_request_xid, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
 	m_completed = false;
 	return m_completed;
 }

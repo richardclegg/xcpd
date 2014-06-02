@@ -8,7 +8,7 @@
 class morpheus::csh_flow_stats : public morpheus::chandlersession_base {
 
 protected:
-uint32_t m_request_xid;
+// uint32_t m_request_xid;
 
 public:
 csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg);

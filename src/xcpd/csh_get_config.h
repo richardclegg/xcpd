@@ -11,7 +11,7 @@
 class morpheus::csh_get_config : public morpheus::chandlersession_base {
 
 protected:
-uint32_t m_request_xid;
+// uint32_t m_request_xid;
 
 public:
 

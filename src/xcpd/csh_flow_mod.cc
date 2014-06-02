@@ -7,7 +7,7 @@
 
 #include "csh_flow_mod.h"
 
-morpheus::csh_flow_mod::csh_flow_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent) {
+morpheus::csh_flow_mod::csh_flow_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_flow_mod(src, msg);
 	}
@@ -225,5 +225,6 @@ bool morpheus::csh_flow_mod::handle_error (rofl::cofdpt *src, rofl::cofmsg_error
 morpheus::csh_flow_mod::~csh_flow_mod() { std::cout << __FUNCTION__ << " called." << std::endl; }
 
 
-std::string morpheus::csh_flow_mod::asString() const { return "csh_flow_mod {no xid}"; }
+// std::string morpheus::csh_flow_mod::asString() const { return "csh_flow_mod {no xid}"; }
+std::string morpheus::csh_flow_mod::asString() const { std::stringstream ss; ss << "csh_flow_mod {request_xid=" << m_request_xid << "}"; return ss.str(); }
 

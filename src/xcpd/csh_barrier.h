@@ -8,7 +8,7 @@
 class morpheus::csh_barrier : public morpheus::chandlersession_base {
 
 protected:
-uint32_t m_request_xid;
+// uint32_t m_request_xid;
 
 public:
 csh_barrier(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_barrier_request * const msg);

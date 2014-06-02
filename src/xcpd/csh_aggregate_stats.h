@@ -12,7 +12,7 @@
 class morpheus::csh_aggregate_stats : public morpheus::chandlersession_base {
 
 protected:
-uint32_t m_request_xid;
+// uint32_t m_request_xid;
 
 public:
 csh_aggregate_stats(morpheus * parent, const rofl::cofctl * const src, rofl::cofmsg_aggr_stats_request * const msg);

@@ -13,7 +13,7 @@ class morpheus::csh_features_request : public morpheus::chandlersession_base {
 
 protected:
 
-uint32_t m_request_xid;
+// uint32_t m_request_xid;
 bool m_local_request;	// if true then this request originated from morpheus and not as the result of a translated request from a controller
 
 public:

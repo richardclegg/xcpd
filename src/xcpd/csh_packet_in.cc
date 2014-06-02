@@ -2,7 +2,7 @@
 #include "csh_packet_in.h"
 #include <rofl/common/utils/c_logger.h>
 
-morpheus::csh_packet_in::csh_packet_in(morpheus * parent, const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg ):chandlersession_base(parent) {
+morpheus::csh_packet_in::csh_packet_in(morpheus * parent, const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg ):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_packet_in(src, msg);
 	}
@@ -13,13 +13,14 @@ bool morpheus::csh_packet_in::process_packet_in ( const rofl::cofdpt * const src
 // std::cout << "TP" << __LINE__ << std::endl;
 	std::cout << "** BEFORE:" << std::endl;
 	rofl::cofmatch match(msg->get_match_const());
-std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
+// std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
+	std::cout << "match found to be " << match.c_str() << std::endl;	
 	rofl::cpacket packet(msg->get_packet_const());
 // std::cout << "TP" << __LINE__ << std::endl;
 // std::cout << "packet.framelen = " << (unsigned)packet.framelen() << "packet.soframe = " << packet.soframe() << std::endl;
 // std::cout << "TP" << __LINE__ << std::endl;
 ///	packet.get_match().set_in_port(msg->get_in_port());	// JSP: this is unnecessary as packet.get_match is locally generated anyway.
- std::cout << "TP" << __LINE__ << std::endl;
+// std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "original packet bytes: ";
 // dumpBytes( std::cout, msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
 dumpBytes( std::cout, packet.soframe(), packet.framelen());
@@ -28,11 +29,11 @@ std::cout << "frame bytes: ";
 //dumpBytes( std::cout, msg->get_packet().frame()->soframe(), msg->get_packet().frame()->framelen());
 dumpBytes( std::cout, packet.frame()->soframe(), packet.frame()->framelen());
 std::cout << std::endl;
-std::cout << "TP" << __LINE__ << std::endl;
+// std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "source MAC: " << packet.ether()->get_dl_src() << std::endl;
 std::cout << "dest MAC: " << packet.ether()->get_dl_dst() << std::endl;
 std::cout << "OFP10_PACKET_IN_STATIC_HDR_LEN is " << OFP10_PACKET_IN_STATIC_HDR_LEN << std::endl;
-std::cout << "TP" << __LINE__ << std::endl;
+// std::cout << "TP" << __LINE__ << std::endl;
 std::cout << "** AFTER:" << std::endl;
 
 // extract the VLAN from the incoming packet
@@ -59,7 +60,7 @@ if(vports.size() != 1) {	// TODO handle this better
 	m_completed = true;
 	return m_completed;
 }
-std::cout << "TP" << __LINE__ << std::endl; 
+// std::cout << "TP" << __LINE__ << std::endl; 
 std::pair<uint16_t, cportvlan_mapper::port_spec_t> vport = vports.front();
 
 // required changes:
@@ -68,7 +69,7 @@ std::pair<uint16_t, cportvlan_mapper::port_spec_t> vport = vports.front();
 // fiddle match struct
 
 if(in_vlan != -1) packet.pop_vlan();	// remove the first VLAN header
-std::cout << "TP" << __LINE__ << std::endl;
+// std::cout << "TP" << __LINE__ << std::endl;
 // what to do with match??
 // ANSWER - NOTHING. It's not used in OF10..
 
@@ -87,4 +88,6 @@ bool morpheus::csh_packet_in::handle_error (rofl::cofdpt *src, rofl::cofmsg_erro
 
 morpheus::csh_packet_in::~csh_packet_in() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 
-std::string morpheus::csh_packet_in::asString() const { return "csh_packet_in {no xid}"; }
+// std::string morpheus::csh_packet_in::asString() const { return "csh_packet_in {no xid}"; }
+
+std::string morpheus::csh_packet_in::asString() const { std::stringstream ss; ss << "csh_packet_in {request_xid=" << m_request_xid << "}"; return ss.str(); }

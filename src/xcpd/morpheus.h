@@ -53,7 +53,15 @@ protected:
 /// typedef std::map < chandlersession_base *, std::vector< std::pair< bool, uint32_t > > > xid_reverse_session_map_t;	// vector holds bool (true if ctl xid, false if dpt xid) and xid to do the reverse xid association with the session
 /// xid_session_map_t m_ctl_sessions;	// TODO make MT safe
 /// xid_session_map_t m_dpt_sessions;	// TODO make MT safe
-typedef std::map < std::pair< bool, uint32_t >, chandlersession_base * > xid_session_map_t;	// if bool is true then the xid is an ctl xid, it's a dpt xid otherwise.
+//// typedef std::map < std::pair< bool, uint32_t >, chandlersession_base * > xid_session_map_t;	// if bool is true then the xid is an ctl xid, it's a dpt xid otherwise.
+/*struct xid_entry_t {
+	uint32_t ctl_xid;
+	uint32_t dpt_xid;
+	chandlersession_base * session;
+	xid_entry(uint32_t ctl_xid_, uint32_t dpt_xid_, chandlersession_base * session_):ctl_xid(ctl_xid_),dpt_xid(dpt_xid_),session(session_) {}
+}
+typedef std::vector < xid_entry_t > xid_session_map_t;*/
+typedef std::map < std::pair< uint32_t, uint32_t >, chandlersession_base * > xid_session_map_t;
 // typedef std::multimap < chandlersession_base *, std::pair< bool, uint32_t >  > xid_reverse_session_map_t;	// if bool is true then the xid is an ctl xid, it's a dpt xid otherwise.
 xid_session_map_t m_sessions;
 mutable pthread_rwlock_t m_sessions_lock;	// a lock for m_sessions
@@ -142,7 +150,7 @@ unsigned int max_session_lifetime;	// the maximum time, in seconds, that a sessi
 std::vector <class chandlersession_base *> m_session_timers;	// a vector containing pointers to active sessions. The index is the the opaque value passed to register_timer less m_crof_timer_opaque_offset
 mutable pthread_rwlock_t m_session_timers_lock;	// a lock for m_session_timers
 
-void init_dpe();
+// void init_dpe();
 
 // uint32_t set_supported_actions (uint32_t new_actions);
 void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions);
@@ -190,8 +198,11 @@ void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions
 
 public:
 // our transaction management methods - they are public because the nested classes have to call them
-	bool associate_xid( bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session - returns true if the session_xid was found and the association was made. false if session_xid not found ir new_xid already exists in m_ctl_sessions
-	bool remove_xid_association( bool ctl_or_dpt_xid, const uint32_t xid );			// called to remove the association of the xid with a session_base - returns true if session_xid was found and removed, false otherwise
+//	bool associate_xid( bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session - returns true if the session_xid was found and the association was made. false if session_xid not found ir new_xid already exists in m_ctl_sessions
+	bool associate_xid( const uint32_t ctl_xid, const uint32_t dpt_xid, chandlersession_base * p ); // tells the translator that ctl_xid was translated to dpt_xid is the translation of a message for session p.  Returns true if the the xid pair were successfully added to the database, false otherwise (.e.g they are already in the db)
+	bool remove_xid_association( const uint32_t ctl_xid, const uint32_t dpt_xid ); // removes the ctl_xid/dpt_xid association from the database - returns true if xid pair was found and removed, false otherwise
+	
+//	bool remove_xid_association( bool ctl_or_dpt_xid, const uint32_t xid );			// called to remove the association of the xid with a session_base - returns true if session_xid was found and removed, false otherwise
 	unsigned remove_session( chandlersession_base * p );	// called to remove all associations to this session_base - returns the number of associations removed
 	rofl::cofdpt * get_dpt() const;
 	rofl::cofctl * get_ctl() const;
@@ -223,8 +234,11 @@ public:
 	bool addFlowentryTranslation ( const morpheus::flowentry & untranslated, const morpheus::flowentry & translated );
 	bool removeFlowentryTranslation ( const morpheus::flowentry & untranslated );
 
+	void initialiseConnections();
+
 // void register_session_timer(int opaque, morpheus::chandlersession_base *, unsigned seconds);
 int register_session_timer(morpheus::chandlersession_base *, unsigned seconds);
+void register_lifetime_session_timer(morpheus::chandlersession_base * s, unsigned seconds);
 void cancel_session_timer(int opaque);
 
 uint32_t get_supported_actions();

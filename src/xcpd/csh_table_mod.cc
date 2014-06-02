@@ -4,7 +4,7 @@
 
 // TODO translation check
 
-morpheus::csh_table_mod::csh_table_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg ):chandlersession_base(parent) {
+morpheus::csh_table_mod::csh_table_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_table_mod * const msg ):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_table_mod(src, msg);
 	}
@@ -24,4 +24,5 @@ bool morpheus::csh_table_mod::handle_error (rofl::cofdpt *src, rofl::cofmsg_erro
 
 morpheus::csh_table_mod::~csh_table_mod() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 
-std::string morpheus::csh_table_mod::asString() const { return "csh_table_mod {no xid}"; }
+// std::string morpheus::csh_table_mod::asString() const { return "csh_table_mod {no xid}"; }
+std::string morpheus::csh_table_mod::asString() const { std::stringstream ss; ss << "csh_table_mod {request_xid=" << m_request_xid << "}"; return ss.str(); }
