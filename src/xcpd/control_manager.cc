@@ -76,6 +76,17 @@ void control_manager::init()
     hm= NULL;
 }
 
+
+void control_manager::set_dpid(uint64_t d) 
+{
+    dpid= d;
+}
+
+uint64_t control_manager::get_dpid()
+{
+    return dpid;
+}
+
 void control_manager::set_higher_address(caddress &c)
 {
     higher_addr=c;

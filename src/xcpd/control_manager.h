@@ -30,6 +30,7 @@ class virtual_port {
         std::string name;
         int real_port;
         int vlan;
+        
     
     public:
         static const int NO_VLAN= -1;
@@ -50,6 +51,8 @@ class control_manager {
         
 
         static control_manager* cm_instance;
+        
+        uint64_t dpid;
         hardware_manager *hm;
         caddress switch_addr;
         std::string switch_ip;
@@ -80,6 +83,9 @@ class control_manager {
         static const int HARDWARE_SPECIFIC_COMMAND= 3;
         static control_manager *Instance();
         void init();                 // Initialise singleton
+        
+        void set_dpid(uint64_t);
+        uint64_t get_dpid();
         void set_higher_address(caddress &);
         caddress get_higher_address();
         void set_xcpd_address(caddress &);
@@ -120,7 +126,7 @@ class control_manager {
         void set_port_stat_handling(int);
         int get_port_config_handling();
         void set_port_config_handling(int);
-
+        
 };
 
 

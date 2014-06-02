@@ -1,6 +1,8 @@
 
 #include "csh_flow_stats.h"
 #include <rofl/common/utils/c_logger.h>
+#include <rofl/common/cerror.h>
+
 
 morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
@@ -66,8 +68,9 @@ bool morpheus::csh_flow_stats::process_flow_stats_reply ( rofl::cofdpt * const s
 	assert(!m_completed);
 //	const cportvlan_mapper & mapper = m_parent->get_mapper();
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	rofl::cofdesc_stats_reply reply(src->get_version(),"morpheus_mfr_desc","morpheus_hw_desc","morpheus_sw_desc","morpheus_serial_num","morpheus_dp_desc");
-	m_parent->send_desc_stats_reply(m_parent->get_ctl(), m_request_xid, reply, false );
+	
+    ROFL_ERR("NEED TO TRANSLATE FLOW STATS REPLY\n");
+	//m_parent->send_flow_stats_reply(m_parent->get_ctl(), m_request_xid, msg, false );
 	m_completed = true;
 	return m_completed;
 }

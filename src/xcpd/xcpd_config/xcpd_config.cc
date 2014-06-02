@@ -19,6 +19,7 @@ using namespace libconfig;
 #define XCPD_BIND_ADDRESS_IP "bind-address-ip"
 #define XCPD_BIND_ADDRESS_PORT "bind-address-port"
 #define XCPD_PORTS "ports"
+#define XCPD_DPID "dpid"
 
 void xcpd_config::parse_config(Config* cfg, cunixenv& env_parser){
 
@@ -142,6 +143,7 @@ xcpd_lsi_scope::xcpd_lsi_scope(std::string name, bool mandatory):scope(name, man
 	register_parameter(XCPD_SLAVE_CONTROLLER_IP); 
 	register_parameter(XCPD_SLAVE_CONTROLLER_PORT); 
     register_parameter(XCPD_PORTS); 
+    register_parameter(XCPD_DPID,true);
 }
 
 /* Case insensitive */
@@ -163,7 +165,12 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
 		} 
     }
 
+    if (!dry_run && setting.exists(XCPD_DPID)) {
+         uint64_t d= strtoull(setting[XCPD_DPID].c_str(),NULL,0);
+         control_manager::Instance()->set_dpid(d);
+    }
     if (active) {
+        ROFL_ERR("Active connections from xdpd to xCPd are not necessarily well supported.\n This may cause the controller to be out of sync.\n");
         if (setting.exists(XCPD_BIND_ADDRESS_PORT) ||
            setting.exists(XCPD_BIND_ADDRESS_IP) ) {
             ROFL_ERR("bind-address settings ignored in active mode -- use master-controller\n");
