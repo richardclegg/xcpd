@@ -6,7 +6,7 @@
 
 using namespace xdpd;
 
-morpheus::csh_port_stats::csh_port_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_port_stats_request * const msg):chandlersession_base(parent) {
+morpheus::csh_port_stats::csh_port_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_port_stats_request * const msg):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_port_stats_request(src, msg);
 	}

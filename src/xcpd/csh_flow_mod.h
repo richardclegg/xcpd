@@ -16,6 +16,7 @@ public:
 
 csh_flow_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg );
 bool process_flow_mod ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg );
+bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
 ~csh_flow_mod();
 std::string asString() const;
 

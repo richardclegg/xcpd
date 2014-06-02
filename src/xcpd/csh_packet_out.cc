@@ -1,8 +1,9 @@
 
 #include "csh_packet_out.h"
+#include <rofl/common/utils/c_logger.h>
 
 // TODO translation check
-morpheus::csh_packet_out::csh_packet_out(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_packet_out * const msg ):chandlersession_base(parent) {
+morpheus::csh_packet_out::csh_packet_out(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_packet_out * const msg ):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_packet_out(src, msg);
 	}
@@ -20,9 +21,9 @@ bool morpheus::csh_packet_out::process_packet_out ( rofl::cofctl * const src, ro
 	for(rofl::cofaclist::iterator i = actions.begin(); i != actions.end(); ++i)
 		std::cout << i->c_str() << " ";
 	std::cout << std::endl;
-	std::cout << "TP_" << __LINE__ << std::endl;
+//	std::cout << "TP_" << __LINE__ << std::endl;
 	rofl::cpacket packet(msg->get_packet());
-	std::cout << "TP_" << __LINE__ << std::endl;
+//	std::cout << "TP_" << __LINE__ << std::endl;
 
 	if(packet.cnt_vlan_tags()>0) {
 		std::cout << __FUNCTION__ << ": vlan tags in PacketOut packets not supported." << std::endl;
@@ -208,6 +209,14 @@ bool morpheus::csh_packet_out::process_packet_out ( rofl::cofctl * const src, ro
 	m_completed = true;
 	return m_completed;
 }
+
+bool morpheus::csh_packet_out::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
+	m_completed = true;
+	return m_completed;
+}
+
 morpheus::csh_packet_out::~csh_packet_out() { std::cout << __FUNCTION__ << " called." << std::endl; }	// nothing to do as we didn't register anywhere.
 
-std::string morpheus::csh_packet_out::asString() const { return "csh_packet_out {no xid}"; }
+// std::string morpheus::csh_packet_out::asString() const { return "csh_packet_out {no xid}"; }
+std::string morpheus::csh_packet_out::asString() const { std::stringstream ss; ss << "csh_packet_out {request_xid=" << m_request_xid << "}"; return ss.str(); }

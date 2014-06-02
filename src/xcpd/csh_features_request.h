@@ -13,7 +13,7 @@ class morpheus::csh_features_request : public morpheus::chandlersession_base {
 
 protected:
 
-uint32_t m_request_xid;
+// uint32_t m_request_xid;
 bool m_local_request;	// if true then this request originated from morpheus and not as the result of a translated request from a controller
 
 public:
@@ -22,6 +22,7 @@ csh_features_request(morpheus * parent);
 csh_features_request(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_features_request * const msg);
 bool process_features_request ( const rofl::cofctl * const src, const rofl::cofmsg_features_request * const msg );
 bool process_features_reply ( const rofl::cofdpt * const src, rofl::cofmsg_features_reply * const msg );
+bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
 ~csh_features_request();
 std::string asString() const;
 

@@ -9,12 +9,13 @@
 class morpheus::csh_table_stats : public morpheus::chandlersession_base {
 	
 protected:
-uint32_t m_request_xid;
+// uint32_t m_request_xid;
 
 public:
 csh_table_stats(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_table_stats_request * const msg);
 bool process_table_stats_request ( const rofl::cofctl * const src, const rofl::cofmsg_table_stats_request * const msg );
 bool process_table_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_table_stats_reply * const msg );
+bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
 ~csh_table_stats();
 std::string asString() const;
 

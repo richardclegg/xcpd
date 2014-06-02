@@ -3,10 +3,11 @@
 #include <rofl/common/openflow/openflow10.h>
 #include <rofl/common/cerror.h>
 #include <rofl/common/openflow/cofaction.h>
+#include <rofl/common/utils/c_logger.h>
 
 #include "csh_flow_mod.h"
 
-morpheus::csh_flow_mod::csh_flow_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent) {
+morpheus::csh_flow_mod::csh_flow_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_flow_mod(src, msg);
 	}
@@ -215,8 +216,15 @@ std::cout << "TP" << __LINE__ << std::endl;
 	return m_completed;
 }
 
+bool morpheus::csh_flow_mod::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
+	m_completed = true;
+	return m_completed;
+}
+
 morpheus::csh_flow_mod::~csh_flow_mod() { std::cout << __FUNCTION__ << " called." << std::endl; }
 
 
-std::string morpheus::csh_flow_mod::asString() const { return "csh_flow_mod {no xid}"; }
+// std::string morpheus::csh_flow_mod::asString() const { return "csh_flow_mod {no xid}"; }
+std::string morpheus::csh_flow_mod::asString() const { std::stringstream ss; ss << "csh_flow_mod {request_xid=" << m_request_xid << "}"; return ss.str(); }
 

@@ -149,6 +149,7 @@ int main(int argc, char** argv){
     morpheus morph (mapper, indpt, dptaddr, inctl, ctladdr);
     
     ROFL_INFO("Connecting to switch and controller\n");
+    morph.initialiseConnections();
 	//ciosrv run. Only will stop in Ctrl+C
 	ciosrv::run();
 
@@ -159,7 +160,8 @@ int main(int argc, char** argv){
 	//switch_manager::destroy_all_switches();
 
 	//Let plugin manager destroy all registered plugins
-	free(c);
+//	free(c);
+	delete c;
 	
 	//ciosrv destroy
 	ciosrv::destroy();

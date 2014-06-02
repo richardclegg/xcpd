@@ -4,8 +4,7 @@
 #include <rofl/common/cerror.h>
 
 
-
-morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent) {
+morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_flow_stats_request(src, msg);
 	}
@@ -13,7 +12,7 @@ morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, rofl::cofctl * const
 bool morpheus::csh_flow_stats::process_flow_stats_request ( rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	const cportvlan_mapper & mapper = m_parent->get_mapper();
-	m_request_xid = msg->get_xid();
+//	m_request_xid = msg->get_xid();
 	rofl::cofmatch newmatch = msg->get_flow_stats().get_match();
 	rofl::cofmatch oldmatch = newmatch;
 
@@ -58,8 +57,9 @@ std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cofflow_stats_request req(OFP10_VERSION, newmatch, flows_stats_req.get_table_id(), new_outport);
 	uint32_t newxid = m_parent->send_flow_stats_request(m_parent->get_dpt(), msg->get_stats_flags(), req ); // TODO is get_stats_flags correct ??
 
-	if( ! m_parent->associate_xid( true, m_request_xid, this ) ) std::cout << "Problem associating ctl xid in " << __FUNCTION__ << std::endl;
-	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
+//	if( ! m_parent->associate_xid( true, m_request_xid, this ) ) std::cout << "Problem associating ctl xid in " << __FUNCTION__ << std::endl;
+//	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
+	if( ! m_parent->associate_xid( m_request_xid, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
 	m_completed = false;
 	return m_completed;
 }
@@ -71,6 +71,12 @@ bool morpheus::csh_flow_stats::process_flow_stats_reply ( rofl::cofdpt * const s
 	
     ROFL_ERR("NEED TO TRANSLATE FLOW STATS REPLY\n");
 	//m_parent->send_flow_stats_reply(m_parent->get_ctl(), m_request_xid, msg, false );
+	m_completed = true;
+	return m_completed;
+}
+
+bool morpheus::csh_flow_stats::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
+	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
 	m_completed = true;
 	return m_completed;
 }
