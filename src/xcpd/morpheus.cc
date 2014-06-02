@@ -364,6 +364,7 @@ void morpheus::handle_aggregate_stats_request(rofl::cofctl *src, rofl::cofmsg_ag
 	static const char * func = __FUNCTION__;
 	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_aggr_stats_request, morpheus::csh_aggregate_stats )
 }
+
 void morpheus::handle_aggregate_stats_reply(rofl::cofdpt *src, rofl::cofmsg_aggr_stats_reply *msg) {
 	static const char * func = __FUNCTION__;
 	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_aggr_stats_reply, morpheus::csh_aggregate_stats, process_aggr_stats_reply )
@@ -399,7 +400,14 @@ void morpheus::handle_flow_stats_request(rofl::cofctl *src, rofl::cofmsg_flow_st
 	static const char * func = __FUNCTION__;
 //	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 //	delete(msg);
-	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_flow_stats_request, morpheus::csh_flow_stats )
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_flow_stats_request, morpheus::csh_flow_stats );
+}
+
+void morpheus::handle_flow_stats_reply(rofl::cofdpt *src, rofl::cofmsg_flow_stats_reply *msg) {
+	static const char * func = __FUNCTION__;
+    
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_flow_stats_reply, morpheus::         csh_flow_stats, process_flow_stats_reply );
+    HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_flow_stats_reply, morpheus::         csh_aggregate_stats, process_flow_stats_reply );
 }
 
 void morpheus::handle_queue_stats_request(rofl::cofctl *src, rofl::cofmsg_queue_stats_request *msg) {

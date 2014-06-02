@@ -169,6 +169,7 @@ void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions
 	virtual void handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port_stats_request * msg );
     virtual void handle_port_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_port_stats_reply * msg );
 	virtual void handle_flow_stats_request(rofl::cofctl *ctl, rofl::cofmsg_flow_stats_request * msg );
+    virtual void handle_flow_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_flow_stats_reply * msg );
 	virtual void handle_aggregate_stats_request(rofl::cofctl *ctl, rofl::cofmsg_aggr_stats_request * msg );
 	virtual void handle_aggregate_stats_reply(rofl::cofdpt *dpt, rofl::cofmsg_aggr_stats_reply * msg );
 	
