@@ -5,7 +5,7 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/datapath/afa/fwd_module.h>
 #include <rofl/common/utils/c_logger.h>
-#include "xcpd_config/xcpd_config.h"
+#include "config/xcpd_config.h"
 #include "control_manager.h"
 #include "morpheus.h"
 #include "cportvlan_mapper.h"

@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS= xcpd_config hardware_management
+SUBDIRS= config hardware_management
 
 #Main program
 sbin_PROGRAMS = xcpd 
