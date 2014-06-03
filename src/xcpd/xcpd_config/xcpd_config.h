@@ -5,7 +5,7 @@
 #include <libconfig.h++> 
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/common/cerror.h>
-#include "../../xdpd/management/plugins/config/scope.h"
+#include "scope.h"
 #include "../control_manager.h"
 /**
 * @file xcpd_config.h

@@ -28,8 +28,6 @@ xcpd_SOURCES = xcpd.cc \
 	
 xcpd_LDADD = \
 	xcpd_config/libxdpd_xcpd_cfg.la\
-	../xdpd/management/plugins/config/libxdpd_mgmt_config.la \
-	../xdpd/management/libxdpd_mgmt.la \
 	hardware_management/libxcpd_hardware.la \
 	-lpthread \
 	-lrofl \
