@@ -63,7 +63,7 @@ if(vports.size() != 1) {	// TODO handle this better
 // std::cout << "TP" << __LINE__ << std::endl; 
 std::pair<uint16_t, cportvlan_mapper::port_spec_t> vport = vports.front();
 
-// required changes:
+// required changes to be made to packet done by this code:
 // Strip VLAN on incoming packet
 // rewrite get_in_port
 // fiddle match struct

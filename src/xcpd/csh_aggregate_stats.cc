@@ -1,6 +1,7 @@
 
 #include "csh_aggregate_stats.h"
 #include <rofl/common/utils/c_logger.h>
+#include <rofl/common/cerror.h>
 
 morpheus::csh_aggregate_stats::csh_aggregate_stats(morpheus * parent, const rofl::cofctl * const src, rofl::cofmsg_aggr_stats_request * const msg):chandlersession_base(parent, msg->get_xid()) {
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
@@ -17,22 +18,33 @@ bool morpheus::csh_aggregate_stats::process_aggr_stats_request ( const rofl::cof
 //	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
 	if( ! m_parent->associate_xid( m_request_xid, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
 	m_completed = false;
+    // 1) Take get match -- match against untranslated keys in flow dict
+    // 2) Send flow_stats_request exact for translated match for all matches
+    // 3) Set replies outstanding
 	return m_completed;
 }
 
 bool morpheus::csh_aggregate_stats::process_aggr_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_aggr_stats_reply * const msg ) {
 	assert(!m_completed);
-	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	m_parent->send_aggr_stats_reply(m_parent->get_ctl(), m_request_xid, msg->get_aggr_stats(), false ); // TODO how to deal with "more" flag (last arg)
-	m_completed = true;
-	return m_completed;
+    ROFL_ERR("Aggregate stats reply received -- should never happen %s in %s\n",
+        msg, __PRETTY_FUNCTION__);
+    throw rofl::eInval();
+	
 }
 
-bool morpheus::csh_aggregate_stats::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
-	ROFL_DEBUG("Warning: %s has received an error message: %s\n", __PRETTY_FUNCTION__, msg->c_str());
-	m_completed = true;
-	return m_completed;
+bool morpheus::csh_aggregate_stats::process_flow_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_flow_stats_reply * const msg )
+{
+    assert(!m_completed);
+   	m_completed = true;
+    // 1) Receive messages -- decrement replies out_standing.
+    // 2) if replies zero m_completed
+    // 3) if replies non-zero m not completed
+    // 4) If replies zero and no error then send stats
+	return m_completed; 
 }
+
+// Error handler here?
+// if error then set error handled and send error
 
 morpheus::csh_aggregate_stats::~csh_aggregate_stats() { std::cout << __FUNCTION__ << " called." << std::endl; }
 

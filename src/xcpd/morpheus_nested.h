@@ -18,7 +18,6 @@
  * secondary messages (either replies or those forwarded) may return errors - session handlers should have error_msg handlers, and morpheus should register a timer after a call to a session method.  If this timer expires (it's set to longer than a reply message timeout) and the session is completed then only then can it be removed.
  * assert that DPE config supports VLAN tagging and stripping.
  * Somewhere the number of bytes of ethernet frame to send for packet-in is set - this must be adjusted for removal of VLAN tag
- * There should be a database of match structs that were received as part of a flow mod, and their translated counter-parts so they could be quickly looked up and swapped back
  * During a packet-in - what to do with the buffer-id? Because we've sent a packet fragment up in the message, but the switch's buffer has a different version of the packet => should be ok, as switch won't be making changes to stored packet and will forward when asked.
  * in Flow-mod - if the incoming virtual port is actually untagged should we set this in match? Can;t really do that in cofmatch (no access to vid_mask). Should we include a vlan_strip action always anyway?
  * 
