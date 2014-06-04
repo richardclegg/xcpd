@@ -1,4 +1,6 @@
 
+
+
 What it is
 ==========
 
@@ -31,29 +33,11 @@ Optional ../configure parameters
 --enable-debug: Compile with debug symbols (-g) and debug output (warning, it may affect performance).
 --enable-verbose: Increase the level of debug (useless without --enable-debug)
 --disable-silent-rules: Enable verbose compilation mode (AM_SILENT_RULES disabled)
---with-doc: Generate documentation along with compilation (for ROFL-common, ROFL-pipeline and ROFL-afa). Configure step will fail if doxygen is not found
+--with-doc: Generate documentation along with compilation 
 
 FAQ
 ===
 
 Some distributions, in particular Red Hat based, do not include by default /usr/local/lib on the search path of ldconfig, not allowing to link against -lrofl and -lrofl_pipeline. In this case, you might have to add /usr/local/lib/ into /etc/ld.so.conf and re-run ldconfig.
 
-More information, documentation and support
-===========================================
-
-Please visit: 
-
-https://www.codebasin.net/redmine/projects/rofl-core/wiki
-
-Authorship
-==========
-
-(c) Copyright BISDN GmbH 2013
-
-Andreas Koepsel<andreas.koepsel (at) bisdn.de>
-Marc Sune<marc.sune (at) bisdn.de>
-Victor Alvarez<victor.alvarez (at) bisdn.de>
-Tobias Jungel<tobias.jungel (at) bisdn.de>
-
-And others
 
