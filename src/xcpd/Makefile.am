@@ -27,7 +27,7 @@ xcpd_SOURCES = xcpd.cc \
 	flow_entry_translate.cc
 	
 xcpd_LDADD = \
-	xcpd_config/libxcpd_config.la\
+	config/libxcpd_config.la\
 	hardware_management/libxcpd_hardware.la \
 	-lpthread \
 	-lrofl \
