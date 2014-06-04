@@ -1,5 +1,7 @@
 AUTOMAKE_OPTIONS = subdir-objects 1.5 foreign
 
+ACLOCAL_AMFLAGS = -I m4
+
 MAINTAINERCLEANFILES = $(top_srcdir)/aclocal.m4 \
 	src/ar-lib \
 	src/config.guess \
@@ -21,6 +23,3 @@ uninstall-hook:
 maintainer-clean-local:
 	rm -rf src/m4
 
-#AM_CPPFLAGS=-I/home/andreas/local/rofl
-#AM_CFLAGS=-I/home/andreas/local/rofl
-#AM_LDFLAGS=-L/home/andreas/local/lib

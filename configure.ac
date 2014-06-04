@@ -1,9 +1,8 @@
-AC_INIT(xdpd, 0.3, xdpd@bisdn.de, xdpd)
+AC_INIT(xcpd, 0.3, richard@richardclegg.org, xcpd)
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([-Wall foreign ])
-AC_CONFIG_MACRO_DIR([m4])
 AC_GNU_SOURCE
-
+AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_INSTALL
 AC_PROG_CC
 AC_PROG_CXX
@@ -47,11 +46,6 @@ m4_include([config/verbose.m4])
 # Check for profiling mode
 m4_include([config/profiling.m4])
 
-#Plugin main m4 macros
-m4_include([config/plugins.m4])
-
-#Check hardware support
-m4_include([config/hw.m4])
 
 #Check hardware support
 m4_include([config/versioning.m4])
@@ -60,18 +54,9 @@ m4_include([config/versioning.m4])
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
-	src/xdpd/Makefile
-	src/xdpd/fwd-modules/Makefile
-	src/xdpd/management/Makefile
-	src/xdpd/management/plugins/Makefile
-	src/xdpd/openflow/Makefile
-	src/xdpd/openflow/openflow10/Makefile
-	src/xdpd/openflow/openflow12/Makefile
 	src/xcpd/Makefile
 	src/xcpd/config/Makefile
-    	src/xcpd/hardware_management/Makefile
-	test/Makefile
-	test/grouptest/Makefile
+    src/xcpd/hardware_management/Makefile
 ])
 
 # Doxygen (here to be the last Makefile) 

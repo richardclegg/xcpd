@@ -29,12 +29,12 @@ void interrupt_handler(int dummy=0) {
 void dump_version(){
 	//Print version and exit
 	ROFL_INFO("The eXtensible OpenFlow Control Path daemon (xCPd)\n");	
-	ROFL_INFO("Version: %s\n",XDPD_VERSION);
+	ROFL_INFO("Version: %s\n",XCPD_VERSION);
 
 #ifdef XDPD_BUILD
-	ROFL_INFO("Build: %s\n",XDPD_BUILD);
-	ROFL_INFO("Compiled in branch: %s\n",XDPD_BRANCH);
-	ROFL_INFO("%s\n",XDPD_DESCRIBE);
+	ROFL_INFO("Build: %s\n",XCPD_BUILD);
+	ROFL_INFO("Compiled in branch: %s\n",XCPD_BRANCH);
+	ROFL_INFO("%s\n",XCPD_DESCRIBE);
 #endif	
 	ROFL_INFO("\n[Libraries: ROFL]\n");
 	ROFL_INFO("ROFL version: %s\n",ROFL_VERSION);
