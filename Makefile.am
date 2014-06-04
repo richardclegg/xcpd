@@ -13,7 +13,7 @@ MAINTAINERCLEANFILES = $(top_srcdir)/aclocal.m4 \
 	src/Makefile.in \
 	src/missing
 
-SUBDIRS = src doc test
+SUBDIRS = src doc
 
 install-exec-hook:
 	@echo "Install"
