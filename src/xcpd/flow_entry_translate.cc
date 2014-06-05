@@ -40,8 +40,7 @@ flow_entry_translate::flow_entry_translate()
     untranslate= std::vector < cflowentry >();
 }
 
-void flow_entry_translate::add_flow_entry( cflowentry &fe) {
-    cflowentry trans= trans_flow_entry(fe);
+void flow_entry_translate::add_flow_entry( cflowentry &fe, cflowentry &trans) { 
     translate.push_back(fe);
     untranslate.push_back(trans);
 }

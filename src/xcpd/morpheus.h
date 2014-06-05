@@ -135,6 +135,8 @@ public:
 	bool associate_xid( const uint32_t ctl_xid, const uint32_t dpt_xid, chandlersession_base * p ); // tells the translator that ctl_xid was translated to dpt_xid is the translation of a message for session p.  Returns true if the the xid pair were successfully added to the database, false otherwise (.e.g they are already in the db)
 	bool remove_xid_association( const uint32_t ctl_xid, const uint32_t dpt_xid ); // removes the ctl_xid/dpt_xid association from the database - returns true if xid pair was found and removed, false otherwise
 
+    flow_entry_translate *get_fet();  /** Return pointer to translation table for flow entries */
+    
 	unsigned remove_session( chandlersession_base * p );	// called to remove all associations to this session_base - returns the number of associations removed
 	rofl::cofdpt * get_dpt() const;
 	rofl::cofctl * get_ctl() const;

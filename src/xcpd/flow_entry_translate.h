@@ -20,7 +20,7 @@ class flow_entry_translate {
         flow_entry_translate();
         ~flow_entry_translate() {};
         
-        void add_flow_entry( cflowentry &);
+        void add_flow_entry( cflowentry &, cflowentry &);
         void del_flow_entry( cflowentry &);
         cflowentry trans_flow_entry( cflowentry &);
         cflowentry untrans_flow_entry( cflowentry &);

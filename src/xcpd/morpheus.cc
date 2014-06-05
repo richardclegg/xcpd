@@ -45,22 +45,6 @@ std::string morpheus::dump_config() const {	// TODO
 	return "";
 }
 
-// associates new_xid with the session p, taking ownership of p - returns true if associated, false if already exists.
-/* bool morpheus::associate_xid( const bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p ) {
-	std::pair< bool, uint32_t > xid_ ( ctl_or_dpt_xid, new_xid );
-	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
-	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
-	std::cout << __FUNCTION__ << ": got lock." << std::endl; 
-	//xid_session_map_t::iterator sit(m_sessions.find(xid_));
-	//if(sit!=m_sessions.end()) {
-		//std::cout << "Attempt was made to associate " << ((ctl_or_dpt_xid)?"ctl":"dpt") << " xid " << new_xid << " with session base " << std::hex << p << std::dec << " but xid already exists." << std::endl;
-		//return false;	// new_xid was already in the database
-	//}
-//// 	assert();	// if it wasn't found in m_sessions then it shouldn't be in m_reverse_sessions;
-	//std::cout << "Associating new " << ((ctl_or_dpt_xid)?"ctl":"dpt") << " xid " << new_xid << " with session base " << std::hex << p << std::dec << std::endl;
-	//m_sessions[xid_] = p;
-	//return true;
-//} */
 bool morpheus::associate_xid( const uint32_t ctl_xid, const uint32_t dpt_xid, chandlersession_base * p ) {
 	std::pair< uint32_t, uint32_t > e ( ctl_xid, dpt_xid );
 	xid_session_map_t::iterator sit(m_sessions.find( e ));
@@ -79,41 +63,16 @@ bool morpheus::remove_xid_association( const uint32_t ctl_xid, const uint32_t dp
 	std::pair< uint32_t, uint32_t > e ( ctl_xid, dpt_xid );
 	xid_session_map_t::iterator sit(m_sessions.find(e));
 	if(sit==m_sessions.end()) return false;
-//	chandlersession_base * p = sit->second;
 	m_sessions.erase(sit);
-/*	// now check if that was the last reference to p, and delete p if it was.
-	xid_session_map_t::iterator it = m_sessions.begin();
-	while(it!=m_sessions.end()) {
-		if(it->second==p) return true;
-		++it;
-	}
-	std::cout << __FUNCTION__ << " deleting session " << std::hex << p << std::dec << " as we have just removed last reference." << std::endl;
-	delete(p); */
+
 	return true;
 }
 
-// called to remove the association of the xid with a session_base - returns true if session_xid was found and removed, false otherwise
-/*bool morpheus::remove_xid_association( const bool ctl_or_dpt_xid, const uint32_t new_xid ) {
-	// remove the xid, and check whether the pointed to session_base is associated anywhere else, if it isn't, delete it.
-	std::pair< bool, uint32_t > xid_ ( ctl_or_dpt_xid, new_xid );
-	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
-	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
-	std::cout << __FUNCTION__ << ": got lock." << std::endl; 
-	xid_session_map_t::iterator sit(m_sessions.find(xid_));
-	if(sit==m_sessions.end()) return false;
-	chandlersession_base * p = sit->second;
-	m_sessions.erase(sit);
-	// now check if that was the last reference to p, and delete p if it was.
-	xid_session_map_t::iterator it = m_sessions.begin();
-	while(it!=m_sessions.end()) {
-		if(it->second==p) return true;
-		++it;
-	}
-	std::cout << __FUNCTION__ << " deleting session " << std::hex << p << std::dec << " as we have just removed last reference." << std::endl;
-	delete(p);
-	return true;
+flow_entry_translate *morpheus::get_fet()
+{
+    return &fet;
 }
-*/
+
 // called to remove all associations to this session_base - returns the number of associations removed - p is not deleted and reamins in the ownership of the caller
 unsigned morpheus::remove_session( chandlersession_base * p ) {
 	unsigned tally = 0;
@@ -134,14 +93,7 @@ unsigned morpheus::remove_session( chandlersession_base * p ) {
 //	if(tally) delete(p);
 	return tally;
 }
-/*
-uint32_t morpheus::set_supported_actions (uint32_t new_actions) {
-	uint32_t old_actions = m_supported_actions;
-	m_supported_actions = new_actions & m_supported_actions_mask;
-	m_supported_actions_valid = true;
-	return old_actions;
-}
-*/
+
 void morpheus::set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions) {
 	// TODO new_capabilities are ignored, befause, well, we don't support any of them.
 	// m_supported_features = 0;
