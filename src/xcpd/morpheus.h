@@ -22,10 +22,11 @@ std::string port_as_string(uint16_t p);
 bool operator==(const rofl::cofaclist & a, const rofl::cofaclist & b);
 bool operator==(const rofl::cofaction & a, const rofl::cofaction & b);
 	
+class flow_entry_translate;  // Forward declaration due to nested includes
+    
 class morpheus : public rofl::crofbase {
 
-private:
-    flow_entry_translate fet;
+
 
 public:
 
@@ -49,6 +50,9 @@ public:
 	class csh_table_mod;
 	class csh_port_mod;
 	class csh_set_config;
+
+private:
+    flow_entry_translate *fet;
 
 protected:
     

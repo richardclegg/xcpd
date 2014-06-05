@@ -2,22 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifndef FLOW_ENTRY_TRANSLATE_H
+#define FLOW_ENTRY_TRANSLATE_H
+
 #include <rofl/common/openflow/cflowentry.h>
 #include <vector>
 #include <cportvlan_mapper.h>
+#include "morpheus.h"
 
 using namespace rofl;
 
+class morpheus;     // Forward declaration necessary due to nested include
 
 class flow_entry_translate {
-    
+
     private:
+        morpheus *m_parent;
         cportvlan_mapper mapper;
         std::vector < cflowentry> translate;
         std::vector < cflowentry> untranslate;
         bool match_fe (cflowentry &, cflowentry &);
     public:
-        flow_entry_translate();
+        flow_entry_translate(morpheus * const);
         ~flow_entry_translate() {};
         
         void add_flow_entry( cflowentry &, cflowentry &);
@@ -26,3 +32,5 @@ class flow_entry_translate {
         cflowentry untrans_flow_entry( cflowentry &);
     
 };
+
+#endif

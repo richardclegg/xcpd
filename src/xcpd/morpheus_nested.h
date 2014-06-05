@@ -1,7 +1,7 @@
 // nested classes
 
-#ifndef UCL_EE_MORPHEUS_NESTED_H
-#define UCL_EE_MORPHEUS_NESTED_H 1
+#ifndef MORPHEUS_NESTED_H
+#define MORPHEUS_NESTED_H 1
 
 #include <sstream>
 #include <string>
@@ -32,41 +32,24 @@ class morpheus::chandlersession_base {
 
 protected:
 
-morpheus * m_parent;
-bool m_completed;
-int m_lifetime_timer_opaque;	// this is lifetime timer associated with this session, or -1 if it isn't being used (e.g. a session handling a message which doesn't require an ACK or reply)
-const uint32_t m_request_xid;
-chandlersession_base( morpheus * parent, uint32_t xid );
+    morpheus * m_parent;
+    bool m_completed;
+    int m_lifetime_timer_opaque;	// this is lifetime timer associated with this session, or -1 if it isn't being used (e.g. a session handling a message which doesn't require an ACK or reply)
+    const uint32_t m_request_xid;
+    chandlersession_base( morpheus * parent, uint32_t xid );
 
 public:
 
-virtual std::string asString() const;
-virtual bool isCompleted();
-virtual bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);	// returns whether this session has completed
-virtual void handle_timeout (int opaque);
-virtual ~chandlersession_base();
-void push_features(uint32_t new_capabilities, uint32_t new_actions);
-virtual void setLifetimeTimerOpaque( int timer_opaque );
-virtual int getLifetimeTimerOpaque() const;
-virtual uint32_t getOriginalXID() const;
+    virtual std::string asString() const;
+    virtual bool isCompleted();
+    virtual bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);	// returns whether this session has completed
+    virtual void handle_timeout (int opaque);
+    virtual ~chandlersession_base();
+    void push_features(uint32_t new_capabilities, uint32_t new_actions);
+    virtual void setLifetimeTimerOpaque( int timer_opaque );
+    virtual int getLifetimeTimerOpaque() const;
+    virtual uint32_t getOriginalXID() const;
 
 };
-
-/*
-class morpheus::cqueue_stats_session : public morpheus::chandlersession_base {
-// cqueue_stats_session(morpheus * parent, rofl::cxidowner * originator, rofl::cofmsg * msg):chandlersession_base(parent,originator,msg) { process(originator, msg); }
-};
-
-class morpheus::cport_stats_session : public morpheus::chandlersession_base {
-// cport_stats_session(morpheus * parent, rofl::cxidowner * originator, rofl::cofmsg * msg):chandlersession_base(parent,originator,msg) { process(originator, msg); }
-};
-
-class morpheus::csh_flow_stats : public morpheus::chandlersession_base {
-// csh_flow_stats(morpheus * parent, rofl::cxidowner * originator, rofl::cofmsg * msg):chandlersession_base(parent,originator,msg) { process(originator, msg); }
-};
-
-
-
-*/
 
 #endif // UCL_EE_MORPHEUS_NESTED_H
