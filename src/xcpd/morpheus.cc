@@ -13,7 +13,9 @@
 #include <rofl/common/utils/c_logger.h>
 #include <typeinfo>
 // #include "morpheus_nested.h"
-
+const PV_PORT_T PV_PORT_T::ANY = PV_PORT_T::make_ANY();
+const PV_VLANID_T PV_VLANID_T::ANY = PV_VLANID_T::make_ANY();
+const PV_VLANID_T PV_VLANID_T::NONE = PV_VLANID_T::make_NONE();
 #define PROXYOFPVERSION OFP10_VERSION
 
 std::ostream & operator<< (std::ostream & os, const morpheus & morph) {
@@ -159,7 +161,7 @@ morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const ro
 
 morpheus::~morpheus() {
 	// rpc_close_all();
-	std::cout << std::endl << __FUNCTION__ << " called." << std::endl;	// TODO: proper logging
+    ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
 	pthread_rwlock_destroy(&m_sessions_lock);
 	pthread_rwlock_destroy(&m_session_timers_lock);
     delete(fet);

@@ -57,6 +57,7 @@ AC_CONFIG_FILES([
 	src/xcpd/Makefile
 	src/xcpd/config/Makefile
     src/xcpd/hardware_management/Makefile
+    test/Makefile
 ])
 
 # Doxygen (here to be the last Makefile) 

@@ -135,7 +135,7 @@ protected:
 
 public:
 // our transaction management methods - they are public because the nested classes have to call them
-//	bool associate_xid( bool ctl_or_dpt_xid, const uint32_t new_xid, chandlersession_base * p );	// tells the translator that new_xid is an xid related to session_xid which is the xid of the original message that invoked the session - returns true if the session_xid was found and the association was made. false if session_xid not found ir new_xid already exists in m_ctl_sessions
+
 	bool associate_xid( const uint32_t ctl_xid, const uint32_t dpt_xid, chandlersession_base * p ); // tells the translator that ctl_xid was translated to dpt_xid is the translation of a message for session p.  Returns true if the the xid pair were successfully added to the database, false otherwise (.e.g they are already in the db)
 	bool remove_xid_association( const uint32_t ctl_xid, const uint32_t dpt_xid ); // removes the ctl_xid/dpt_xid association from the database - returns true if xid pair was found and removed, false otherwise
 

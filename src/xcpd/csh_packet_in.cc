@@ -10,31 +10,12 @@ morpheus::csh_packet_in::csh_packet_in(morpheus * parent, const rofl::cofdpt * c
 bool morpheus::csh_packet_in::process_packet_in ( const rofl::cofdpt * const src, rofl::cofmsg_packet_in * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	rofl::cofctl * master = m_parent->get_ctl();
-// std::cout << "TP" << __LINE__ << std::endl;
 	std::cout << "** BEFORE:" << std::endl;
-	rofl::cofmatch match(msg->get_match_const());
-// std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
+	rofl::cofmatch match(msg->get_match_const());	
 	std::cout << "match found to be " << match.c_str() << std::endl;	
 	rofl::cpacket packet(msg->get_packet_const());
-// std::cout << "TP" << __LINE__ << std::endl;
-// std::cout << "packet.framelen = " << (unsigned)packet.framelen() << "packet.soframe = " << packet.soframe() << std::endl;
-// std::cout << "TP" << __LINE__ << std::endl;
 ///	packet.get_match().set_in_port(msg->get_in_port());	// JSP: this is unnecessary as packet.get_match is locally generated anyway.
-// std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "original packet bytes: ";
-// dumpBytes( std::cout, msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
-dumpBytes( std::cout, packet.soframe(), packet.framelen());
-std::cout << std::endl;
-std::cout << "frame bytes: ";
-//dumpBytes( std::cout, msg->get_packet().frame()->soframe(), msg->get_packet().frame()->framelen());
-dumpBytes( std::cout, packet.frame()->soframe(), packet.frame()->framelen());
-std::cout << std::endl;
-// std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "source MAC: " << packet.ether()->get_dl_src() << std::endl;
-std::cout << "dest MAC: " << packet.ether()->get_dl_dst() << std::endl;
-std::cout << "OFP10_PACKET_IN_STATIC_HDR_LEN is " << OFP10_PACKET_IN_STATIC_HDR_LEN << std::endl;
-// std::cout << "TP" << __LINE__ << std::endl;
-std::cout << "** AFTER:" << std::endl;
+
 
 // extract the VLAN from the incoming packet
 int32_t in_port = -1;

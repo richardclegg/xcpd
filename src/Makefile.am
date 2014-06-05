@@ -1,5 +1,5 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = xcpd
+SUBDIRS = xcpd 
 DIST_SUBDIRS = xcpd 
 

@@ -7,7 +7,7 @@
 
 #include <rofl/common/openflow/cflowentry.h>
 #include <vector>
-#include <cportvlan_mapper.h>
+#include "cportvlan_mapper.h"
 #include "morpheus.h"
 
 using namespace rofl;
@@ -25,7 +25,9 @@ class flow_entry_translate {
     public:
         flow_entry_translate(morpheus * const);
         ~flow_entry_translate() {};
-        
+        rofl::cofaclist trans_actions(rofl::cofaclist &, 
+            rofl::cofmatch &);
+        rofl::cofmatch trans_match(rofl::cofmatch &); 
         void add_flow_entry( cflowentry &, cflowentry &);
         void del_flow_entry( cflowentry &);
         cflowentry trans_flow_entry( cflowentry &);

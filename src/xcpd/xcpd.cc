@@ -47,7 +47,7 @@ void dump_version(){
 }
 
 /*
- * xDPd Main routine
+ * xCPd Main routine
  */
 int main(int argc, char** argv){
 

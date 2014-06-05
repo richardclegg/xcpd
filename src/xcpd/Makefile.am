@@ -2,12 +2,9 @@ MAINTAINERCLEANFILES = Makefile.in
 
 SUBDIRS= config hardware_management
 
-#Main program
-sbin_PROGRAMS = xcpd 
-xcpd_SOURCES = xcpd.cc \
+noinst_LTLIBRARIES = libxcpd_wrap.la
+libxcpd_wrap_la_SOURCES = \
 	control_manager.cc \
-	cportvlan_mapper.cc \
-	cportvlan_messagetranslator.cc \
 	csh_aggregate_stats.cc \
 	csh_barrier.cc \
 	csh_desc_stats.cc \
@@ -25,8 +22,19 @@ xcpd_SOURCES = xcpd.cc \
 	morpheus.cc \
 	morpheus_nested.cc \
 	flow_entry_translate.cc
+libxcpd_wrap_la_LIBADD = \
+	config/libxcpd_config.la\
+	hardware_management/libxcpd_hardware.la \
+	-lpthread \
+	-lrofl \
+	-ldl
+	
+#Main program
+sbin_PROGRAMS = xcpd 
+xcpd_SOURCES = xcpd.cc 
 	
 xcpd_LDADD = \
+	libxcpd_wrap.la \
 	config/libxcpd_config.la\
 	hardware_management/libxcpd_hardware.la \
 	-lpthread \

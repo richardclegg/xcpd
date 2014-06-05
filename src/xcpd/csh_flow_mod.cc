@@ -36,15 +36,11 @@ bool morpheus::csh_flow_mod::process_flow_mod ( rofl::cofctl * const src, rofl::
             m_completed= true;
             return m_completed;
     }
-    
-    
-    m_completed= true;
-    return m_completed;
-        ROFL_ERR ("FLOW_MOD command %s not supported. Dropping message\n",
+    ROFL_ERR ("FLOW_MOD command %s not supported. Dropping message\n",
             msg->c_str());
-		m_completed = true;
-		return m_completed;
-	}
+    m_completed = true;
+    return m_completed;
+}
     
 
 bool morpheus::csh_flow_mod::process_add_flow

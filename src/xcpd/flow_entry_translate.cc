@@ -66,10 +66,18 @@ void flow_entry_translate::del_flow_entry(cflowentry &fe) {
 cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 
     rofl::cflowentry entry(fe);
-    const cportvlan_mapper & mapper = m_parent->get_mapper();
-    rofl::cofaclist inlist = fe.actions;
-	rofl::cofaclist outlist;
+    entry.actions= trans_actions(fe.actions, fe.match);
+	entry.match = trans_match(fe.match);
+	ROFL_DEBUG("Sending flow mod %s\n",entry.c_str());
+    return entry;
+}
 
+
+rofl::cofaclist flow_entry_translate::trans_actions(
+    rofl::cofaclist  &inlist, rofl::cofmatch &match)
+{
+    const cportvlan_mapper & mapper = m_parent->get_mapper();
+    rofl::cofaclist outlist;
 //	bool already_set_vlan = false;
 	bool already_did_output = false;
 // now translate the action and the match
@@ -95,7 +103,7 @@ cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 					rofl::cofaclist taggedoutputs;
 					for(oport = 1; oport <= mapper.get_number_virtual_ports(); ++oport) {
 						cportvlan_mapper::port_spec_t outport_spec = mapper.get_actual_port( oport );
-						if(outport_spec.port == fe.match.get_in_port()) {
+						if(outport_spec.port == match.get_in_port()) {
 							// this is the input port - skipping
 							continue;
 						}
@@ -127,18 +135,16 @@ cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 			} break;
 			case OFP10AT_SET_VLAN_VID: {
 				// VLAN-in-VLAN is not supported - return with error.
-				assert(false);
+                ROFL_DEBUG ("%s requires VLAN-in-VLAN not in OF1.0.", __PRETTY_FUNCTION__);
                 throw rofl::eInval();
 			} break;
 			case OFP10AT_SET_VLAN_PCP: {
 				// VLAN-in-VLAN is not supported - return with error.
-				assert(false);
+                ROFL_DEBUG ("%s requires VLAN-in-VLAN not in OF1.0.", __PRETTY_FUNCTION__);
 				throw rofl::eInval();
 			} break;
 			case OFP10AT_STRIP_VLAN: {
-				if(already_did_output) {	// cannot strip after output has already been done
-//				if(already_set_vlan) {
-//					// cannot strip after we've already added a set-vlan message  JSP TODO - is this correct?
+				if(already_did_output) {
 					ROFL_DEBUG ("%s attempt was made to strip VLAN after an OFP10AT_OUTPUT action. Rejecting flow-mod.", __PRETTY_FUNCTION__);
 					throw rofl::eInval();
 				}
@@ -146,7 +152,6 @@ cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 			case OFP10AT_ENQUEUE: {
 				// Queues not supported for now.
                 ROFL_DEBUG ("%s attempt was made to set queues in flowmod.", __PRETTY_FUNCTION__);
-				assert(false);
 				throw rofl::eInval();
 			} break;
 			case OFP10AT_SET_DL_SRC:
@@ -165,21 +170,24 @@ cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 				throw rofl::eInval();
 			} break;
 			default:
-			ROFL_DEBUG(" unknown action type (%d) Sending error and dropping message.\n",
+                ROFL_DEBUG(" unknown action type (%d) Sending error and dropping message.\n",
                 (unsigned)be16toh(a->oac_header->type));
-			throw rofl::eInval();
+                throw rofl::eInval();
 		}
-	}
-	entry.actions = outlist;
-	
-	rofl::cofmatch newmatch = fe.match;
-	rofl::cofmatch oldmatch = newmatch;
+    }
+    return outlist;
+}
+    
+rofl::cofmatch flow_entry_translate::trans_match(
+    rofl::cofmatch &oldmatch) 
+{
+    const cportvlan_mapper & mapper = m_parent->get_mapper();
+	rofl::cofmatch newmatch = oldmatch;
 	//check that VLANs are wildcarded (i.e. not being matched on)
 	// TODO we *could* theoretically support incoming VLAN iff they are coming in on an port-translated-only port (i.e. a virtual port that doesn't map to a port+vlan, only a phsyical port), and that VLAN si then stripped in the action.
 	try {
-		oldmatch.get_vlan_vid_mask();	// ignore result - we only care if it'll throw
-//		if(oldmatch.get_vlan_vid_mask() != 0xffff) {
-        ROFL_DEBUG("Received a match which didn't have VLAN wildcarded. Sending error and dropping message. match: %s\n", fe.c_str());
+		oldmatch.get_vlan_vid_mask();	
+        ROFL_DEBUG("Received a match which didn't have VLAN wildcarded. Sending error and dropping message. match: %s\n", oldmatch.c_str());
        throw rofl::eInval();
 	} catch ( rofl::eOFmatchNotFound & ) {
 		// do nothing - there was no vlan_vid_mask
@@ -197,13 +205,12 @@ cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 		newmatch.set_in_port( real_port.port );
 	} catch (std::out_of_range &) {
 		ROFL_DEBUG("%s: received a match request for an unknown port (%d) There are %d ports.  Sending error and dropping message. match:%s \n", 
-            oldmatch.get_in_port(), mapper.get_number_virtual_ports() , fe.c_str());
+            oldmatch.get_in_port(), mapper.get_number_virtual_ports() , oldmatch.c_str());
         throw rofl::eInval();
 	}
-	entry.match = newmatch;
-	ROFL_DEBUG("Sending flow mod %s\n",entry.c_str());
-    return entry;
+    return newmatch;
 }
+
 
 cflowentry flow_entry_translate::untrans_flow_entry(cflowentry &fe) {
     for (unsigned int i= 0; i < translate.size(); i++) {
