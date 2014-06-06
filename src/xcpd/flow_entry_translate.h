@@ -32,6 +32,8 @@ class flow_entry_translate {
         void del_flow_entry( cflowentry &);
         cflowentry trans_flow_entry( cflowentry &);
         cflowentry untrans_flow_entry( cflowentry &);
+        std::vector <cflowentry> get_translated_matches
+            (rofl::cofmatch &, bool);
     
 };
 

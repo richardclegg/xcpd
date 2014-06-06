@@ -68,17 +68,17 @@ bool morpheus::csh_flow_mod::process_add_flow
         trans= m_parent->get_fet()->trans_flow_entry(entry);
         m_parent->get_fet()->add_flow_entry(entry,trans);
         m_parent->send_flow_mod_message( m_parent->get_dpt(), trans);
+        return false;
     } catch (rofl::eInval &e) {
         m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED,             OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+        return true;
     }
-    return false;
 }
 
 bool morpheus::csh_flow_mod::process_modify_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-    ROFL_ERR ("FLOW_MOD command %s not supported. Dropping message\n",
-        msg->c_str());
+    std::vector <cflowentry> translations= m_parent->get_fet()->;
     return true;
 }
 

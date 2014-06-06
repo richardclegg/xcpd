@@ -223,3 +223,18 @@ cflowentry flow_entry_translate::untrans_flow_entry(cflowentry &fe) {
         fe.c_str(),__PRETTY_FUNCTION__);
     throw rofl::eInval();
 }
+
+std::vector <cflowentry> flow_entry_translate::get_translated_matches
+    (rofl::cofmatch &match, bool strict) /** Construct a list of flowmods
+matching a given match and return their translation */
+{
+    std::vector <cflowentry> translations=  std::vector <cflowentry>();
+    for (unsigned int i= 0; i < translate.size(); i++) {
+        if (match.contains(translate[i].match,strict)) {
+            translations.push_back(untranslate[i]);
+        }
+    }
+    
+    return translations;
+}
+
