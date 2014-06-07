@@ -73,6 +73,7 @@ cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 }
 
 
+
 rofl::cofaclist flow_entry_translate::trans_actions(
     rofl::cofaclist  &inlist, rofl::cofmatch &match)
 {
@@ -238,3 +239,45 @@ matching a given match and return their translation */
     return translations;
 }
 
+std::vector <cflowentry> flow_entry_translate::get_translated_matches_and_modify
+    (rofl::cofmatch &match, rofl::cofaclist & actions, bool strict) 
+    /** Construct a list of flowmods matching a given match and return their translation and modify the action list */
+{
+    std::vector <cflowentry> translations=  std::vector <cflowentry>();
+    for (unsigned int i= 0; i < translate.size(); i++) {
+        if (match.contains(translate[i].match,strict)) {
+            translate[i].actions= actions;
+            untranslate[i].actions= actions;
+            translations.push_back(untranslate[i]);
+        }
+    }
+    return translations;
+}
+
+std::vector <cflowentry> flow_entry_translate::get_translated_matches_and_delete
+    (rofl::cofmatch &match, uint32_t out_port, bool strict) /** Construct a list of flowmods
+matching a given match and return their translation while deleting them */
+{
+    std::vector <cflowentry> translations=  std::vector <cflowentry>();
+    std::vector <int> dellist=  std::vector <int>();
+    for (unsigned int i= 0; i < translate.size(); i++) {
+        if (match.contains(translate[i].match,strict)) {
+            switch (out_port) {
+                case OFPP10_NONE:
+                case OFPP10_ALL:
+                case OFPP10_FLOOD:
+                    translations.push_back(untranslate[i]);
+                    break;
+                default:
+                    if (out_port == translate[i].get_out_port()) {
+                        translations.push_back(untranslate[i]);
+                    }
+            }
+        }
+    }
+    for (unsigned int i= dellist.size()-1; i>= 0; i--) {
+        translate.erase(translate.begin()+i);
+        untranslate.erase(untranslate.begin()+i);
+    }
+    return translations;
+}

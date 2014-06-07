@@ -23,8 +23,10 @@ public:
     std::string asString() const;
     
 private:
+    rofl::cflowentry get_flowentry_from_msg(rofl::cofmsg_flow_mod * const);
     bool process_add_flow ( rofl::cofctl * const src, 
         rofl::cofmsg_flow_mod * const msg );
+
     bool process_modify_flow ( rofl::cofctl * const src, 
         rofl::cofmsg_flow_mod * const msg );
     bool process_modify_strict_flow ( rofl::cofctl * const src, 

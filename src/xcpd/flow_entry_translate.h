@@ -34,7 +34,10 @@ class flow_entry_translate {
         cflowentry untrans_flow_entry( cflowentry &);
         std::vector <cflowentry> get_translated_matches
             (rofl::cofmatch &, bool);
-    
+        std::vector <cflowentry> get_translated_matches_and_modify
+            (rofl::cofmatch &, rofl::cofaclist &, bool);
+        std::vector <cflowentry> get_translated_matches_and_delete
+            (rofl::cofmatch &, uint32_t, bool);    
 };
 
 #endif

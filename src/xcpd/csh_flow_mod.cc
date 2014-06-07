@@ -43,14 +43,10 @@ bool morpheus::csh_flow_mod::process_flow_mod ( rofl::cofctl * const src, rofl::
 }
     
 
-bool morpheus::csh_flow_mod::process_add_flow
-    ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
+rofl::cflowentry morpheus::csh_flow_mod::get_flowentry_from_msg
+    (rofl::cofmsg_flow_mod * const msg)
 {
-    
-    
-	//struct ofp10_match * p = msg->get_match().ofpu.ofp10u_match;
-    //dumpBytes( ROFL_DEBUG, (uint8_t *) p, sizeof(struct ofp10_match) );
-	rofl::cflowentry entry(OFP10_VERSION);
+    rofl::cflowentry entry(OFP10_VERSION);
     
 	entry.set_command(msg->get_command());
 	entry.set_idle_timeout(msg->get_idle_timeout());
@@ -62,15 +58,28 @@ bool morpheus::csh_flow_mod::process_add_flow
 	entry.set_flags(msg->get_flags());
 	entry.match = msg->get_match();
 	entry.actions = msg->get_actions();
+    return entry;
+}
+
+bool morpheus::csh_flow_mod::process_add_flow
+    ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
+{
     
+    
+	//struct ofp10_match * p = msg->get_match().ofpu.ofp10u_match;
+    //dumpBytes( ROFL_DEBUG, (uint8_t *) p, sizeof(struct ofp10_match) );
+
+    rofl::cflowentry entry= get_flowentry_from_msg(msg);
     rofl::cflowentry trans(OFP10_VERSION);
     try {
         trans= m_parent->get_fet()->trans_flow_entry(entry);
+        // TODO check for overlap
         m_parent->get_fet()->add_flow_entry(entry,trans);
         m_parent->send_flow_mod_message( m_parent->get_dpt(), trans);
         return false;
     } catch (rofl::eInval &e) {
-        m_parent->send_error_message( src, msg->get_xid(), OFP10ET_FLOW_MOD_FAILED,             OFP10FMFC_UNSUPPORTED, msg->soframe(), msg->framelen() );
+        m_parent->send_error_message( src, msg->get_xid(),  OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), 
+            msg->framelen() );
         return true;
     }
 }
@@ -78,31 +87,78 @@ bool morpheus::csh_flow_mod::process_add_flow
 bool morpheus::csh_flow_mod::process_modify_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-    std::vector <cflowentry> translations= m_parent->get_fet()->;
-    return true;
+    std::vector <cflowentry> translations= 
+        m_parent->get_fet()->get_translated_matches_and_modify
+            (msg->get_match(),msg->get_actions(),false);
+    // Without a flow to modify then mod acts like an add
+    if (translations.size() == 0) {
+        return process_add_flow(src,msg);
+    }
+    // Otherwise loop around and do a modify
+    for (unsigned int i= 0; i < translations.size(); i++) {
+        cflowentry cfe= get_flowentry_from_msg(msg);
+        cfe.match= translations[i].match;
+        m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
+    }
+    return false;
 }
 
 bool morpheus::csh_flow_mod::process_modify_strict_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-    ROFL_ERR ("FLOW_MOD command %s not supported. Dropping message\n",
-        msg->c_str());
-    return true;
+    std::vector <cflowentry> translations= 
+        m_parent->get_fet()->get_translated_matches_and_modify
+            (msg->get_match(),msg->get_actions(),true);
+    // Without a flow to modify then mod acts like an add
+    if (translations.size() == 0) {
+        return process_add_flow(src,msg);
+    }
+    if (translations.size() != 1) {
+        ROFL_ERR ("FLOW_MOD strict modify should not match more than one\n",
+            msg->c_str());
+    }
+    // Otherwise loop around and do a modify
+    for (unsigned int i= 0; i < translations.size(); i++) {
+        cflowentry cfe= get_flowentry_from_msg(msg);
+        cfe.match= translations[i].match;
+        m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
+    }
+    return false;
 }
 
 bool morpheus::csh_flow_mod::process_delete_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-    ROFL_ERR ("FLOW_MOD command %s not supported. Dropping message\n",
-        msg->c_str());
-    return true;
+    std::vector <cflowentry> translations= 
+        m_parent->get_fet()->get_translated_matches_and_delete
+            (msg->get_match(),msg->get_out_port(),false);
+    
+    // Otherwise loop around and send a delete
+    for (unsigned int i= 0; i < translations.size(); i++) {
+        cflowentry cfe= get_flowentry_from_msg(msg);
+        cfe.match= translations[i].match;
+        m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
+    }
+    return false;
 }
 
 bool morpheus::csh_flow_mod::process_delete_strict_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-    ROFL_ERR ("FLOW_MOD command %s not supported. Dropping message\n",
-        msg->c_str());
+    std::vector <cflowentry> translations= 
+        m_parent->get_fet()->get_translated_matches_and_delete
+            (msg->get_match(),msg->get_out_port(),true);
+    if (translations.size() != 1) {
+        ROFL_ERR ("FLOW_MOD strict delete should not match more than one\n",
+            msg->c_str());
+    }    
+    // Otherwise loop around and send a delete
+    for (unsigned int i= 0; i < translations.size(); i++) {
+        cflowentry cfe= get_flowentry_from_msg(msg);
+        cfe.match= translations[i].match;
+        m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
+    }
+    return false;
     return true;
 }
 
