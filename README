@@ -1,8 +1,7 @@
 What it is
 ==========
 
-xCPD is a control path daemon designed to manipulate the open flow
-control path.
+xCPD is a control path daemon designed to manipulate the open flow control path.  Its job is to speak OpenFlow northbound and southbound and to change the commands.
 
 Requirements
 ============
