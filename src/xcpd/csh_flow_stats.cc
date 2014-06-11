@@ -5,7 +5,7 @@
 
 
 morpheus::csh_flow_stats::csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg):chandlersession_base(parent, msg->get_xid()) {
-	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
+    ROFL_DEBUG("%s called\n",__PRETTY_FUNCTION__);
 	process_flow_stats_request(src, msg);
 	}
 
@@ -50,7 +50,9 @@ bool morpheus::csh_flow_stats::process_flow_stats_request ( rofl::cofctl * const
 	rofl::cofflow_stats_request req(OFP10_VERSION, newmatch, flows_stats_req.get_table_id(), new_outport);
 	uint32_t newxid = m_parent->send_flow_stats_request(m_parent->get_dpt(), msg->get_stats_flags(), req ); // TODO is get_stats_flags correct ??
 
-	if( ! m_parent->associate_xid( m_request_xid, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
+	if( ! m_parent->associate_xid( m_request_xid, newxid, this ) ) {
+        ROFL_ERR("Problem associating dpt xid in %s\n",__PRETTY_FUNCTION__);
+    }
 	m_completed = false;
 	return m_completed;
 }

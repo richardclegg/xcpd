@@ -3,9 +3,17 @@
 #include "morpheus_nested.h"
 #include <rofl/common/utils/c_logger.h>
 
-morpheus::chandlersession_base::chandlersession_base( morpheus * parent, uint32_t xid ):m_parent(parent),m_completed(false),m_lifetime_timer_opaque(0),m_request_xid(xid) {}
+morpheus::chandlersession_base::chandlersession_base( morpheus * parent, uint32_t xid ):
+    m_parent(parent),
+    m_completed(false),
+    m_lifetime_timer_opaque(0),
+    m_request_xid(xid) 
+{
+}
 
-std::string morpheus::chandlersession_base::asString() const { return "**chandlersession_base**"; }
+std::string morpheus::chandlersession_base::asString() const { 
+    return "**chandlersession_base**"; 
+}
 
 bool morpheus::chandlersession_base::isCompleted() { 
     return m_completed; 
@@ -41,4 +49,6 @@ morpheus::chandlersession_base::~chandlersession_base() {
 
 void morpheus::chandlersession_base::push_features(uint32_t new_capabilities, uint32_t new_actions) { m_parent->set_supported_dpe_features( new_capabilities, new_actions ); }
 
-uint32_t morpheus::chandlersession_base::getOriginalXID() const { return m_request_xid; } 
+uint32_t morpheus::chandlersession_base::getOriginalXID() const { 
+    return m_request_xid; 
+} 

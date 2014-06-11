@@ -9,10 +9,7 @@ morpheus::csh_get_config::csh_get_config(morpheus * parent, const rofl::cofctl *
 
 bool morpheus::csh_get_config::process_config_request ( const rofl::cofctl * const src, const rofl::cofmsg_get_config_request * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-//	m_request_xid = msg->get_xid();
 	uint32_t newxid = m_parent->send_get_config_request( m_parent->get_dpt() );
-//	if( ! m_parent->associate_xid( true, m_request_xid, this ) ) std::cout << "Problem associating ctl xid in " << __FUNCTION__ << std::endl;
-//	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
 	m_parent->associate_xid( m_request_xid, newxid, this );
 	m_completed = false;
 	return m_completed;

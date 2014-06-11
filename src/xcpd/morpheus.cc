@@ -315,7 +315,6 @@ void morpheus::handle_timeout ( int opaque ) {
 }
 
 #define HANDLE_REPLY_AFTER_REQUEST_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE, REPLY_FN) { \
-	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl; \
 	rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
 	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if(CTL_DPT) { std::cout << "Unhandled case in " << __FUNCTION__ << std::endl; /* no messages do this */ } else { \
@@ -435,7 +434,6 @@ void morpheus::handle_flow_stats_request(rofl::cofctl *src, rofl::cofmsg_flow_st
 
 void morpheus::handle_flow_stats_reply(rofl::cofdpt *src, rofl::cofmsg_flow_stats_reply *msg) {
 	static const char * func = __FUNCTION__;
-    =m_sessions[msg->get_xid()]
 	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_flow_stats_reply, morpheus::         csh_flow_stats, process_flow_stats_reply );
     HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_flow_stats_reply, morpheus::         csh_aggregate_stats, process_flow_stats_reply );
 }

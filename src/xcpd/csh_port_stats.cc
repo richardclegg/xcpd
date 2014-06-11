@@ -6,14 +6,17 @@
 
 using namespace xdpd;
 
-morpheus::csh_port_stats::csh_port_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_port_stats_request * const msg):chandlersession_base(parent, msg->get_xid()) {
+morpheus::csh_port_stats::csh_port_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_port_stats_request * const msg):chandlersession_base(parent, msg->get_xid()) 
+{
 	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_port_stats_request(src, msg);
-	}
+}
 
-bool morpheus::csh_port_stats::process_port_stats_request ( rofl::cofctl * const src, rofl::cofmsg_port_stats_request * const msg ) {
+bool morpheus::csh_port_stats::process_port_stats_request ( rofl::cofctl * const src, rofl::cofmsg_port_stats_request *const msg ) 
+{
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	int type= control_manager::Instance()->get_port_config_handling();
+    set_port( msg->get_port_stats().get_portno());
     if (type == control_manager::DROP_COMMAND) {
         m_completed= true;
         return true;
@@ -48,9 +51,15 @@ bool morpheus::csh_port_stats::process_port_stats_request ( rofl::cofctl * const
 
 bool morpheus::csh_port_stats::process_port_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_port_stats_reply * const msg ) {
 	assert(!m_completed);
-//	const cportvlan_mapper & mapper = m_parent->get_mapper();
+ 	//const cportvlan_mapper & mapper = m_parent->get_mapper();
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	
+	std::vector< cofport_stats_reply > reply= msg->get_port_stats();
+    if (reply.size() == 1) {
+        reply[0].set_portno(get_port());
+    } else {
+        ROFL_ERR("Unexpected received non unit number of replies in processing port_stats_repy at %s\n",__PRETTY_FUNCTION__);
+    }
+    m_parent->send_port_stats_reply(m_parent->get_ctl(),   m_request_xid, reply, false);
 	m_completed = true;
 	return m_completed;
 }
@@ -58,3 +67,14 @@ bool morpheus::csh_port_stats::process_port_stats_reply ( rofl::cofdpt * const s
 morpheus::csh_port_stats::~csh_port_stats() { std::cout << __FUNCTION__ << " called." << std::endl; }
 
 std::string morpheus::csh_port_stats::asString() const { std::stringstream ss; ss << "csh_port_stats {request_xid=" << m_request_xid << "}"; return ss.str(); }
+
+
+uint32_t morpheus::csh_port_stats::get_port()
+{
+    return port;
+}
+
+void morpheus::csh_port_stats::set_port(uint32_t p)
+{
+    port= p;
+}
