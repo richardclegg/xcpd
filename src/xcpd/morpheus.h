@@ -56,7 +56,7 @@ private:
 
 protected:
     
-    typedef std::map < std::pair< uint32_t, uint32_t >, chandlersession_base * > xid_session_map_t;
+    typedef std::map < std::pair< uint32_t, uint32_t >, chandlersession_base * >        xid_session_map_t;
     
     xid_session_map_t m_sessions;
     mutable pthread_rwlock_t m_sessions_lock;	// a lock for m_sessions

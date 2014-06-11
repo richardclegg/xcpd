@@ -64,10 +64,6 @@ rofl::cflowentry morpheus::csh_flow_mod::get_flowentry_from_msg
 bool morpheus::csh_flow_mod::process_add_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-    
-    
-	//struct ofp10_match * p = msg->get_match().ofpu.ofp10u_match;
-    //dumpBytes( ROFL_DEBUG, (uint8_t *) p, sizeof(struct ofp10_match) );
 
     rofl::cflowentry entry= get_flowentry_from_msg(msg);
     rofl::cflowentry trans(OFP10_VERSION);
