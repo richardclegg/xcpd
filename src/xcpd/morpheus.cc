@@ -144,7 +144,6 @@ morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const ro
 		ctladdr(ctladdr_),
 		m_crof_timer_opaque_offset(0x10000000),
 		m_crof_timer_opaque_max(0x00000fff),
-//		m_crof_timer_opaque_max(10),
 		m_last_crof_timer_opaque(m_crof_timer_opaque_offset+1),
 		max_session_lifetime(6),
 		m_session_timers(m_crof_timer_opaque_max+1)
@@ -434,8 +433,25 @@ void morpheus::handle_flow_stats_request(rofl::cofctl *src, rofl::cofmsg_flow_st
 
 void morpheus::handle_flow_stats_reply(rofl::cofdpt *src, rofl::cofmsg_flow_stats_reply *msg) {
 	static const char * func = __FUNCTION__;
-	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_flow_stats_reply, morpheus::         csh_flow_stats, process_flow_stats_reply );
-    HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_flow_stats_reply, morpheus::         csh_aggregate_stats, process_flow_stats_reply );
+    xid_session_map_t::iterator it; 
+	for(it = m_sessions.begin() ; it != m_sessions.end(); ++it) {
+        if(it->first.second==msg->get_xid()) break; 
+    }
+	if(it == m_sessions.end()) { 
+        ROFL_ERR("Unexpected message type %s received in %s with xid %d\n",
+            msg->c_str(), __PRETTY_FUNCTION__, msg->get_xid());
+        delete(msg);
+        return;
+    }
+    
+	// Casts just check if those things can be cast
+    if (dynamic_cast<csh_flow_stats *>(it->second)) {
+        HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_flow_stats_reply, morpheus::         csh_flow_stats, process_flow_stats_reply );
+    } else if (dynamic_cast<csh_aggregate_stats *>(it->second)) {
+        HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_flow_stats_reply, morpheus::         csh_aggregate_stats, process_flow_stats_reply );
+    } else {
+        ROFL_ERR("Could not identify message in %s\n",__PRETTY_FUNCTION__);
+    }
 }
 
 void morpheus::handle_queue_stats_request(rofl::cofctl *src, rofl::cofmsg_queue_stats_request *msg) {
