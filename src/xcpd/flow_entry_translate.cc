@@ -78,7 +78,7 @@ rofl::cofaclist flow_entry_translate::trans_actions(
     rofl::cofaclist  &inlist, rofl::cofmatch &match)
 {
     const cportvlan_mapper & mapper = m_parent->get_mapper();
-    rofl::cofaclist outlist;
+    rofl::cofaclist outlist= rofl::cofaclist(OFP10_VERSION);
 //	bool already_set_vlan = false;
 	bool already_did_output = false;
 // now translate the action and the match

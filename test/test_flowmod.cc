@@ -31,6 +31,23 @@ int main(int argc, char** argv){
         print_translate_match(match, morph);
         std::cout << std::endl;
     }
+    morph.set_supported_dpe_features(0,0xffff);
+    rofl::cofaclist outlist= rofl::cofaclist(OFP10_VERSION);
+    for (int i=1; i<=4; i++) {
+        outlist.next() =  rofl::cofaction_output(OFP10_VERSION, 
+            i);
+    }
+    //outlist.next()= rofl::cofaction_set_vlan_vid( OFP10_VERSION, 11);
+    std::cout << outlist.c_str() << std::endl;
+    std::cout << "Translate called\n" << std::endl;
+    try {
+        rofl::cofaclist translist= morph.get_fet()->trans_actions(outlist, match);
+        std::cout << translist.c_str() << std::endl;
+    } catch (...) {
+        std::cout << "Translate threw error when it should not\n" << std::endl;
+        return 0;
+    }
+    
     return 0;
 }
 

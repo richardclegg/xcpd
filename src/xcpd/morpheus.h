@@ -30,7 +30,6 @@ class morpheus : public rofl::crofbase {
 
 public:
 
-// private:
 // forward declare our nested classes which will encapsulate the transaction (composed of persistent data etc)
 	class chandlersession_base;
 	class csh_flow_mod;
@@ -88,7 +87,6 @@ protected:
     std::vector <class chandlersession_base *> m_session_timers;	// a vector containing pointers to active sessions. The index is the the opaque value passed to register_timer less m_crof_timer_opaque_offset
     mutable pthread_rwlock_t m_session_timers_lock;	// a lock for m_session_timers
 
-    void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions);
 
 // crofbase overrides
 	virtual void handle_dpath_open (rofl::cofdpt *);
@@ -158,7 +156,8 @@ public:
     
     uint32_t get_supported_actions();
     uint32_t get_supported_features() { return m_supported_features; }
-    
+
+    void set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions);
     
     std::string dump_sessions() const;
     std::string dump_config() const;
