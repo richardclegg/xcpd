@@ -14,6 +14,8 @@ Requirements
 How to build
 ============
 
+This must be built against rofl branch devel-0.3
+
 Install the dependencies and run:
 
 sh# ./autogen.sh
