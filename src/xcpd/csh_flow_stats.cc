@@ -52,7 +52,6 @@ bool morpheus::csh_flow_stats::process_flow_stats_reply ( rofl::cofdpt * const s
     if (newreps.size() == 0) {
         ROFL_ERR("Got unexpected zero size flow reply in %s\n",__FUNCTION__);
     } else {
-        //TODO translate match
         rofl::cofflow_stats_reply oldreply= rofl::cofflow_stats_reply(newreps[0]);
         unsigned int i;
         for (i= 0; i < reply_xid.size(); i++) {
