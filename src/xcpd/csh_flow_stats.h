@@ -10,7 +10,8 @@ class morpheus::csh_flow_stats : public morpheus::chandlersession_base {
 private:
     int outstanding_replies;
     std::vector< rofl::cofflow_stats_reply> replies;
-
+    std::vector<rofl::cflowentry> reply_map;
+    std::vector<uint32_t> reply_xid;
 public:
     csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg);
     bool process_flow_stats_request ( rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg );
