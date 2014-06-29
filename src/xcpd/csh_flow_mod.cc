@@ -41,31 +41,12 @@ bool morpheus::csh_flow_mod::process_flow_mod ( rofl::cofctl * const src, rofl::
     m_completed = true;
     return m_completed;
 }
-    
-
-rofl::cflowentry morpheus::csh_flow_mod::get_flowentry_from_msg
-    (rofl::cofmsg_flow_mod * const msg)
-{
-    rofl::cflowentry entry(OFP10_VERSION);
-    
-	entry.set_command(msg->get_command());
-	entry.set_idle_timeout(msg->get_idle_timeout());
-	entry.set_hard_timeout(msg->get_hard_timeout());
-	entry.set_cookie(msg->get_cookie());
-	entry.set_priority(msg->get_priority());
-	entry.set_buffer_id(msg->get_buffer_id());
-	entry.set_out_port(msg->get_out_port());	
-	entry.set_flags(msg->get_flags());
-	entry.match = msg->get_match();
-	entry.actions = msg->get_actions();
-    return entry;
-}
 
 bool morpheus::csh_flow_mod::process_add_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
 
-    rofl::cflowentry entry= get_flowentry_from_msg(msg);
+    rofl::cflowentry entry= m_parent->get_fet()->get_flowentry_from_msg(msg);
     rofl::cflowentry trans(OFP10_VERSION);
     try {
         trans= m_parent->get_fet()->trans_flow_entry(entry);
@@ -92,7 +73,7 @@ bool morpheus::csh_flow_mod::process_modify_flow
     }
     // Otherwise loop around and do a modify
     for (unsigned int i= 0; i < translations.size(); i++) {
-        cflowentry cfe= get_flowentry_from_msg(msg);
+        cflowentry cfe= m_parent->get_fet()->get_flowentry_from_msg(msg);
         cfe.match= translations[i].match;
         m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
     }
@@ -115,7 +96,7 @@ bool morpheus::csh_flow_mod::process_modify_strict_flow
     }
     // Otherwise loop around and do a modify
     for (unsigned int i= 0; i < translations.size(); i++) {
-        cflowentry cfe= get_flowentry_from_msg(msg);
+        cflowentry cfe= m_parent->get_fet()->get_flowentry_from_msg(msg);
         cfe.match= translations[i].match;
         m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
     }
@@ -131,7 +112,7 @@ bool morpheus::csh_flow_mod::process_delete_flow
     
     // Otherwise loop around and send a delete
     for (unsigned int i= 0; i < translations.size(); i++) {
-        cflowentry cfe= get_flowentry_from_msg(msg);
+        cflowentry cfe= m_parent->get_fet()->get_flowentry_from_msg(msg);
         cfe.match= translations[i].match;
         m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
     }
@@ -150,7 +131,7 @@ bool morpheus::csh_flow_mod::process_delete_strict_flow
     }    
     // Otherwise loop around and send a delete
     for (unsigned int i= 0; i < translations.size(); i++) {
-        cflowentry cfe= get_flowentry_from_msg(msg);
+        cflowentry cfe= m_parent->get_fet()->get_flowentry_from_msg(msg);
         cfe.match= translations[i].match;
         m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
     }

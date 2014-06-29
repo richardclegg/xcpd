@@ -41,6 +41,26 @@ flow_entry_translate::flow_entry_translate(morpheus * const m)
     untranslate= std::vector < cflowentry >();
 }
 
+rofl::cflowentry flow_entry_translate::get_flowentry_from_msg
+    (rofl::cofmsg_flow_mod * const msg)
+{
+    // TODO -- other versions
+    rofl::cflowentry entry(OFP10_VERSION);
+    
+	entry.set_command(msg->get_command());
+	entry.set_idle_timeout(msg->get_idle_timeout());
+	entry.set_hard_timeout(msg->get_hard_timeout());
+	entry.set_cookie(msg->get_cookie());
+	entry.set_priority(msg->get_priority());
+	entry.set_buffer_id(msg->get_buffer_id());
+	entry.set_out_port(msg->get_out_port());	
+	entry.set_flags(msg->get_flags());
+	entry.match = msg->get_match();
+	entry.actions = msg->get_actions();
+    return entry;
+}
+
+
 void flow_entry_translate::add_flow_entry( cflowentry &fe, cflowentry &trans) { 
     translate.push_back(fe);
     untranslate.push_back(trans);

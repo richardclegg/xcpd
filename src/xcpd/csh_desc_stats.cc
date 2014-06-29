@@ -9,11 +9,11 @@ morpheus::csh_desc_stats::csh_desc_stats(morpheus * parent, const rofl::cofctl *
 
 bool morpheus::csh_desc_stats::process_desc_stats_request ( const rofl::cofctl * const src, const rofl::cofmsg_desc_stats_request * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-//	m_request_xid = msg->get_xid();
 	uint32_t newxid = m_parent->send_desc_stats_request(m_parent->get_dpt(), msg->get_stats_flags());
-//	if( ! m_parent->associate_xid( true, m_request_xid, this ) ) std::cout << "Problem associating ctl xid in " << __FUNCTION__ << std::endl;
-//	if( ! m_parent->associate_xid( false, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
-	if( ! m_parent->associate_xid( m_request_xid, newxid, this ) ) std::cout << "Problem associating dpt xid in " << __FUNCTION__ << std::endl;
+
+	if( ! m_parent->associate_xid( m_request_xid, newxid, this ) ) {
+        ROFL_WARN("Problem associating dpt xid in %s\n", __FUNCTION__);
+    }
 	m_completed = false;
 	return m_completed;
 }
@@ -33,7 +33,13 @@ bool morpheus::csh_desc_stats::handle_error (rofl::cofdpt *src, rofl::cofmsg_err
 	return m_completed;
 }
 
-morpheus::csh_desc_stats::~csh_desc_stats() { std::cout << __FUNCTION__ << " called." << std::endl; }
+morpheus::csh_desc_stats::~csh_desc_stats() { 
+    ROFL_DEBUG("%s called\n",__FUNCTION__);
+}
 
-std::string morpheus::csh_desc_stats::asString() const { std::stringstream ss; ss << "csh_desc_stats {request_xid=" << m_request_xid << "}"; return ss.str(); }
+std::string morpheus::csh_desc_stats::asString() const {
+    std::stringstream ss; 
+    ss << "csh_desc_stats {request_xid=" << m_request_xid << "}"; 
+    return ss.str(); 
+}
 

@@ -27,6 +27,7 @@ class flow_entry_translate {
         ~flow_entry_translate() {};
         rofl::cofaclist trans_actions(rofl::cofaclist &, 
             rofl::cofmatch &);
+        rofl::cflowentry get_flowentry_from_msg(rofl::cofmsg_flow_mod * const);
         rofl::cofmatch trans_match(rofl::cofmatch &); 
         void add_flow_entry( cflowentry &, cflowentry &);
         void del_flow_entry( cflowentry &);

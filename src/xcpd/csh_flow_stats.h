@@ -7,16 +7,17 @@
 
 class morpheus::csh_flow_stats : public morpheus::chandlersession_base {
 
-protected:
-// uint32_t m_request_xid;
+private:
+    int outstanding_replies;
+    std::vector< rofl::cofflow_stats_reply> replies;
 
 public:
-csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg);
-bool process_flow_stats_request ( rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg );
-bool process_flow_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_flow_stats_reply * const msg );
-bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
-~csh_flow_stats();
-std::string asString() const;
+    csh_flow_stats(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg);
+    bool process_flow_stats_request ( rofl::cofctl * const src, rofl::cofmsg_flow_stats_request * const msg );
+    bool process_flow_stats_reply ( rofl::cofdpt * const src, rofl::cofmsg_flow_stats_reply * const msg );
+    bool handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg);
+    ~csh_flow_stats();
+    std::string asString() const;
 
 };
 
