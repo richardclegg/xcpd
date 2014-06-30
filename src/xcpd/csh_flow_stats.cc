@@ -20,7 +20,7 @@ bool morpheus::csh_flow_stats::process_flow_stats_request ( rofl::cofctl * const
         get_translated_matches(msg->get_flow_stats().get_match(),false);
     // Check if there are any, if not send a blank reply
     if (entries.size() == 0) {
-        m_parent->send_flow_stats_reply( src, m_request_xid, std::vector< rofl::        cofflow_stats_reply > (), false );
+        m_parent->send_flow_stats_reply( src, m_request_xid, std::vector< rofl::cofflow_stats_reply > (), false );
         m_completed = true;
         return m_completed;
     }
@@ -48,7 +48,7 @@ bool morpheus::csh_flow_stats::process_flow_stats_reply ( rofl::cofdpt * const s
 	assert(!m_completed);
 	//const cportvlan_mapper & mapper = m_parent->get_mapper();
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-    std::vector < cofflow_stats_reply > &newreps= msg->get_flow_stats();
+    std::vector <cofflow_stats_reply> &newreps= msg->get_flow_stats();
     if (newreps.size() == 0) {
         ROFL_ERR("Got unexpected zero size flow reply in %s\n",__FUNCTION__);
     } else {
@@ -56,7 +56,6 @@ bool morpheus::csh_flow_stats::process_flow_stats_reply ( rofl::cofdpt * const s
         unsigned int i;
         for (i= 0; i < reply_xid.size(); i++) {
             if (msg->get_xid() == reply_xid[i]) {
-                std::cout <<"Match"<< std::endl;
                 break;
             }
         }
