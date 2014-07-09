@@ -64,6 +64,7 @@ void print_translate_match(rofl::cofmatch &match, morpheus & morph)
     try {
         vid= newmatch.get_vlan_vid();
     } catch (...) {
+		ROFL_ERR("Problem with match in %s\n",__PRETTY_FUNCTION__);
     }
     std::cout << "translated match port:vlan " << newmatch.get_in_port() <<
         ":" << vid << std::endl;
