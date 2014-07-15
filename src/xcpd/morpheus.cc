@@ -29,23 +29,24 @@ std::ostream & operator<< (std::ostream & os, const morpheus & morph) {
 // print out a hexdump of bytes
 void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes) {
 	if (0==n_bytes) return;
-	for(size_t i = 0; i < (n_bytes-1); ++i) printf("%02x ", bytes[i]);
+	for(size_t i = 0; i < (n_bytes-1); ++i) {
+		printf("%02x ", bytes[i]);
+	}
 	printf("%02x", bytes[n_bytes-1]);
 }
 
 std::string morpheus::dump_sessions() const {
 	std::stringstream ss;
-/*	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
-	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
-	std::cout << __FUNCTION__ << ": got lock." << std::endl; */
-	for(xid_session_map_t::const_iterator it = m_sessions.begin(); it != m_sessions.end(); ++it)
-		ss << "ctl xid " << it->first.first << " dpt xid " << it->first.second << ": " << it->second->asString() << "\n";
-//		ss << ((it->first.first)?"ctl":"dpt") << " xid " << it->first.second << ": " << it->second->asString() << "\n";
+	for(xid_session_map_t::const_iterator it = m_sessions.begin();
+		it != m_sessions.end(); ++it)
+		ss << "ctl xid " << it->first.first << " dpt xid " << 
+			it->first.second << ": " << 
+			it->second->asString() << "\n";
 	return ss.str();
 }
 
 std::string morpheus::dump_config() const {	// TODO
-	return "";
+	return "Morpheus Configuration";
 }
 
 bool morpheus::associate_xid( const uint32_t ctl_xid, const uint32_t dpt_xid, chandlersession_base * p ) {
@@ -80,9 +81,6 @@ flow_entry_translate *morpheus::get_fet()
 // called to remove all associations to this session_base - returns the number of associations removed - p is not deleted and reamins in the ownership of the caller
 unsigned morpheus::remove_session( chandlersession_base * p ) {
 	unsigned tally = 0;
-/*	std::cout << __FUNCTION__ << ": waiting for lock." << std::endl;
-	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
-	std::cout << __FUNCTION__ << ": got lock." << std::endl; */
 	xid_session_map_t::iterator it = m_sessions.begin();
 	xid_session_map_t::iterator old_it;
 	while(it!=m_sessions.end()) {
@@ -99,7 +97,7 @@ unsigned morpheus::remove_session( chandlersession_base * p ) {
 }
 
 void morpheus::set_supported_dpe_features (uint32_t new_capabilities, uint32_t new_actions) {
-	// TODO new_capabilities are ignored, befause, well, we don't support any of them.
+	// TODO new_capabilities are ignored, because we don't support any of them.
 	// m_supported_features = 0;
 	m_dpe_supported_actions = new_actions;
 	m_supported_actions = new_actions & m_supported_actions_mask;
@@ -111,7 +109,7 @@ uint32_t morpheus::get_supported_actions() {
 		// we have no information on supported actions from the DPE, so we're going to have to ask ourselves.
 		std::auto_ptr < morpheus::csh_features_request > s ( new morpheus::csh_features_request ( this ) );
 		{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); register_lifetime_session_timer(s.get(), max_session_lifetime); }
-		std::cout << __FUNCTION__ << ": sent request for features. Waiting..";
+		ROFL_DEBUG("%s: sent request for features. Waiting..");
 		unsigned wait_time = 5;
 		while(wait_time && !s->isCompleted()) {
 			sleep(1);	// TODO possible error - is crofbase a single thread, or is every call to a crofbase handler a new thread?
@@ -155,7 +153,7 @@ morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const ro
 
 morpheus::~morpheus() {
 	// rpc_close_all();
-    ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
+    ROFL_DEBUG("Destructor: %s called.\n",__PRETTY_FUNCTION__);
 	pthread_rwlock_destroy(&m_sessions_lock);
 	pthread_rwlock_destroy(&m_session_timers_lock);
     delete(fet);
@@ -172,13 +170,21 @@ rofl::cofdpt * morpheus::get_dpt() const { return m_slave; }
 rofl::cofctl * morpheus::get_ctl() const { return m_master; }
 
 void morpheus::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
-	std::cout << std::endl << "handle_error from " << src->c_str() << " : " << msg->c_str() << std::endl;
+	ROFL_DEBUG("handle_error from %s:%s\n ",src->c_str(),
+		msg->c_str());
 	rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
 	xid_session_map_t::iterator sit;
-	for(sit = m_sessions.begin() ; sit != m_sessions.end(); ++sit) if(sit->first.second==msg->get_xid()) break;
+	// Look for xid
+	for(sit = m_sessions.begin() ; sit != m_sessions.end(); ++sit) {
+		if(sit->first.second==msg->get_xid()) 
+			break;
+	}
 	if(sit!=m_sessions.end()) {
-		sit->second->handle_error( src, msg);
-	} else std::cout << "**** received error message ( " << msg->c_str() << " ) from dpt ( " << std::hex << src << std::dec << " ) for unknown xid ( " << msg->get_xid() << " ). Dropping." << std::endl;
+		sit->second->handle_error(src, msg);
+	} else {
+		ROFL_ERR("Received error message (%s) from dpt (%xd) for unknown xid %d.  Dropping!\n",
+			msg->c_str(), src, msg->get_xid());
+	}
 	delete(msg);
 }
 
@@ -201,13 +207,16 @@ void morpheus::handle_ctrl_open (rofl::cofctl *src) {
 
 // TODO are all transaction IDs invalidated by a connection reset??
 void morpheus::handle_ctrl_close (rofl::cofctl *src) {
-	std::cout << "morpheus::handle_ctrl_close called with " << (src?src->c_str():"NULL") << std::endl;
+	ROFL_INFO("morpheus::handle_ctrl_close called with %s\n",
+		(src?src->c_str():"NULL"));
 	// controller disconnected - now disconnect from switch.
 	rpc_disconnect_from_dpt(m_slave);
 	// hopefully dpt will reconnect to us, causing us in turn to reconnect to ctl.
 	
 	// this socket disconnecting could just be a temporary thing - mark it is dead, but expect a possible auto reconnect
-	if(src!=m_master) std::cout << "morpheus::handle_ctrl_close: was expecting " << (m_master?m_master->c_str():"NULL") << " but got " << (src?src->c_str():"NULL") << std::endl;
+	if(src!=m_master) {
+		std::cout << "morpheus::handle_ctrl_close: was expecting " << (m_master?m_master->c_str():"NULL") << " but got " << (src?src->c_str():"NULL") << std::endl;
+	}
 	m_master=0;	// TODO - m_naster ownership?
 	// TODO make attempt to re-establish CTL connection?
 }
@@ -218,10 +227,6 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	m_slave = src;	// TODO - what to do with previous m_slave?
 	m_slave_dpid=src->get_dpid();	// TODO - check also get_config, get_capabilities etc
 	m_dpid = m_slave_dpid + 1;
-/*	if(!m_master){
-		if(inctl) rpc_listen_for_ctls(ctladdr);
-		else rpc_connect_to_ctl(PROXYOFPVERSION,5,ctladdr);
-	} */
 }
 
 // TODO are all transaction IDs invalidated by a connection reset??
