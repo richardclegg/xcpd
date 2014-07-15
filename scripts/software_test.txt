@@ -1,0 +1,21 @@
+
+Run the network namespace creation script:
+sudo ./create_netns_config.sh
+
+# once you're done with it stop it all with 
+sudo ./delete_netns_config.sh
+
+The three interfaces we care about in the default namespace are: C1_0, the control channel, LE1_0, the untagged "upstream" interface, and LV1_0 which is the OLT interface which is then split into interfaces which present untagged VLANs in the SW2 namespace
+
+// In one xterm (the one where oftest will run), start shell in the SW2 namespace:
+// sudo ip netns exec SW2 bash --posix -e
+
+In another terminal run xdpd (in default namespace):
+sudo xdpd -d all -c soft_xdpd_test.cfg
+
+In a third terminal run xcpd (in default namespace):
+sudo xcpd -c soft_xdpd_test.cfg
+
+In the first xterm run the oftest:
+./oft -v --disable-ipv6 -p 6633 -i 1@LE1_1 -i 2@vonuA_1.10 -i 3@vonuB_1.11 -i 4@vonuC_1.12 -T basic
+
