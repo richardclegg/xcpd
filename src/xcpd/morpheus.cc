@@ -162,8 +162,17 @@ morpheus::~morpheus() {
 
 void morpheus::initialiseConnections(){
 	// set up connection to controller (active or passive)
-	if(inctl) rpc_listen_for_ctls(ctladdr);
-	else rpc_connect_to_ctl(PROXYOFPVERSION,5,ctladdr);
+	
+	if(inctl) {
+		ROFL_DEBUG("Connecting to controller %s in listening mode",
+			ctladdr.c_str());
+		rpc_listen_for_ctls(ctladdr);
+	}
+	else {
+		ROFL_DEBUG("Connecting to controller %s in active mode",
+			ctladdr.c_str());
+		rpc_connect_to_ctl(PROXYOFPVERSION,5,ctladdr);
+	}
 }
 
 rofl::cofdpt * morpheus::get_dpt() const { return m_slave; }

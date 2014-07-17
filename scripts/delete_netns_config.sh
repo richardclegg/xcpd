@@ -4,6 +4,7 @@ ID=/usr/bin/id
 ROOT_UID=0
 
 service avahi-daemon start
+start network-manager
 
 #Check if run as root
 if [ ${UID} -ne ${ROOT_UID} ] ; then
@@ -12,7 +13,9 @@ if [ ${UID} -ne ${ROOT_UID} ] ; then
 fi
 
 ip netns del SW
+ip link del LE1_0
 ip link del vonuA_0
 ip link del vonuB_0
 ip link del vonuC_0
-ip link del vonuD_0
+ifconfig LV1_0 down
+brctl delbr LV1_0

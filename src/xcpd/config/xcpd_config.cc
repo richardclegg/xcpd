@@ -170,7 +170,6 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
          control_manager::Instance()->set_dpid(d);
     }
     if (active) {
-        ROFL_ERR("Active connections from xdpd to xCPd are not necessarily well supported.\n This may cause the controller to be out of sync.\n");
         if (setting.exists(XCPD_BIND_ADDRESS_PORT) ||
            setting.exists(XCPD_BIND_ADDRESS_IP) ) {
             ROFL_ERR("bind-address settings ignored in active mode -- use master-controller\n");
@@ -194,6 +193,7 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
             //std::cout << "Setting port to "<< port << std::endl;
         }
     } else {
+		 ROFL_ERR("Passive connections from xdpd to xCPd are not necessarily well supported.\n This may cause the controller to be out of sync.\n");
         if (setting.exists(XCPD_MASTER_CONTROLLER_PORT) ||
            setting.exists(XCPD_MASTER_CONTROLLER_IP) ) {
             ROFL_ERR("master-controller settings ignored in active mode -- use bind-address\n");

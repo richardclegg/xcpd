@@ -156,18 +156,11 @@ int main(int argc, char** argv){
 	//Printing nice trace
 	ROFL_INFO("\nCleaning the house...\n");	
 
-	//Destroy all state
-	//switch_manager::destroy_all_switches();
-
 	//Let plugin manager destroy all registered plugins
-//	free(c);
 	delete c;
 	
 	//ciosrv destroy
 	ciosrv::destroy();
-
-	//Call fwd_module to shutdown
-	//fwd_module_destroy();
 	
 	ROFL_INFO("House cleaned!\nGoodbye\n");
 	

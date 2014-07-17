@@ -127,7 +127,7 @@ protected:
 	virtual void handle_queue_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_queue_get_config_request * msg );
 	virtual void handle_experimenter_message(rofl::cofctl *ctl, rofl::cofmsg_features_request * msg );
 	virtual void handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod * msg );
-// timeout methods?
+// timeout methods
 	virtual void handle_timeout ( int opaque );
 	virtual void handle_error ( rofl::cofdpt * src, rofl::cofmsg_error * msg );
 
