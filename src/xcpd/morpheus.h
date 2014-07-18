@@ -51,8 +51,14 @@ public:
 	class csh_set_config;
 
 private:
-    flow_entry_translate *fet;
-    void check_locks();
+    flow_entry_translate *fet; // Class used to translate flow entries
+	std::vector <rofl::cofmsg *> ctlmsgqueue; //queue of messages going up to controller
+	std::vector <rofl::cofmsg *> dptmsgqueue; // queue of messages going down to data path
+
+	void check_locks();
+    void wait_for_slave();
+    void wait_for_master();
+	chandlersession_base * get_chandlersession(rofl::cofmsg *);
 
 protected:
     
