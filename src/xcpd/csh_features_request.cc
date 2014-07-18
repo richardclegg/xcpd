@@ -7,7 +7,7 @@
 #include <rofl/common/utils/c_logger.h>
 
 morpheus::csh_features_request::csh_features_request(morpheus * parent):chandlersession_base(parent, 0),m_local_request(true) {
-	ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
+	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	uint32_t newxid = m_parent->send_features_request( m_parent->get_dpt() );
 	if( ! m_parent->associate_xid( m_request_xid, newxid, this ) ) {
 		ROFL_ERR("Problem associating dpt xid in %s.\n",__PRETTY_FUNCTION__);
@@ -15,7 +15,7 @@ morpheus::csh_features_request::csh_features_request(morpheus * parent):chandler
 }
 
 morpheus::csh_features_request::csh_features_request(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_features_request * const msg):chandlersession_base(parent, msg->get_xid()),m_local_request(false) {
-	ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
+	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 	process_features_request(src, msg);
 	}
 
@@ -36,18 +36,15 @@ bool morpheus::csh_features_request::process_features_reply ( const rofl::cofdpt
 		push_features( msg->get_capabilities(), msg->get_actions_bitmap() );
 		m_completed = true;
 	} else {
-		uint64_t dpid = m_parent->get_dpid();	
+		uint64_t dpid = m_parent->get_dpid() + 1;		// TODO get this from config file
 		uint32_t capabilities = msg->get_capabilities();
 		// first check whether we have the ones we need, then rewrite them anyway
-		ROFL_DEBUG ("%s Capabilities of DPE reported as: %s.\n",
-			__PRETTY_FUNCTION__,capabilities_to_string(capabilities).c_str());
+		std::cout << __FUNCTION__ << ": capabilities of DPE reported as:" << capabilities_to_string(capabilities) << std::endl;
 		uint32_t of10_actions_bitmap = msg->get_actions_bitmap();	// 	TODO ofp10 only
-		ROFL_DEBUG("%s : supported actions of DPE reported as: %s.\n",
-			__PRETTY_FUNCTION__,
-			action_mask_to_string(of10_actions_bitmap).c_str());
+		std::cout << __FUNCTION__ << ": supported actions of DPE reported as:" << action_mask_to_string(of10_actions_bitmap) << std::endl;
 		push_features( capabilities, of10_actions_bitmap );
 
-		capabilities = m_parent->get_supported_features();
+		capabilities = m_parent->get_supported_features();	// hard coded to return 0 - No stats, STP or the other magic.
 				
 		rofl::cofportlist realportlist = msg->get_ports();
 		// check whether all the ports we're using are actually supported by the DPE
@@ -87,7 +84,7 @@ bool morpheus::csh_features_request::handle_error (rofl::cofdpt *src,
 }
 
 morpheus::csh_features_request::~csh_features_request() { 
-	ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__); 
+	ROFL_DEBUG("%s called.\n"); 
 }
 
 std::string morpheus::csh_features_request::asString() const { std::stringstream ss; ss << "csh_features_request {request_xid=" << m_request_xid << "}"; return ss.str(); }

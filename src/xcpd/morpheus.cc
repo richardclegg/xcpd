@@ -18,44 +18,6 @@ const PV_VLANID_T PV_VLANID_T::ANY = PV_VLANID_T::make_ANY();
 const PV_VLANID_T PV_VLANID_T::NONE = PV_VLANID_T::make_NONE();
 #define PROXYOFPVERSION OFP10_VERSION
 
-
-
-morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const rofl::caddress dptaddr_, const bool inctl_, const rofl::caddress ctladdr_ ): \
-		rofl::crofbase (1 <<  PROXYOFPVERSION),
-		m_slave(0),
-		m_master(0),
-		m_mapper(mapper_),
-		m_supported_features(0),
-		m_supported_actions_mask( (1<<OFP10AT_OUTPUT)|(1<<OFP10AT_SET_DL_SRC)|(1<<OFP10AT_SET_DL_DST)|(1<<OFP10AT_SET_NW_SRC)|(1<<OFP10AT_SET_NW_DST)|(1<<OFP10AT_SET_NW_TOS)|(1<<OFP10AT_SET_TP_SRC)|(1<<OFP10AT_SET_TP_DST) ),
-		m_supported_actions(0),
-		m_dpe_supported_actions(0),
-		m_dpe_supported_actions_valid(false),
-		indpt(indpt_),
-		inctl(inctl_),
-		dptaddr(dptaddr_),
-		ctladdr(ctladdr_),
-		m_crof_timer_opaque_offset(0x10000000),
-		m_crof_timer_opaque_max(0x00000fff),
-		m_last_crof_timer_opaque(m_crof_timer_opaque_offset+1),
-		max_session_lifetime(6),
-		m_session_timers(m_crof_timer_opaque_max+1)
-{
-    fet= new flow_entry_translate(this);
-	pthread_rwlock_init(&m_sessions_lock, 0);
-	pthread_rwlock_init(&m_session_timers_lock, 0);
-	ctlmsgqueue= std::vector <rofl::cofmsg *> ();
-	dptmsgqueue= std::vector <rofl::cofmsg *> ();
-}
-
-morpheus::~morpheus() {
-	// rpc_close_all();
-    ROFL_DEBUG("%s:  called.\n",__PRETTY_FUNCTION__);
-	pthread_rwlock_destroy(&m_sessions_lock);
-	pthread_rwlock_destroy(&m_session_timers_lock);
-    delete(fet);
-}
-
-
 std::ostream & operator<< (std::ostream & os, const morpheus & morph) {
 	os << "morpheus configuration:\n" << morph.dump_config();
 	os << "morpheus current sessions:" << morph.dump_sessions();
@@ -91,15 +53,12 @@ bool morpheus::associate_xid( const uint32_t ctl_xid, const uint32_t dpt_xid, ch
 	std::pair< uint32_t, uint32_t > e ( ctl_xid, dpt_xid );
 	xid_session_map_t::iterator sit(m_sessions.find( e ));
 	if(sit!=m_sessions.end()) {
-        ROFL_ERR("%s: Attempt was made to associate %ld/%ld with %s but pair exists\n",
-            __PRETTY_FUNCTION__,
+        ROFL_ERR("Attempt was made to associate %d/%d with %s but pair exists\n",
             ctl_xid, dpt_xid, p->asString().c_str());
 		return false;	// new_xid was already in the database
 	}
-    ROFL_DEBUG("%s: Associated %ld/%ld with %s\n",
-			__PRETTY_FUNCTION__,
+    ROFL_DEBUG("Associated %d/%d with %s but pair exists\n",
             ctl_xid, dpt_xid, p->asString().c_str());
-    m_sessions[e]=p;
     return true;
 }
 
@@ -166,6 +125,41 @@ uint32_t morpheus::get_supported_actions() {
 	return m_supported_actions;
 }
 
+
+morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const rofl::caddress dptaddr_, const bool inctl_, const rofl::caddress ctladdr_ ): \
+		rofl::crofbase (1 <<  PROXYOFPVERSION),
+		m_slave(0),
+		m_master(0),
+		m_mapper(mapper_),
+		m_supported_features(0),
+		m_supported_actions_mask( (1<<OFP10AT_OUTPUT)|(1<<OFP10AT_SET_DL_SRC)|(1<<OFP10AT_SET_DL_DST)|(1<<OFP10AT_SET_NW_SRC)|(1<<OFP10AT_SET_NW_DST)|(1<<OFP10AT_SET_NW_TOS)|(1<<OFP10AT_SET_TP_SRC)|(1<<OFP10AT_SET_TP_DST) ),
+		m_supported_actions(0),
+		m_dpe_supported_actions(0),
+		m_dpe_supported_actions_valid(false),
+		indpt(indpt_),
+		inctl(inctl_),
+		dptaddr(dptaddr_),
+		ctladdr(ctladdr_),
+		m_crof_timer_opaque_offset(0x10000000),
+		m_crof_timer_opaque_max(0x00000fff),
+		m_last_crof_timer_opaque(m_crof_timer_opaque_offset+1),
+		max_session_lifetime(6),
+		m_session_timers(m_crof_timer_opaque_max+1)
+		{
+    fet= new flow_entry_translate(this);
+	pthread_rwlock_init(&m_sessions_lock, 0);
+	pthread_rwlock_init(&m_session_timers_lock, 0);
+}
+
+morpheus::~morpheus() {
+	// rpc_close_all();
+    ROFL_DEBUG("Destructor: %s called.\n",__PRETTY_FUNCTION__);
+	pthread_rwlock_destroy(&m_sessions_lock);
+	pthread_rwlock_destroy(&m_session_timers_lock);
+    delete(fet);
+}
+
+
 void morpheus::set_ctl_watcher() {
 	if(inctl) {
 		ROFL_DEBUG("Connecting to controller %s xcpd in listening mode\n",
@@ -187,7 +181,7 @@ void morpheus::set_dpt_watcher() {
 			dptaddr.c_str());
 		rpc_listen_for_dpts(dptaddr);
 	} else {
-		ROFL_DEBUG("Connecting to switch %s switch in listening mode\n",
+		ROFL_DEBUG("Connecting to switch %s switch in active mode\n",
 			dptaddr.c_str());
 		rpc_connect_to_dpt(PROXYOFPVERSION,1,dptaddr);
 	}
@@ -225,19 +219,11 @@ void morpheus::handle_ctrl_open (rofl::cofctl *src) {
 	ROFL_DEBUG("%s called with %s\n",__PRETTY_FUNCTION__,
 		(src?src->c_str():"NULL"));
 	if (m_master == src) { 
-		ROFL_DEBUG("%s : received contact from old controller, keeping it.\n",
-			__PRETTY_FUNCTION__);
-		return;
-	}	
-	else if (m_master != 0) {
-		ROFL_DEBUG("%s : received replacement controller.\n");
-		return;
-	}
+		ROFL_DEBUG("Appears to be duplicate call\n");
+	}	// this is a fiddle - ROFL send spurious duplicate handle_ctrl_open sometimes.
 	m_master= src;
 	try {
-		if (m_slave == 0) {
-			set_dpt_watcher();
-		}
+		set_dpt_watcher();
 	} catch (rofl::eSocketBindFailed & e) {
 		ROFL_ERR("%s threw rofl::eSocketBind error\n",
 			__PRETTY_FUNCTION__);
@@ -257,10 +243,7 @@ void morpheus::handle_ctrl_close (rofl::cofctl *src) {
 	
 	// this socket disconnecting could just be a temporary thing - mark it is dead, but expect a possible auto reconnect
 	if(src!=m_master) {
-		ROFL_ERR("In %s closing control path does not match that opened %s\n",
-		(m_master?m_master->c_str():"NULL"),
-		(src?src->c_str():"NULL")
-		);
+		std::cout << "morpheus::handle_ctrl_close: was expecting " << (m_master?m_master->c_str():"NULL") << " but got " << (src?src->c_str():"NULL") << std::endl;
 	}
 	m_master=0;	
 }
@@ -284,11 +267,8 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 		(src?src->c_str():"NULL")
 		);
 	}
+	// Mark as dead.
 	m_slave=0;	
-	// If master is still open try to reconnect
-	if (m_master != 0) {
-		set_dpt_watcher();
-	}
 }
 
 
@@ -322,15 +302,13 @@ int morpheus::register_session_timer(morpheus::chandlersession_base * s, unsigne
 // this method handles all the timing events - these can be either session lifetime evenets, or some secondary event created by a session.
 // ** THIS METHOD IS THE ONE THAT REMOVES AN EXPIRED SESSION FROM m_session_timers and the sessions database.
 void morpheus::handle_timeout ( int opaque ) {
-	ROFL_DEBUG("%s : called with opaque = %xd / %xd \n",
-		__PRETTY_FUNCTION__, opaque, (opaque-m_crof_timer_opaque_offset));
+	std::cout << "****" << __FUNCTION__ << " called with opaque = " << std::hex << opaque << "/" << (opaque-m_crof_timer_opaque_offset) << std::dec << std::endl;
 	// TODO make sure to remove *all* instances of the pointer to the session from the m_session_timers array (scan for value in array, swap with 0, delete whats pointed to by array
 	// check that this is a session_timer
 	int opaque_off = opaque - m_crof_timer_opaque_offset;
 	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE);
 	if(!m_session_timers[opaque_off]) {
-		ROFL_ERR("%s : called with  unknown opaque = %xd / %xd \n",
-		__PRETTY_FUNCTION__, opaque, (opaque-m_crof_timer_opaque_offset));
+		std::cout << __FUNCTION__ << " called with unknwon opaque " << std::hex << opaque << std::dec << "." << std::endl;
 		assert(false);
     }
 	morpheus::chandlersession_base * s = m_session_timers[opaque_off];
@@ -341,13 +319,11 @@ void morpheus::handle_timeout ( int opaque ) {
 		std::replace(m_session_timers.begin(), m_session_timers.end(), s, (morpheus::chandlersession_base *) 0);
 		// now remove from sessions database and delete
 		if(!s->isCompleted()) {
-			ROFL_DEBUG("%s : called on session %xd %s which wasn't completed\n",
-		__PRETTY_FUNCTION__, s,typeid(*s).name());
+			std::cout << "ERROR: timeout occured on session " << std::hex << s << std::dec << " (" << typeid(*s).name() << ") which wasn't completed." << std::endl;
 			// TODO send error?
 			}
 		rofl::RwLock lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE);
-		ROFL_DEBUG("%s : deleting session %s. \n",
-			__PRETTY_FUNCTION__, s->asString().c_str());
+		std::cout << "About to delete session " << s->asString() << std::endl;
 		delete(s);
 	} else {
 		// this is a timer belonging to some other session function, so tell the session
@@ -411,44 +387,6 @@ void morpheus::check_locks()
 	delete(msg); \
 }
 
-/**Find which chandler session is in map*/
-morpheus::chandlersession_base * morpheus::get_chandlersession(rofl::cofmsg *msg)
-{
-	xid_session_map_t::iterator it; 
-	for(it = m_sessions.begin() ; 
-		it != m_sessions.end(); ++it) {
-		if(it->first.second == msg->get_xid()) 
-			break;
-	}
-	if(it == m_sessions.end()) { 
-		ROFL_ERR("%s: cannot find session for %s with xid %ld\n",
-			__PRETTY_FUNCTION__,msg->c_str(),msg->get_xid());
-		/*std::cout << func << ": Unexpected " << TOSTRING(MSG_TYPE) << " received with xid " << msg->get_xid() << ". Dropping new message." << std::endl; return; } */
-		return 0;
-	}
-	return it->second;
-}
-
-void morpheus::wait_for_slave()
-{
-	for (unsigned int i= 0; i < 3; i++) {
-		if (!m_slave) {
-			ROFL_DEBUG("%s: No datapath sleep.\n",__PRETTY_FUNCTION__);
-			sleep(3);
-		}
-	}
-}
-
-void morpheus::wait_for_master()
-{
-	for (unsigned int i= 0; i < 3; i++) {
-		if (!m_master) {
-			ROFL_DEBUG("%s: No control path sleep.\n",__PRETTY_FUNCTION__);
-			sleep(3);
-		}
-	}
-}
-
 
 void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
@@ -456,62 +394,12 @@ void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 }
 
 void morpheus::handle_features_request(rofl::cofctl *src, rofl::cofmsg_features_request * msg ) {
-	//static const char * func = __FUNCTION__;
-	//HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_features_request, morpheus::csh_features_request )
-	ROFL_DEBUG("%s from %s : %s\n", __PRETTY_FUNCTION__,src->c_str(), msg->c_str());
-	//wait_for_slave();
-	if (!m_slave) {
-		ROFL_ERR("%s: No data path connection message lost \n",__PRETTY_FUNCTION__);
-		delete(msg);
-		return;
-	}
-	check_locks();
-	try {
-		new morpheus::csh_features_request(this, src, msg);
-	} catch (rofl::cerror &e){
-		ROFL_ERR("%s: Caught error %s\n",__PRETTY_FUNCTION__, e.desc.c_str());
-		assert(false);
-	}
-	delete(msg);
+	static const char * func = __FUNCTION__;
+	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_features_request, morpheus::csh_features_request )
 }
-
 void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_reply * msg ) {
-	//static const char * func = __FUNCTION__;
-	//HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_features_reply, morpheus::csh_features_request, process_features_reply )
-	ROFL_DEBUG("%s: message %s.\n",__PRETTY_FUNCTION__, msg->c_str());
-	//wait_for_slave();
-	
-	if (!m_slave) {
-		ROFL_ERR ("%s: no path to dpt queuing message \n",__PRETTY_FUNCTION__);
-		dptmsgqueue.push_back(msg);
-		return;
-	}
-	check_locks();
-	try {
-		chandlersession_base *b= get_chandlersession(msg);
-		if (b == 0) {
-			delete(msg);
-			return;
-		}
-		morpheus::csh_features_request *s= 
-			dynamic_cast<morpheus::csh_features_request *>(b);
-		if (!s) {
-			ROFL_ERR("%s: message maps to wrong base type %s\n",
-				__PRETTY_FUNCTION__, b->asString().c_str());
-			delete(msg);
-			return;
-		}
-		s->process_features_reply(src,msg);
-		if (s->isCompleted()) {
-			remove_session(s);
-			delete(s);
-		}
-	} catch (rofl::cerror &e) {
-		ROFL_ERR("%s: unhandled cerror: %s\n", e.desc.c_str());
-		delete(msg);
-		return;
-	}
-	delete(msg);
+	static const char * func = __FUNCTION__;
+	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_features_reply, morpheus::csh_features_request, process_features_reply )
 }
 
 void morpheus::handle_get_config_request(rofl::cofctl *src, rofl::cofmsg_get_config_request *msg) {
@@ -612,15 +500,13 @@ void morpheus::handle_flow_stats_reply(rofl::cofdpt *src, rofl::cofmsg_flow_stat
 }
 
 void morpheus::handle_queue_stats_request(rofl::cofctl *src, rofl::cofmsg_queue_stats_request *msg) {
-	//static const char * func = __FUNCTION__;
-	ROFL_WARN("%s: not implemented\n",__PRETTY_FUNCTION__);
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
 void morpheus::handle_experimenter_stats_request(rofl::cofctl *src, rofl::cofmsg_stats_request *msg) {
-	
-	//static const char * func = __FUNCTION__;
-	
-	ROFL_WARN("%s:  not implemented\n",__PRETTY_FUNCTION__);
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
 
@@ -629,11 +515,13 @@ void morpheus::handle_port_mod(rofl::cofctl *src, rofl::cofmsg_port_mod *msg) {
 	HANDLE_MESSAGE_FORWARD_TEMPLATE(true, morpheus::csh_port_mod)
 }
 void morpheus::handle_queue_get_config_request(rofl::cofctl *src, rofl::cofmsg_queue_get_config_request *msg) {
-	ROFL_WARN("%s: not implemented\n",__PRETTY_FUNCTION__);
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
 void morpheus::handle_experimenter_message(rofl::cofctl *src, rofl::cofmsg_features_request *msg) {
-	ROFL_WARN("%s:  not implemented\n",__PRETTY_FUNCTION__);
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << src->c_str() << " : " << msg->c_str() << std::endl;
 	delete(msg);
 }
 

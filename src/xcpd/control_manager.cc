@@ -216,18 +216,15 @@ int control_manager::get_port_no(std::string n)
 
 void control_manager::set_switch_to_xcpd_conn_passive()
 {
-	//cout << "Switch passive" <<endl;
     switch_to_xcpd_conn= PASSIVE_CONNECTION;
 }
 void control_manager::set_switch_to_xcpd_conn_active()
 {
-	//cout << "Switch active" <<endl;
     switch_to_xcpd_conn= ACTIVE_CONNECTION;
 }
      
 bool control_manager::is_switch_to_xcpd_conn_active()
 {
-	//cout << "switch is active "<< (switch_to_xcpd_conn == ACTIVE_CONNECTION) << endl;
     return (switch_to_xcpd_conn == ACTIVE_CONNECTION);
 }
 

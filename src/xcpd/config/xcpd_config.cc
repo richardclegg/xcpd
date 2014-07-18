@@ -154,10 +154,10 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
 		if( mode == XCPD_PASSIVE_MODE){
             active= false;
 			control_manager::Instance()->set_switch_to_xcpd_conn_passive();
-            
+            //std::cout << "Switch passive" << std::endl;
 		} else if(mode == XCPD_ACTIVE_MODE){	
              control_manager::Instance()->set_switch_to_xcpd_conn_active();
-             
+             //std::cout << "Switch active" << std::endl;
         } else if(dry_run) {
             ROFL_WARN("%s: Unable to parse mode.. assuming ACTIVE\n", 
                 setting.getPath().c_str()); 
@@ -201,7 +201,7 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
         }
         if(setting.exists(XCPD_BIND_ADDRESS_IP)){
             std::string ip = setting[XCPD_BIND_ADDRESS_IP];
-            control_manager::Instance()->set_switch_ip(ip);
+            control_manager::Instance()->set_xcpd_ip(ip);
         }
 
         if(setting.exists(XCPD_BIND_ADDRESS_PORT)){
@@ -211,7 +211,7 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
                 throw eConfParseError(); 	
 				
             }
-            control_manager::Instance()->set_switch_port(port);
+            control_manager::Instance()->set_xcpd_port(port);
             //std::cout << "Setting port to "<< port << std::endl;
         }
     }

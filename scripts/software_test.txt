@@ -5,7 +5,7 @@ sudo ./create_netns_config.sh
 # once you're done with it stop it all with 
 sudo ./delete_netns_config.sh
 
-The three interfaces we care about in the default namespace are: C1_0, the control channel, LE1_0, the untagged "upstream" interface, and LV1_0 which is the OLT interface which is then split into interfaces which present untagged VLANs in the SW namespace
+The three interfaces we care about in the default namespace are: C1_0, the control channel, LE1_0, the untagged "upstream" interface, and LV1_0 which is the OLT interface which is then split into interfaces which present untagged VLANs in the SW2 namespace
 
 // In one xterm (the one where oftest will run), start shell in the SW namespace:
 // sudo ip netns exec SW bash --posix -e

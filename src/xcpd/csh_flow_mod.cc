@@ -45,7 +45,7 @@ bool morpheus::csh_flow_mod::process_flow_mod ( rofl::cofctl * const src, rofl::
 bool morpheus::csh_flow_mod::process_add_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-	
+
     rofl::cflowentry entry= m_parent->get_fet()->get_flowentry_from_msg(msg);
     rofl::cflowentry trans(OFP10_VERSION);
     try {
@@ -106,12 +106,10 @@ bool morpheus::csh_flow_mod::process_modify_strict_flow
 bool morpheus::csh_flow_mod::process_delete_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-	ROFL_DEBUG("%s: entered\n", __PRETTY_FUNCTION__);
     std::vector <cflowentry> translations= 
         m_parent->get_fet()->get_translated_matches_and_delete
             (msg->get_match(),msg->get_out_port(),false);
-    ROFL_DEBUG("%s: got %d translations\n", __PRETTY_FUNCTION__,
-		translations.size());
+    
     // Otherwise loop around and send a delete
     for (unsigned int i= 0; i < translations.size(); i++) {
         cflowentry cfe= m_parent->get_fet()->get_flowentry_from_msg(msg);
@@ -124,7 +122,6 @@ bool morpheus::csh_flow_mod::process_delete_flow
 bool morpheus::csh_flow_mod::process_delete_strict_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-	ROFL_DEBUG("%s: entered\n", __PRETTY_FUNCTION__);
     std::vector <cflowentry> translations= 
         m_parent->get_fet()->get_translated_matches_and_delete
             (msg->get_match(),msg->get_out_port(),true);
