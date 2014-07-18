@@ -52,6 +52,7 @@ public:
 
 private:
     flow_entry_translate *fet;
+    void check_locks();
 
 protected:
     
@@ -153,6 +154,8 @@ public:
     int register_session_timer(morpheus::chandlersession_base *, unsigned seconds);
     void register_lifetime_session_timer(morpheus::chandlersession_base * s, unsigned seconds);
     void cancel_session_timer(int opaque);
+    void set_ctl_watcher();
+    void set_dpt_watcher();
     
     uint32_t get_supported_actions();
     uint32_t get_supported_features() { return m_supported_features; }
