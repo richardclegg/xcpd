@@ -136,7 +136,7 @@ int main(int argc, char** argv){
     rofl::ciosrv::init();
     ROFL_INFO("Running\n");
     ROFL_DEBUG("Debugging switched on for xcpd.\n");
-    bool indpt= cm->is_switch_to_xcpd_conn_active();
+    bool indpt= !cm->is_switch_to_xcpd_conn_active();
     bool inctl=  !cm->is_xcpd_to_control_conn_active();
     caddress dptaddr= cm->get_switch_address();
     caddress ctladdr= cm->get_higher_address();
