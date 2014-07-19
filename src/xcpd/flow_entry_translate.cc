@@ -128,7 +128,7 @@ rofl::cofaclist flow_entry_translate::trans_actions(
 							// this is the input port - skipping
 							continue;
 						}
-						ROFL_DEBUG("Generating output action from virtual port %d to actual %d\n",(unsigned) oport, outport_spec);
+						ROFL_DEBUG("Generating output action from virtual port %ld to actual %ld\n", oport, outport_spec.port);
 						if(outport_spec.vlanid_is_none())
 							outlist.next() =  rofl::cofaction_output( OFP10_VERSION, outport_spec.port, be16toh(a->oac_10output->max_len) );
 						else {
