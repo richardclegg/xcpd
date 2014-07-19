@@ -4,6 +4,7 @@ SUBDIRS= config hardware_management
 
 noinst_LTLIBRARIES = libxcpd_wrap.la
 libxcpd_wrap_la_SOURCES = \
+	cportvlan_mapper.cc \
 	control_manager.cc \
 	csh_aggregate_stats.cc \
 	csh_barrier.cc \

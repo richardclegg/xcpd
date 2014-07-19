@@ -16,9 +16,9 @@
 class cportvlan_mapper {		// a class that will translate only ports and vlans
 
 public:
-static const uint32_t NO_VLAN = 0xfffffffd;
-static const uint32_t ANY_VLAN = 0xfffffffe;
-static const uint32_t ANY_PORT = 0xffffffff;
+static const uint32_t NO_VLAN;
+static const uint32_t ANY_VLAN;
+static const uint32_t ANY_PORT;
 
 struct port_spec {
 uint32_t port; /* Input switch port. - only 16 bits are valid - could also be set to ANY_PORT*/
@@ -32,7 +32,7 @@ protected:
 public:
 static const PORT ANY;
 explicit PORT (uint16_t p):val(p) { }
-static cportvlan_mapper::port_spec::PORT make_ANY() { return PORT(0, true); }
+static cportvlan_mapper::port_spec::PORT make_ANY() { return PORT(0, true); };
 };
 
 class VLANID {
@@ -79,7 +79,7 @@ std::vector<port_spec_t> m_virtual_to_abstract;
 
 public:
 
-cportvlan_mapper() {}
+cportvlan_mapper();
 
 template <typename InputIterator> cportvlan_mapper(InputIterator begin, InputIterator end) {
 // template <typename InputIterator> cportvlan_mapper(InputIterator begin, InputIterator end):m_virtual_to_abstract(begin, end) {
