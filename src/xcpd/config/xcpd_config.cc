@@ -166,7 +166,8 @@ void xcpd_lsi_scope::post_validate(libconfig::Setting& setting, bool dry_run){
     }
 
     if (!dry_run && setting.exists(XCPD_DPID)) {
-         uint64_t d= strtoull(setting[XCPD_DPID].c_str(),NULL,0);
+		 std::string dpid_s = setting[XCPD_DPID];
+         uint64_t d= strtoull(dpid_s.c_str(),NULL,0);
          control_manager::Instance()->set_dpid(d);
     }
     if (active) {
