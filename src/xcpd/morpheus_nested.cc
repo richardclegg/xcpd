@@ -42,8 +42,8 @@ int morpheus::chandlersession_base::getLifetimeTimerOpaque() const {
 
 morpheus::chandlersession_base::~chandlersession_base() { 
     if (!m_completed) {
-        ROFL_ERR("Destructor called on handler when session not complete %s\n",
-            asString().c_str());
+        ROFL_ERR("%s: Destructor called on handler when session not complete xid %ld\n",
+            __PRETTY_FUNCTION__,m_request_xid);
     }
 }
 

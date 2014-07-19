@@ -22,15 +22,33 @@ bool morpheus::csh_port_mod::process_port_mod ( rofl::cofctl * const src, rofl::
     }
     if (type == control_manager::PASSTHROUGH_COMMAND) {
         const cportvlan_mapper & mapper = m_parent->get_mapper();
-        cportvlan_mapper::port_spec_t real_port= 
-            mapper.get_actual_port( msg->get_port_no() );
-        uint32_t new_port= real_port.port;
-        m_parent->send_port_mod_message( m_parent->get_dpt(), 
-            new_port, msg->get_hwaddr(), 
-            msg->get_config(), msg->get_mask(), 
-            msg->get_advertise() );
-        m_completed = true;
-        return m_completed;
+        
+        try {
+			cportvlan_mapper::port_spec_t real_port= 
+				mapper.get_actual_port( msg->get_port_no() );
+			uint32_t new_port= real_port.port;
+			m_parent->send_port_mod_message( m_parent->get_dpt(), 
+				new_port, msg->get_hwaddr(), 
+				msg->get_config(), msg->get_mask(), 
+				msg->get_advertise() );
+			m_completed = true;
+			return m_completed;
+		} catch (std::out_of_range) {
+			ROFL_DEBUG("%s: Port out of range %ld \n", __PRETTY_FUNCTION__,
+				msg->get_port_no());
+			size_t datalen = (msg->framelen() > 64) ? 64 : msg->framelen();
+			m_parent->send_error_message(
+			m_parent->get_ctl(),
+			msg->get_xid(),
+			OFPET_PORT_MOD_FAILED,
+			OFPPMFC_BAD_PORT,
+			(unsigned char*)msg->soframe(),
+			datalen
+			);	
+			m_completed= true;
+			return m_completed;
+		}
+		
     }
     if (type == control_manager::HARDWARE_SPECIFIC_COMMAND) {
         hardware_manager *hwm= control_manager::Instance()->get_hardware_manager();

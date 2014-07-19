@@ -356,7 +356,8 @@ int morpheus::register_session_timer(morpheus::chandlersession_base * s, unsigne
 	m_session_timers[opaque] = s;
 	opaque += m_crof_timer_opaque_offset;
 	register_timer(opaque, seconds);
-    ROFL_DEBUG("Registered session %s with opaque %d\n",s, opaque);
+    ROFL_DEBUG("Registered session %s with opaque %d\n",
+		s->asString().c_str(), opaque);
 	m_last_crof_timer_opaque = opaque;
 	return opaque;
 }
@@ -428,8 +429,6 @@ void morpheus::check_locks()
 }
 
 #define HANDLE_REPLY_AFTER_REQUEST_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE, REPLY_FN) { \
-	rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
-	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if(CTL_DPT) { \
 		ROFL_ERR("%s: message unexpectedly marked as control type\n",func); \
 		return; \
@@ -439,6 +438,7 @@ void morpheus::check_locks()
 		dptmsgqueue.push_back(msg); \
 		return; \
 	} \
+	check_locks(); \
 	chandlersession_base *b= get_chandlersession(msg); \
 	if (b == 0) { \
 		ROFL_ERR("%s: cannot find xid for %s\n",func, msg->c_str()); \
@@ -466,11 +466,12 @@ void morpheus::check_locks()
 		else dptmsgqueue.push_back(msg);   \
 		return; \
 	} \
+	check_locks(); \
 	try { \
-		SESSION_TYPE * s = new SESSION_TYPE ( this, src, msg ); \
-		{ rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); register_lifetime_session_timer(s, max_session_lifetime); } /* timer takes ownership of session */ \
-	} catch(rofl::cerror &e) { std::cout << "unhandled rofl::cerror: " << e.desc << std::endl; assert(false); } \
-	catch (...) { std::cout << __FUNCTION__ << ": unhandled exception"; assert(false); } \
+		new SESSION_TYPE ( this, src, msg ); \
+	} catch(rofl::cerror &e) { \
+		ROFL_ERR("%s: unhandled cerror %s\n",func,e.desc.c_str()); assert(false); \
+	} \
 	delete(msg); \
 }
 
@@ -521,58 +522,11 @@ void morpheus::handle_flow_mod(rofl::cofctl * src, rofl::cofmsg_flow_mod *msg) {
 void morpheus::handle_features_request(rofl::cofctl *src, rofl::cofmsg_features_request * msg ) {
 	static const char * func = __FUNCTION__;
 	HANDLE_REQUEST_WITH_REPLY_TEMPLATE( true, cofmsg_features_request, morpheus::csh_features_request )
-	//ROFL_DEBUG("%s from %s : %s\n", __PRETTY_FUNCTION__,src->c_str(), msg->c_str());
-	//if (!m_master || !m_slave) {
-		//ROFL_ERR("%s: No connection queuing message \n",__PRETTY_FUNCTION__);
-		//ctlmsgqueue.push_back(msg);
-		//return;
-	//}
-	//check_locks();
-	//try {
-		//new morpheus::csh_features_request(this, src, msg);
-	//} catch (rofl::cerror &e){
-		//ROFL_ERR("%s: Caught error %s\n",__PRETTY_FUNCTION__, e.desc.c_str());
-		//assert(false);
-	//}
-	//delete(msg);
 }
 
 void morpheus::handle_features_reply(rofl::cofdpt * src, rofl::cofmsg_features_reply * msg ) {
 	static const char * func = __FUNCTION__;
 	HANDLE_REPLY_AFTER_REQUEST_TEMPLATE( false, cofmsg_features_reply, morpheus::csh_features_request, process_features_reply )
-	//ROFL_DEBUG("%s: message %s.\n",__PRETTY_FUNCTION__, msg->c_str());
-	
-	//if (!m_slave) {
-		//ROFL_ERR ("%s: no path to dpt queuing message \n",__PRETTY_FUNCTION__);
-		//dptmsgqueue.push_back(msg);
-		//return;
-	//}
-	//check_locks();
-	//try {
-		//chandlersession_base *b= get_chandlersession(msg);
-		//if (b == 0) {
-			//delete(msg);
-			//return;
-		//}
-		//morpheus::csh_features_request *s= 
-			//dynamic_cast<morpheus::csh_features_request *>(b);
-		//if (!s) {
-			//ROFL_ERR("%s: message maps to wrong base type %s\n",
-				//__PRETTY_FUNCTION__, b->asString().c_str());
-			//delete(msg);
-			//return;
-		//}
-		//s->process_features_reply(src,msg);
-		//if (s->isCompleted()) {
-			//remove_session(s);
-			//delete(s);
-		//}
-	//} catch (rofl::cerror &e) {
-		//ROFL_ERR("%s: unhandled cerror: %s\n", e.desc.c_str());
-		//delete(msg);
-		//return;
-	//}
-	//delete(msg);
 }
 
 void morpheus::handle_get_config_request(rofl::cofctl *src, rofl::cofmsg_get_config_request *msg) {
@@ -729,6 +683,5 @@ std::string capabilities_to_string(uint32_t capabilities) {
 	for(size_t index=0; capabilities!=0; ++index, capabilities >>= 1) if(capabilities & 0x00000001) out += capabilities_sz[index] + " ";
 	return out;
 }
-
 
 

@@ -93,7 +93,11 @@ port_spec_t get_actual_port(const uint16_t virtual_port) const {	// could throw 
 	if(virtual_port==0) { std::stringstream ss; ss << __FUNCTION__ << ": Port " << virtual_port << " is invalid. Ports are numbered from 1."; throw std::out_of_range( (std::string)ss.str() ); }
 	try {
 		return m_virtual_to_abstract.at(virtual_port-1);
-	} catch (std::out_of_range & e) { std::stringstream ss; ss << __FUNCTION__ << ": Port " << virtual_port << " invalid."; throw std::out_of_range( (std::string)ss.str() ); }
+	} catch (std::out_of_range & e) { 
+		std::stringstream ss; ss << __FUNCTION__ << 
+			": Port " << virtual_port << " invalid."; 
+		throw std::out_of_range( (std::string)ss.str() ); 
+	}
 }
 
 size_t get_number_virtual_ports() const { return m_virtual_to_abstract.size(); }
