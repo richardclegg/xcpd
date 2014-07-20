@@ -6,10 +6,13 @@ iface LE1_0 inet manual
 iface LE1_1 inet manual
 iface vonuA_0 inet manual
 iface vonuA_1 inet manual
+iface vonuA_1.10 inet manual
 iface vonuB_0 inet manual
 iface vonuB_1 inet manual
+iface vonuB_1.11 inet manual
 iface vonuC_0 inet manual
 iface vonuC_1 inet manual
+iface vonuC_1.12 inet manual
 iface LV1_0 inet manual
 iface LV1_1 inet manual
 iface V1 inet manual
@@ -29,6 +32,19 @@ sudo restart network-manager
 
 sudo apt get install python-scapy bridge-utils vlan
 
+# FIRST TEST software only xdpd
+
+#start links
+sudo ./start_simple_test_links.sh 
+#start xdpd
+sudo xdpd -c xdpd_only_test.cfg 
+
+./oft -H 127.0.0.1 -p 6635 -i 1@V1a -i 2@V2a -i 3@V3a -i 4@V4a basic
+./oft -H 127.0.0.1 -p 6635 -i 1@V1a -i 2@V2a -i 3@V3a -i 4@V4a flow_matches
+./oft -H 127.0.0.1 -p 6635 -i 1@V1a -i 2@V2a -i 3@V3a -i 4@V4a actions
+
+
+
 #Run the network namespace creation script:
 sudo ./create_netns_config.sh
 
@@ -43,5 +59,7 @@ In a second terminal run xcpd (in default namespace):
 sudo xcpd -c soft_xdpd_test.cfg
 
 // In one xterm (the one where oftest will run), start shell in the SW namespace:
-sudo ip netns exec SW bash -c code/oftest/oft -v --disable-ipv6 -p 6633 -i 1@LE1_1 -i 2@vonuA_1.10 -i 3@vonuB_1.11 -i 4@vonuC_1.12 -T basic
+sudo ip netns exec SW bash
+cd ~/code/oftest
+./oft -v --disable-ipv6 -p 6633 -i 1@LE1_1 -i 2@vonuA_1.10 -i 3@vonuB_1.11 -i 4@vonuC_1.12 basic
 

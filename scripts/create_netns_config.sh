@@ -1,4 +1,4 @@
-#! /bin/sh -vx
+#! /bin/sh -v
 ID=/usr/bin/id
 [ -z "$UID" ] && UID=`$ID -u`
 ROOT_UID=0
@@ -11,7 +11,6 @@ fi
 
 echo "1" > /proc/sys/net/ipv6/conf/all/disable_ipv6
 service avahi-daemon stop
-
 modprobe 8021q
 
 
@@ -20,13 +19,13 @@ ip netns add SW
 ip netns exec SW ip link set dev lo up
 
 ip link add C_0 type veth peer name C_1
-ifconfig C_0 hw ether 00:00:10.99:00:01
-ifconfig C_1 hw ether 00:00:10.99:00:02
+ifconfig C_0 hw ether 00:00:10:99:00:01
+ifconfig C_1 hw ether 00:00:10:99:00:02
 ip link set C_1 netns SW
 ifconfig C_0 10.100.0.1/30 up
 ip netns exec SW ifconfig C_1 10.100.0.2/30 up
-arp -s 10.100.0.2 00:00:10.99:00:02
-ip netns exec SW arp -s 10.100.0.1 00:00:10.99:00:01
+arp -s 10.100.0.2 00:00:10:99:00:02
+ip netns exec SW arp -s 10.100.0.1 00:00:10:99:00:01
 
 ip link add LE1_0 type veth peer name LE1_1
 ifconfig LE1_0 hw ether 00:00:10:10:00:01

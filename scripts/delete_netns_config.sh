@@ -1,4 +1,4 @@
-#! /bin/sh -vx
+#! /bin/sh 
 ID=/usr/bin/id
 [ -z "$UID" ] && UID=`$ID -u`
 ROOT_UID=0
@@ -13,8 +13,5 @@ fi
 
 ip netns del SW
 ip link del LE1_0
-ip link del vonuA_0
-ip link del vonuB_0
-ip link del vonuC_0
 ifconfig LV1_0 down
 brctl delbr LV1_0
