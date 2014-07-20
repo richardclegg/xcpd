@@ -302,11 +302,8 @@ std::vector <cflowentry> flow_entry_translate::get_translated_matches_and_delete
     (rofl::cofmatch &match, uint32_t out_port, bool strict) /** Construct a list of flowmods
 matching a given match and return their translation while deleting them */
 {
-	std::cout << "GET FLOW ENTRY" << std::endl;
     std::vector <cflowentry> translations=  std::vector <cflowentry>();
     std::vector <int> dellist=  std::vector <int>();
-    std::cout << "GOT DEL LIST " << dellist.size() << "TRANS " << 
-		translate.size() << std::endl;
     for (unsigned int i= 0; i < translate.size(); i++) {
         if (match.contains(translate[i].match,strict)) {
             switch (out_port) {

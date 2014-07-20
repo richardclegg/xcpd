@@ -12,6 +12,14 @@ iface vonuC_0 inet manual
 iface vonuC_1 inet manual
 iface LV1_0 inet manual
 iface LV1_1 inet manual
+iface V1 inet manual
+iface V1a inent manual
+iface V2 inet manual
+iface V2a inet manual
+iface V3 inet manual
+ifface V3a inet manual
+iface V4 inet manual
+iface V4a inet manual
 
 #restart network manager
 
