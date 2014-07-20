@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+service avahi-daemon stop
+
 ip link add V1 type veth peer name V1a
 ifconfig V1 up
 ifconfig V1a up
