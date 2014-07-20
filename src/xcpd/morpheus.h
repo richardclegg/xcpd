@@ -88,6 +88,13 @@ protected:
     
     bool indpt, inctl;
     rofl::caddress dptaddr, ctladdr;
+    
+    int dpt_state;
+    int ctl_state;
+    
+    static const int PATH_CLOSED;
+    static const int PATH_WAIT;
+    static const int PATH_OPEN;
 
     const int m_crof_timer_opaque_offset;	// the minimum opaque value for the session timeout timers, so supplied to register_timer
     const int m_crof_timer_opaque_max;	// the largest number above offset for the opaque values - this will also be the largest size of m_session_timeout_timers

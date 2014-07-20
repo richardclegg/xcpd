@@ -18,7 +18,9 @@ const PV_VLANID_T PV_VLANID_T::ANY = PV_VLANID_T::make_ANY();
 const PV_VLANID_T PV_VLANID_T::NONE = PV_VLANID_T::make_NONE();
 #define PROXYOFPVERSION OFP10_VERSION
 
-
+const int morpheus::PATH_CLOSED= 0;
+const int morpheus::PATH_WAIT= 1;
+const int morpheus::PATH_OPEN= 2;
 
 morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const rofl::caddress dptaddr_, const bool inctl_, const rofl::caddress ctladdr_ ): \
 		rofl::crofbase (1 <<  PROXYOFPVERSION),
@@ -45,6 +47,10 @@ morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const ro
 	pthread_rwlock_init(&m_session_timers_lock, 0);
 	ctlmsgqueue= std::vector <rofl::cofmsg *> ();
 	dptmsgqueue= std::vector <rofl::cofmsg *> ();
+
+    
+    dpt_state= PATH_CLOSED;
+    ctl_state= PATH_CLOSED;
 }
 
 morpheus::~morpheus() {
@@ -167,6 +173,11 @@ uint32_t morpheus::get_supported_actions() {
 }
 
 void morpheus::set_ctl_watcher() {
+    if (ctl_state != PATH_CLOSED) {
+        ROFL_DEBUG("%s: called but ctl not closed\n");
+        return;
+    }
+    ctl_state= PATH_WAIT;
 	if(inctl) {
 		ROFL_DEBUG("Connecting to controller %s xcpd in listening mode\n",
 			ctladdr.c_str());
@@ -181,7 +192,12 @@ void morpheus::set_ctl_watcher() {
 }
 
 void morpheus::set_dpt_watcher() {
-	ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
+    if (dpt_state != PATH_CLOSED) {
+        ROFL_DEBUG("%s: called but dpt not closed\n");
+        return;
+    }
+    dpt_state= PATH_WAIT;
+    ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
 	if (!indpt) {
 		ROFL_DEBUG("Connecting to switch %s switch in active mode\n",
 			dptaddr.c_str());
@@ -264,6 +280,7 @@ void morpheus::process_dptqueue()
 void morpheus::handle_ctrl_open (rofl::cofctl *src) {
 	ROFL_DEBUG("%s called with %s\n",__PRETTY_FUNCTION__,
 		(src?src->c_str():"NULL"));
+    ctl_state= PATH_OPEN;
 	if (m_master == src) { 
 		ROFL_DEBUG("%s : received contact from old controller, keeping it.\n",
 			__PRETTY_FUNCTION__);
@@ -293,6 +310,7 @@ void morpheus::handle_ctrl_open (rofl::cofctl *src) {
 void morpheus::handle_ctrl_close (rofl::cofctl *src) {
 	ROFL_INFO("morpheus::handle_ctrl_close called with %s\n",
 		(src?src->c_str():"NULL"));
+    ctl_state= PATH_CLOSED;
 	// controller disconnected - now disconnect from switch.
 	rpc_disconnect_from_dpt(m_slave);
 	
@@ -308,6 +326,7 @@ void morpheus::handle_ctrl_close (rofl::cofctl *src) {
 
 void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	// should be called automatically after call to rpc_connect_to_dpt in connect_to_slave
+    dpt_state= PATH_OPEN;
 	ROFL_DEBUG("%s called with %s\n", __PRETTY_FUNCTION__,
 		(src?src->c_str():"NULL"));
 	m_slave = src;	// TODO - what to do with previous m_slave?
@@ -319,6 +338,7 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 
 // TODO are all transaction IDs invalidated by a connection reset??
 void morpheus::handle_dpath_close (rofl::cofdpt *src) {
+    dpt_state= PATH_CLOSED;
 	ROFL_DEBUG("%s called with %s\n",__PRETTY_FUNCTION__,
 		(src?src->c_str():"NULL"));
 	if(src!=m_slave) {

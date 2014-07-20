@@ -4,7 +4,6 @@ ID=/usr/bin/id
 ROOT_UID=0
 
 service avahi-daemon start
-start network-manager
 
 #Check if run as root
 if [ ${UID} -ne ${ROOT_UID} ] ; then
