@@ -338,7 +338,7 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 
 // TODO are all transaction IDs invalidated by a connection reset??
 void morpheus::handle_dpath_close (rofl::cofdpt *src) {
-    dpt_state= PATH_CLOSED;
+    
 	ROFL_DEBUG("%s called with %s\n",__PRETTY_FUNCTION__,
 		(src?src->c_str():"NULL"));
 	if(src!=m_slave) {
@@ -352,6 +352,7 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 	if (m_master != 0) {
 		set_dpt_watcher();
 	}
+    dpt_state= PATH_CLOSED;
 }
 
 

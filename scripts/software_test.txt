@@ -24,8 +24,7 @@ sudo apt get install python-scapy bridge-utils vlan
 #Run the network namespace creation script:
 sudo ./create_netns_config.sh
 
-# once you're done with it stop it all with 
-sudo ./delete_netns_config.sh
+# once you're done with it stop it all with  sudo ./delete_netns_config.sh
 
 #The three interfaces we care about in the default namespace are: C1_0, the control channel, LE1_0, the untagged "upstream" interface, and LV1_0 which is the OLT interface which is then split into interfaces which present untagged VLANs in the SW2 namespace
 

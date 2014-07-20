@@ -14,38 +14,41 @@ morpheus::csh_flow_mod::csh_flow_mod(morpheus * parent, rofl::cofctl * const src
 
 bool morpheus::csh_flow_mod::process_flow_mod ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg ) {
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
-	ROFL_DEBUG("Incoming msg match: %s actions %s\n",
-         msg->get_match().c_str(), msg->get_actions().c_str());
+	ROFL_DEBUG("Incoming msg match: %s type %d actions %s\n",
+         msg->get_match().c_str(), msg->get_command(), msg->get_actions().c_str());
     switch (msg->get_command()) {
         case OFPFC_ADD:
             m_completed= morpheus::csh_flow_mod::process_add_flow(src,msg);
-            return m_completed;
+            break;
         case OFPFC_MODIFY:
             m_completed= morpheus::csh_flow_mod::process_modify_flow(src,msg);
-            return m_completed;
+            break;
         case OFPFC_MODIFY_STRICT:
             m_completed= morpheus::csh_flow_mod::process_modify_strict_flow(src,msg);
-            return m_completed;
+            break;
         case OFPFC_DELETE:
             m_completed= morpheus::csh_flow_mod::process_delete_flow(src,msg);
-            return m_completed;
+            break;
         case OFPFC_DELETE_STRICT:
             m_completed= morpheus::csh_flow_mod::process_delete_strict_flow(src,msg);
-            return m_completed;           
+            break;
         default:
-            m_completed= true;
-            return m_completed;
-    }
-    ROFL_ERR ("FLOW_MOD command %s not supported. Dropping message\n",
+            ROFL_ERR ("%s: FLOW_MOD command %s not supported. Dropping message\n",
+            __PRETTY_FUNCTION__,
             msg->c_str());
-    m_completed = true;
+            m_completed= true;
+    }
+    ROFL_DEBUG ("%s: processed flow mod command %s which was %s\n",
+            __PRETTY_FUNCTION__,
+            msg->c_str(),
+            m_completed?"completed":"not completed");
+    
     return m_completed;
 }
 
 bool morpheus::csh_flow_mod::process_add_flow
     ( rofl::cofctl * const src, rofl::cofmsg_flow_mod * const msg )
 {
-	
     rofl::cflowentry entry= m_parent->get_fet()->get_flowentry_from_msg(msg);
     rofl::cflowentry trans(OFP10_VERSION);
     try {
@@ -53,7 +56,7 @@ bool morpheus::csh_flow_mod::process_add_flow
         // TODO check for overlap
         m_parent->get_fet()->add_flow_entry(entry,trans);
         m_parent->send_flow_mod_message( m_parent->get_dpt(), trans);
-        return false;
+        return true;
     } catch (rofl::eInval &e) {
         m_parent->send_error_message( src, msg->get_xid(),  OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), 
             msg->framelen() );
@@ -75,9 +78,14 @@ bool morpheus::csh_flow_mod::process_modify_flow
     for (unsigned int i= 0; i < translations.size(); i++) {
         cflowentry cfe= m_parent->get_fet()->get_flowentry_from_msg(msg);
         cfe.match= translations[i].match;
-        m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
+        try {
+            m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
+        }catch (rofl::eInval &e) {
+            m_parent->send_error_message( src, msg->get_xid(),  OFP10ET_FLOW_MOD_FAILED, OFP10FMFC_UNSUPPORTED, msg->soframe(), 
+            msg->framelen() );
+        }
     }
-    return false;
+    return true;
 }
 
 bool morpheus::csh_flow_mod::process_modify_strict_flow
@@ -100,7 +108,7 @@ bool morpheus::csh_flow_mod::process_modify_strict_flow
         cfe.match= translations[i].match;
         m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
     }
-    return false;
+    return true;
 }
 
 bool morpheus::csh_flow_mod::process_delete_flow
@@ -118,7 +126,7 @@ bool morpheus::csh_flow_mod::process_delete_flow
         cfe.match= translations[i].match;
         m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
     }
-    return false;
+    return true;
 }
 
 bool morpheus::csh_flow_mod::process_delete_strict_flow
@@ -138,7 +146,6 @@ bool morpheus::csh_flow_mod::process_delete_strict_flow
         cfe.match= translations[i].match;
         m_parent->send_flow_mod_message( m_parent->get_dpt(), cfe);
     }
-    return false;
     return true;
 }
 

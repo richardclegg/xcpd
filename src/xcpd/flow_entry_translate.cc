@@ -87,8 +87,11 @@ cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 
     rofl::cflowentry entry(fe);
     entry.actions= trans_actions(fe.actions, fe.match);
+    entry.actions= fe.actions;
 	entry.match = trans_match(fe.match);
-	ROFL_DEBUG("Sending flow mod %s\n",entry.c_str());
+    //entry.match= fe.match;
+	ROFL_DEBUG("%s: Sending flow mod %s\n",__PRETTY_FUNCTION__,
+        entry.c_str());
     return entry;
 }
 
@@ -108,11 +111,13 @@ rofl::cofaclist flow_entry_translate::trans_actions(
             __PRETTY_FUNCTION__,action_mask_to_string(supported_actions).c_str());
 		if( ! ((1<<(be16toh(a->oac_header->type))) & supported_actions )) {
 			// the action isn't supported by the underlying switch - complain - send an error message, then write to your MP. Start a Tea Party movement. Then start an Occupy OpenFlow group. If that still doesn't help become a recluse and blame the system.
-			ROFL_DEBUG("Received a flow-mod with an unsupported action: %s %d\n", action_mask_to_string((1<<(be16toh(a->oac_header->type)))).c_str(),
+			ROFL_DEBUG("%s: Received a flow-mod with an unsupported action: %s %d\n",
+             action_mask_to_string((1<<(be16toh(a->oac_header->type)))).c_str(),
              (1<<(be16toh(a->oac_header->type))));
 			throw rofl::eInval();
 		}
-		ROFL_DEBUG("Processing incoming action %s.\n",
+		ROFL_DEBUG("%s: Processing incoming action %s.\n",
+            __PRETTY_FUNCTION__,
             action_mask_to_string(1<<(be16toh(a->oac_header->type))).c_str());
 		switch(be16toh(a->oac_header->type)) {
 			case OFP10AT_OUTPUT: {
@@ -166,9 +171,9 @@ rofl::cofaclist flow_entry_translate::trans_actions(
 			} break;
 			case OFP10AT_STRIP_VLAN: {
 				if(already_did_output) {
-					ROFL_DEBUG ("%s attempt was made to strip VLAN after an OFP10AT_OUTPUT action. Rejecting flow-mod.", __PRETTY_FUNCTION__);
-					throw rofl::eInval();
+					ROFL_ERR ("%s attempt was made to strip VLAN after an OFP10AT_OUTPUT action. Rejecting flow-mod.", __PRETTY_FUNCTION__);
 				}
+                throw rofl::eInval();
 			} break;
 			case OFP10AT_ENQUEUE: {
 				// Queues not supported for now.
@@ -185,15 +190,21 @@ rofl::cofaclist flow_entry_translate::trans_actions(
 				// just pass the message through
 				outlist.next() = *a;
 			} break;
-			case OFP10AT_VENDOR: {
-				// We have no idea what could be in the vendor message, so we can't translate, so we kill it.
-				ROFL_DEBUG(" Vendor actions are unsupported. Sending error and dropping message."); 
-				throw rofl::eInval();
-			} break;
-			default:
-                ROFL_DEBUG(" unknown action type (%d) Sending error and dropping message.\n",
+			case OFP10AT_VENDOR:
+				// We have no idea what could be in the vendor message, so we can't translate, so we kill it. 
+                
+                ROFL_DEBUG("%s Vendor actions are unsupported. Sending error and dropping message.",
+				__PRETTY_FUNCTION__);
+                throw rofl::eInval();
+                break;
+			default: 
+                
+                ROFL_ERR("%s unknown action type (%d) Sending error and dropping message.\n",
+                __PRETTY_FUNCTION__,
                 (unsigned)be16toh(a->oac_header->type));
                 throw rofl::eInval();
+                break;
+            
 		}
     }
     return outlist;
@@ -203,32 +214,45 @@ rofl::cofmatch flow_entry_translate::trans_match(
     rofl::cofmatch &oldmatch) 
 {
     const cportvlan_mapper & mapper = m_parent->get_mapper();
-	rofl::cofmatch newmatch = oldmatch;
+	rofl::cofmatch newmatch= oldmatch;
 	//check that VLANs are wildcarded (i.e. not being matched on)
 	// TODO we *could* theoretically support incoming VLAN iff they are coming in on an port-translated-only port (i.e. a virtual port that doesn't map to a port+vlan, only a phsyical port), and that VLAN si then stripped in the action.
 	try {
 		oldmatch.get_vlan_vid_mask();	
-        ROFL_DEBUG("Received a match which didn't have VLAN wildcarded. Sending error and dropping message. match: %s\n", oldmatch.c_str());
+        ROFL_DEBUG("%s: Received a match which didn't have VLAN wildcarded. Sending error and dropping message. match: %s\n", __PRETTY_FUNCTION__,
+            oldmatch.c_str());
        throw rofl::eInval();
 	} catch ( rofl::eOFmatchNotFound & ) {
 		// do nothing - there was no vlan_vid_mask
 	}
 	// make sure this is a valid port
 	// TODO check whether port is ANY/ALL
-	uint32_t old_inport = oldmatch.get_in_port();
+    uint32_t old_inport= 0;
 	try {
+        old_inport = newmatch.get_in_port();
+    } catch (rofl::cerror &e) {
+         ROFL_DEBUG("%s: caught error %s: %s\n",__PRETTY_FUNCTION__, 
+         typeid(e).name(),
+         e.desc.c_str());
+    }
+	try {
+        std::cout << "GET PORT " << old_inport << std::endl;
 		cportvlan_mapper::port_spec_t real_port = mapper.get_actual_port( old_inport ); // could throw std::out_of_range
+        
 		if(!real_port.vlanid_is_none()) {
 			// vlan is set in actual port - update the match
+            std::cout << "SET VLAN " << real_port.vlan << std::endl;
 			newmatch.set_vlan_vid( real_port.vlan );
 		}
 		// update port
+        std::cout << "SET PORT " << real_port.port << std::endl;
 		newmatch.set_in_port( real_port.port );
 	} catch (std::out_of_range &) {
 		ROFL_DEBUG("%s: received a match request for an unknown port (%d) There are %d ports.  Sending error and dropping message. match:%s \n", 
             oldmatch.get_in_port(), mapper.get_number_virtual_ports() , oldmatch.c_str());
         throw rofl::eInval();
 	}
+    std::cout << "TRANS MATCH" << std::endl;
     return newmatch;
 }
 
