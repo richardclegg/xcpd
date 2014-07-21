@@ -195,7 +195,8 @@ void morpheus::set_ctl_watcher() {
 
 void morpheus::set_dpt_watcher() {
     if (dpt_state != PATH_CLOSED) {
-        ROFL_DEBUG("%s: called but dpt not closed\n");
+        ROFL_DEBUG("%s: called but dpt not closed\n",
+			__PRETTY_FUNCTION__);
         return;
     }
     dpt_state= PATH_WAIT;
