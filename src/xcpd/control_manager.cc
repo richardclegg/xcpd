@@ -4,6 +4,7 @@
 
 #include "control_manager.h"
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -17,10 +18,24 @@ using namespace std;
 using namespace rofl;
 using namespace xdpd;
 
+int virtual_port::mac_base= 1;
+
 virtual_port::virtual_port(std::string n, int port) {
     name= n;
     real_port= port;
     vlan= NO_VLAN;
+    init_port();
+}
+
+void virtual_port::init_port()
+{
+    std::stringstream stream("00:00:00:00:00:");
+    stream.seekp(0, std::ios::end);
+    stream << std::hex << std::setw(2) << std::setfill('0') 
+		<< mac_base << std::dec;
+    mac_base++;
+    mac= rofl::cmacaddr(stream.str().c_str());
+    //cout << "Mac is " << stream.str() << " " << mac << endl;
     //cout << "New Port phys:" << port << " NO VLAN" << endl;
 }
 
@@ -29,6 +44,7 @@ virtual_port::virtual_port(std::string n, int port,int v) {
     real_port= port;
     vlan= v;
     //cout << "New Port phys:" << port << " VLAN " << v << endl;
+    init_port();
 }
 
 int virtual_port::get_real_port()

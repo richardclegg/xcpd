@@ -30,7 +30,9 @@ class virtual_port {
         std::string name;
         int real_port;
         int vlan;
-        
+        rofl::cmacaddr mac;
+        static int mac_base;
+        void init_port();
     
     public:
         static const int NO_VLAN= -1;
