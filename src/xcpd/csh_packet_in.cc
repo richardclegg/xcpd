@@ -20,8 +20,10 @@ bool morpheus::csh_packet_in::process_packet_in ( const rofl::cofdpt * const src
 // extract the VLAN from the incoming packet
 int32_t in_port = -1;
 int32_t in_vlan = -1;
+std::cout << "GETTING VLAN " << std::endl;
 if(packet.cnt_vlan_tags()>0) {	// check to see if we have a vlan header
 	in_vlan = packet.vlan(0)->get_dl_vlan_id();
+	std::cout << "NO TAGS " << packet.cnt_vlan_tags() << " TAG " << in_vlan << std::endl;
 	if(in_vlan == 0xffff) in_vlan = -1;	// it would be weird for this to happen - there's a vlan frame, but no tag. not sure if it's possible.
 }
 in_port = msg->get_in_port();
@@ -31,8 +33,9 @@ const cportvlan_mapper & mapper = m_parent->get_mapper();
 cportvlan_mapper::port_spec_t inport_spec( PV_PORT_T(in_port), (in_vlan==-1)?(PV_VLANID_T::NONE):(PV_VLANID_T(in_vlan)) );
 
 std::vector<std::pair<uint16_t, cportvlan_mapper::port_spec_t> > vports = mapper.actual_to_virtual_map( inport_spec );
-
-std::cout << __FUNCTION__ << ": received incoming packet on port " << in_port << " and vlan " << in_vlan << " which turned into the spec (" << inport_spec << ") which in turn mapped to " << vports.size() << " virtual ports:";
+ROFL_DEBUG ("%s: packet on port %ld vlan %ld  with %d virtual ports\n",
+	__PRETTY_FUNCTION__, in_port, in_vlan, 
+		vports.size());
 for(std::vector<std::pair<uint16_t, cportvlan_mapper::port_spec_t> >::const_iterator ci=vports.begin(); ci != vports.end(); ++ci) std::cout << " " << (unsigned)ci->first;
 std::cout << std::endl;
 

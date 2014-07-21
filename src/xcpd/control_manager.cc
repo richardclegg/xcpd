@@ -42,8 +42,8 @@ void virtual_port::init_port()
     stream2 << "vport_" << port_count;
     name= stream2.str();
     port_count++;
-    cout << "Mac is " << stream.str() << " " << mac << " name is " <<
-		stream2.str() << endl;
+    //cout << "Mac is " << stream.str() << " " << mac << " name is " <<
+	//	stream2.str() << endl;
     //cout << "New Port phys:" << port << " NO VLAN" << endl;
 }
 
@@ -68,14 +68,14 @@ void virtual_port::set_mac(rofl::cmacaddr m)
 
 std::string virtual_port::get_name()
 {
-	cout << "PORT NAME " << name << endl;
+	//cout << "PORT NAME " << name << endl;
 	return name;
 }
 
 void virtual_port::set_name(std::string n)
 {
 	name= n;
-	cout << "PORT NAME " << name << endl;
+	//cout << "PORT NAME " << name << endl;
 }
 
 int virtual_port::get_real_port()

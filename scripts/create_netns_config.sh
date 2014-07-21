@@ -1,4 +1,4 @@
-#! /bin/sh -v
+#! /bin/sh 
 ID=/usr/bin/id
 [ -z "$UID" ] && UID=`$ID -u`
 ROOT_UID=0
@@ -76,4 +76,4 @@ ip netns exec SW arp -s 10.9.0.9 00:00:10:09:00:09
 brctl addbr LV1_0
 brctl addif LV1_0 vonuA_0 vonuB_0 vonuC_0 
 
-ifconfig LV1_0 up
+ifconfig LV1_0 10.9.0.99/30 up
