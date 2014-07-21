@@ -12,6 +12,8 @@
 #include "cportvlan_mapper.h"
 #include <rofl/common/utils/c_logger.h>
 #include <typeinfo>
+#include "control_manager.h"
+
 // #include "morpheus_nested.h"
 const PV_PORT_T PV_PORT_T::ANY = PV_PORT_T::make_ANY();
 const PV_VLANID_T PV_VLANID_T::ANY = PV_VLANID_T::make_ANY();
@@ -329,8 +331,8 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
     dpt_state= PATH_OPEN;
 	ROFL_DEBUG("%s called with %s\n", __PRETTY_FUNCTION__,
 		(src?src->c_str():"NULL"));
-	m_slave = src;	// TODO - what to do with previous m_slave?
-	m_slave_dpid=src->get_dpid();	// TODO - check also get_config, get_capabilities etc
+	m_slave = src;
+	m_slave_dpid= xdpd::control_manager::Instance()->get_dpid();
 	m_dpid = m_slave_dpid;
 	process_ctlqueue();
 	process_dptqueue();

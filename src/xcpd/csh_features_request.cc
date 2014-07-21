@@ -5,6 +5,9 @@
 #include <rofl/common/cerror.h>
 #include <rofl/common/openflow/cofaction.h>
 #include <rofl/common/utils/c_logger.h>
+#include "control_manager.h"
+
+using namespace xdpd;
 
 morpheus::csh_features_request::csh_features_request(morpheus * parent):chandlersession_base(parent, 0),m_local_request(true) {
 	ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
@@ -54,10 +57,8 @@ bool morpheus::csh_features_request::process_features_reply ( const rofl::cofdpt
 		
 		rofl::cofportlist virtualportlist;
 
-		// TODO this is hardcoded for testing. Need to implement better support for config in morpheus, then just grabbed the translated and validated (based on underlying switch) config from there
 		const cportvlan_mapper & mapper = m_parent->get_mapper();
 		for(unsigned portno = 1; portno <= mapper.get_number_virtual_ports(); ++portno) {
-			cportvlan_mapper::port_spec_t vport = mapper.get_actual_port(portno);
 			rofl::cofport p(OFP10_VERSION);
 			p.set_config(OFP10PC_NO_STP);
 			uint32_t feats = OFP10PF_10GB_FD | OFP10PF_FIBER;
@@ -67,15 +68,17 @@ bool morpheus::csh_features_request::process_features_reply ( const rofl::cofdpt
 			p.set_supported (feats);
 			p.set_state(0);	// link is up and ignoring STP
 			p.set_port_no(portno);
-			p.set_hwaddr(rofl::cmacaddr("00:B1:6B:00:B1:E5"));	// This is wrong - it should follow the actual MAC
-			std::stringstream ss;
-			ss << "V_" << vport;
-			p.set_name(std::string(ss.str()));
+			p.set_hwaddr(control_manager::Instance()->
+				get_vport(portno-1).get_mac());	
+			p.set_name(control_manager::Instance()->
+				get_vport(portno-1).get_name());
 			virtualportlist.next() = p;
 			}
 		m_parent->send_features_reply(m_parent->get_ctl(), m_request_xid, dpid, msg->get_n_buffers(), msg->get_n_tables(), capabilities, 0, of10_actions_bitmap, virtualportlist );	// TODO get_action_bitmap is OF1.0 only
+		std::cout << "SENT" << std::endl;
 		m_completed = true;
 	}
+	std::cout << "DONE " << std::endl;
 	return m_completed;
 }
 

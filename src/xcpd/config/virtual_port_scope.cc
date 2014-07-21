@@ -11,6 +11,9 @@ using namespace rofl;
 
 #define VPORT_ASSOCIATED_PHYSICAL_PORT "physical"
 #define VPORT_ASSOCIATED_VLAN "vlan"
+#define VPORT_MAC "mac"
+#define VPORT_NAME "name"
+
 
 virtual_port_scope::virtual_port_scope(std::string name, bool mandatory):scope(name, mandatory){
 
@@ -47,6 +50,7 @@ one_port_scope::one_port_scope(std::string name, bool mandatory):scope(name, man
     port_name= name;
     register_parameter(VPORT_ASSOCIATED_PHYSICAL_PORT, true);
     register_parameter(VPORT_ASSOCIATED_VLAN, false);
+    register_parameter(VPORT_MAC,false);
 }
 
 void one_port_scope::post_validate(libconfig::Setting& setting, bool dry_run){
@@ -65,16 +69,28 @@ void one_port_scope::post_validate(libconfig::Setting& setting, bool dry_run){
             ROFL_ERR("xcpd must define physical port for vport %s\n", port_name.c_str());
             throw eConfParseError(); 
         }
-        if((setting.exists(VPORT_ASSOCIATED_VLAN))){
+        if (setting.exists(VPORT_ASSOCIATED_VLAN)){
             vlan= setting[VPORT_ASSOCIATED_VLAN];
             vlan_set= true;
         }
+        
+		virtual_port vport;
         if (vlan_set) {
-            virtual_port vport= virtual_port(port_name,port,(int)vlan);
+            vport= virtual_port(port_name,port,(int)vlan);
             control_manager::Instance()->add_vport(vport);
         } else {
-            virtual_port vport= virtual_port(port_name,port);
+            vport= virtual_port(port_name,port);
             control_manager::Instance()->add_vport(vport);
         }
+        if (setting.exists(VPORT_MAC)) {
+			std::string macstr= setting[VPORT_MAC];
+			rofl::cmacaddr mac= rofl::cmacaddr(macstr);
+			vport.set_mac(mac);
+		}
+		if (setting.exists(VPORT_NAME)) {
+			std::string name= setting[VPORT_NAME];
+			vport.set_name(name);
+		}
+        
     }
 }

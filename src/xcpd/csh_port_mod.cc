@@ -7,7 +7,6 @@
 
 using namespace xdpd;
 
-// TODO translation check
 morpheus::csh_port_mod::csh_port_mod(morpheus * parent, rofl::cofctl * const src, rofl::cofmsg_port_mod * const msg ):chandlersession_base(parent, msg->get_xid()) {
 	ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
 	process_port_mod(src, msg);
@@ -67,8 +66,13 @@ bool morpheus::csh_port_mod::process_port_mod ( rofl::cofctl * const src, rofl::
 }
 
 morpheus::csh_port_mod::~csh_port_mod() { 
-    //std::cout << __FUNCTION__ << " called." << std::endl; #
-}	// nothing to do as we didn't register anywhere.
+	ROFL_DEBUG ("%s: called.",__PRETTY_FUNCTION__);
+}
 
-// std::string morpheus::csh_port_mod::asString() const { return "csh_port_mod {no xid}"; }
-std::string morpheus::csh_port_mod::asString() const { std::stringstream ss; ss << "csh_port_mod {request_xid=" << m_request_xid << "}"; return ss.str(); }
+
+std::string morpheus::csh_port_mod::asString() const 
+{ 
+	std::stringstream ss; ss << 
+		"csh_port_mod {request_xid=" << m_request_xid 
+		<< "}"; return ss.str(); 
+}

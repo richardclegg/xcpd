@@ -16,11 +16,11 @@ iface vonuC_1.12 inet manual
 iface LV1_0 inet manual
 iface LV1_1 inet manual
 iface V1 inet manual
-iface V1a inent manual
+iface V1a inet manual
 iface V2 inet manual
 iface V2a inet manual
 iface V3 inet manual
-ifface V3a inet manual
+iface V3a inet manual
 iface V4 inet manual
 iface V4a inet manual
 
@@ -61,5 +61,5 @@ sudo xcpd -c soft_xdpd_test.cfg
 // In one xterm (the one where oftest will run), start shell in the SW namespace:
 sudo ip netns exec SW bash
 cd ~/code/oftest
-./oft -v --disable-ipv6 -p 6633 -i 1@LE1_1 -i 2@vonuA_1.10 -i 3@vonuB_1.11 -i 4@vonuC_1.12 basic
 
+./oft -H 10.100.0.1 -p 6633 -i 1@LE1_1 -i 2@vonuC_1.12 -i 3@vonuC_1.12 -i 4@vonuC_1.12 basic

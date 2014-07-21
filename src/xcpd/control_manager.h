@@ -31,14 +31,18 @@ class virtual_port {
         int real_port;
         int vlan;
         rofl::cmacaddr mac;
-        static int mac_base;
+        static int port_count;
         void init_port();
     
     public:
         static const int NO_VLAN= -1;
+        virtual_port();
         virtual_port(std::string, int);
         virtual_port(std::string n, int,int);
-        
+        rofl::cmacaddr get_mac();
+        void set_mac(rofl::cmacaddr);
+        std::string get_name();
+		void set_name(std::string);
         int get_real_port();
         int get_vlan();
 };

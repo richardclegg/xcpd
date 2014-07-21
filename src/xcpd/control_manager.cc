@@ -18,7 +18,10 @@ using namespace std;
 using namespace rofl;
 using namespace xdpd;
 
-int virtual_port::mac_base= 1;
+int virtual_port::port_count= 1;
+
+virtual_port::virtual_port() {
+}
 
 virtual_port::virtual_port(std::string n, int port) {
     name= n;
@@ -32,10 +35,15 @@ void virtual_port::init_port()
     std::stringstream stream("00:00:00:00:00:");
     stream.seekp(0, std::ios::end);
     stream << std::hex << std::setw(2) << std::setfill('0') 
-		<< mac_base << std::dec;
-    mac_base++;
+		<< port_count << std::dec;
+   
     mac= rofl::cmacaddr(stream.str().c_str());
-    //cout << "Mac is " << stream.str() << " " << mac << endl;
+    std::stringstream stream2("");
+    stream2 << "vport_" << port_count;
+    name= stream2.str();
+    port_count++;
+    cout << "Mac is " << stream.str() << " " << mac << " name is " <<
+		stream2.str() << endl;
     //cout << "New Port phys:" << port << " NO VLAN" << endl;
 }
 
@@ -45,6 +53,29 @@ virtual_port::virtual_port(std::string n, int port,int v) {
     vlan= v;
     //cout << "New Port phys:" << port << " VLAN " << v << endl;
     init_port();
+}
+
+rofl::cmacaddr virtual_port::get_mac()
+{
+	return mac;
+}
+
+void virtual_port::set_mac(rofl::cmacaddr m)
+{
+	mac= m;
+	//cout << "MAC is " << mac.c_str() << endl;
+}
+
+std::string virtual_port::get_name()
+{
+	cout << "PORT NAME " << name << endl;
+	return name;
+}
+
+void virtual_port::set_name(std::string n)
+{
+	name= n;
+	cout << "PORT NAME " << name << endl;
 }
 
 int virtual_port::get_real_port()
