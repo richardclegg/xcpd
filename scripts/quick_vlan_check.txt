@@ -1,0 +1,21 @@
+ip link add LV1_0 type veth peer name LV1_1
+ifconfig LV1_0 up
+ifconfig LV1_1 10.10.10.10/24 up
+
+ip link add LE1_0 type veth peer name LE1_1
+ifconfig LE1_0 up
+ifconfig LE1_1 11.10.10.10/24 up
+
+#Start xdpd from where it is configured
+/usr/local5/sbin/xdpd -c xdpd4_config.cfg 
+
+#start floodlight from its directory
+
+sudo ./floodlight.sh
+
+http://localhost:8080/ui/index.sh
+
+#push a flow entry
+
+curl -d '{"switch": "00:00:00:00:00:00:00:01", "name":"flow-mod-1", "cookie":"0", "priority":"1", "ingress-port":"1","active":"true", "actions":"set-vlan-id=10,output=2"}' http://127.0.0.1:8080/wm/staticflowentrypusher/json
+

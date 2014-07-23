@@ -1,0 +1,4 @@
+sudo ovs-dpctl add-dp dp0
+sudo ovs-dpctl add-if dp0 LE1_0
+sudo ovs-dpctl add-if dp0 LV1_0
+sudo ovs-openflowd dp0 --datapath-id=0000000000000001 tcp:127.0.0.1 port 6633 --out-of-band
