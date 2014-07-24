@@ -1,21 +1,41 @@
-ip link add LV1_0 type veth peer name LV1_1
-ifconfig LV1_0 up
-ifconfig LV1_1 10.10.10.10/24 up
+sudo ip link add LV1_0 type veth peer name LV1_1
+sudo ifconfig LV1_0 up
+sudo ifconfig LV1_1 up
 
-ip link add LE1_0 type veth peer name LE1_1
-ifconfig LE1_0 up
-ifconfig LE1_1 11.10.10.10/24 up
+
+sudo ip link add LE1_0 type veth peer name LE1_1
+sudo ifconfig LE1_0 up
+sudo ifconfig LE1_1 10.10.10.10/24 up
 
 #Start xdpd from where it is configured
-/usr/local5/sbin/xdpd -c xdpd4_config.cfg 
+
+sudo /usr/local5/sbin/xdpd -c xdpd4_config.cfg 
 
 #start floodlight from its directory
 
 sudo ./floodlight.sh
 
+# in browser -- wait a bit for floodlight to start and then 
+
 http://localhost:8080/ui/index.sh
+
+# this takes a while and refresh breaks things -- browse to switch
 
 #push a flow entry
 
 curl -d '{"switch": "00:00:00:00:00:00:00:01", "name":"flow-mod-1", "cookie":"0", "priority":"1", "ingress-port":"1","active":"true", "actions":"set-vlan-id=10,output=2"}' http://127.0.0.1:8080/wm/staticflowentrypusher/json
 
+#  browse to switch and check if rule is present
+
+ping 10.10.10.11
+
+# you don't get ping replies but you should see traffic accross switch.
+
+sudo tcpdump -lnev -i LV1_1
+
+Packets are seen with VLAN 10
+
+sudo tcpdump -lnev -i LV1_0
+tcpdump: WARNING: LV1_0: no IPv4 address assigned
+tcpdump: listening on LV1_0, link-type EN10MB (Ethernet), capture size 65535 bytes
+14:30:25.199778 be:35:17:6b:b9:2b > ff:ff:ff:ff:ff:ff, ethertype 802.1Q (0x8100), length 46: vlan 10, p 0, ethertype ARP, Ethernet (len 6), IPv4 (len 4), Request who-has 10.10.10.11 tell 10.10.10.10, length 28
