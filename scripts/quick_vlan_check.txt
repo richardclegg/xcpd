@@ -9,7 +9,49 @@ sudo ifconfig LE1_1 10.10.10.10/24 up
 
 #Start xdpd from where it is configured
 
-sudo /usr/local5/sbin/xdpd -c xdpd4_config.cfg 
+sudo /usr/local4/sbin/xdpd -c xdpd4_config.cfg 
+
+# xdpd4_config.cfg
+
+#Example of configuration single LSI 
+
+config:{
+
+	openflow:{
+		logical-switches:{
+			#Name of the switch dp0
+			dp0:{
+				#Most complex configuration
+				dpid = "0x1"; #Must be hexadecimal
+				version = 1.0;
+				description="This is a switch";
+
+				#Controller connection(s)
+				controller-connections:{
+					main:{
+						remote-hostname="127.0.0.1";
+						remote-port = 6633;
+					};
+				};
+
+				#Reconnect behaviour
+				reconnect-time=1; #seconds
+
+				#Tables and MA
+				num-of-tables=1;
+
+				#Physical ports attached to this logical switch.
+ This is mandatory
+				#The order and position in the array dictates th
+e number of
+				# 1 -> veth0, 2 -> veth2, 3 -> veth4, 4 -> veth6
+				ports = ("LE1_0", "LV1_0");
+			};
+		};
+	};
+};
+
+
 
 #start floodlight from its directory
 
@@ -17,7 +59,7 @@ sudo ./floodlight.sh
 
 # in browser -- wait a bit for floodlight to start and then 
 
-http://localhost:8080/ui/index.sh
+http://localhost:8080/ui/index.html
 
 # this takes a while and refresh breaks things -- browse to switch
 
@@ -25,17 +67,65 @@ http://localhost:8080/ui/index.sh
 
 curl -d '{"switch": "00:00:00:00:00:00:00:01", "name":"flow-mod-1", "cookie":"0", "priority":"1", "ingress-port":"1","active":"true", "actions":"set-vlan-id=10,output=2"}' http://127.0.0.1:8080/wm/staticflowentrypusher/json
 
-#  browse to switch and check if rule is present
+#  browse to switch in web browser and check if rule is present
 
 ping 10.10.10.11
 
-# you don't get ping replies but you should see traffic accross switch.
+# you don't get ping replies but you should see traffic accross switch (probably ARP request)
 
 sudo tcpdump -lnev -i LV1_1
 
-Packets are seen with VLAN 10
+# Packets are seen with VLAN 10
 
 sudo tcpdump -lnev -i LV1_0
 tcpdump: WARNING: LV1_0: no IPv4 address assigned
 tcpdump: listening on LV1_0, link-type EN10MB (Ethernet), capture size 65535 bytes
 14:30:25.199778 be:35:17:6b:b9:2b > ff:ff:ff:ff:ff:ff, ethertype 802.1Q (0x8100), length 46: vlan 10, p 0, ethertype ARP, Ethernet (len 6), IPv4 (len 4), Request who-has 10.10.10.11 tell 10.10.10.10, length 28
+
+
+
+Repeat experiment with xdpd 0.3
+
+#Example of configuration for software testbed xcpd -- xcpd section is at end
+config:{
+
+
+	openflow:{
+		logical-switches:{
+			#Name of the switch dp0
+			dp0:{
+				dpid = "0x1"; #Must be hexadecimal
+				version = 1.0;
+				description="Test on software testbed";
+
+				#Controller
+				mode="active"; #active, passive, (TODO: both)	##
+                master-controller-ip="127.0.0.1";
+                master-controller-port=6633;
+				reconnect-time=1; #seconds
+
+				#Tables and MA
+				num-of-tables=1;
+
+				#Physical ports attached to this logical switch. This is mandatory
+				#The order and position in the array dictates the number of
+				# the port
+				ports = ("LE1_0", "LV1_0");
+
+			};
+		};
+	};
+    
+};
+
+
+
+richard@gormenghast:~$ sudo tcpdump -lnev -i LV1_1
+tcpdump: WARNING: LV1_1: no IPv4 address assigned
+tcpdump: listening on LV1_1, link-type EN10MB (Ethernet), capture size 65535 bytes
+13:54:41.781932 a6:37:22:c2:e2:86 > ff:ff:ff:ff:ff:ff, 802.3, length 46: LLC, dsap Null (0x00) Individual, ssap Unknown (0x0a) Command, ctrl 0x0608: Information, send seq 4, rcv seq 3, Flags [Command], length 32
+13:54:42.799236 a6:37:22:c2:e2:86 > ff:ff:ff:ff:ff:ff, 802.3, length 46: LLC, dsap Null (0x00) Individual, ssap Unknown (0x0a) Command, ctrl 0x0608: Information, send seq 4, rcv seq 3, Flags [Command], length 32
+13:54:43.797978 a6:37:22:c2:e2:86 > ff:ff:ff:ff:ff:ff, 802.3, length 46: LLC, dsap Null (0x00) Individual, ssap Unknown (0x0a) Command, ctrl 0x0608: Information, send seq 4, rcv seq 3, Flags [Command], length 32
+13:54:44.797900 a6:37:22:c2:e2:86 > ff:ff:ff:ff:ff:ff, 802.3, length 46: LLC, dsap Null (0x00) Individual, ssap Unknown (0x0a) Command, ctrl 0x0608: Information, send seq 4, rcv seq 3, Flags [Command], length 32
+^C13:54:45.815072 a6:37:22:c2:e2:86 > ff:ff:ff:ff:ff:ff, 802.3, length 46: LLC, dsap Null (0x00) Individual, ssap Unknown (0x0a) Command, ctrl 0x0608: Information, send seq 4, rcv seq 3, Flags [Command], length 32
+13:54:46.813821 a6:37:22:c2:e2:86 > ff:ff:ff:ff:ff:ff, 802.3, length 46: LLC, dsap Null (0x00) Individual, ssap Unknown (0x0a) Command, ctrl 0x0608: Information, send seq 4, rcv seq 3, Flags [Command], length 32
