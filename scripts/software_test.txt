@@ -37,7 +37,7 @@ sudo sysctl -p
 
 #install some prerequisites
 
-sudo apt get install python-scapy bridge-utils vlan
+sudo apt-get install python-scapy bridge-utils vlan
 
 # FIRST TEST software only xdpd
 

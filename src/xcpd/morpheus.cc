@@ -204,7 +204,11 @@ void morpheus::set_dpt_watcher() {
 	if (!indpt) {
 		ROFL_DEBUG("Connecting to switch %s switch in active mode\n",
 			dptaddr.c_str());
-		rpc_listen_for_dpts(dptaddr);
+		try {
+			rpc_listen_for_dpts(dptaddr);
+		} catch (rofl::eSocketBindFailed e) {
+			ROFL_DEBUG("%s: bind failed \n",__PRETTY_FUNCTION__);
+		}
 	} else {
 		ROFL_DEBUG("Connecting to switch %s switch in listening mode\n",
 			dptaddr.c_str());
@@ -349,6 +353,7 @@ void morpheus::handle_dpath_close (rofl::cofdpt *src) {
 		(m_slave?m_slave->c_str():"NULL"),
 		(src?src->c_str():"NULL")
 		);
+		return;
 	}
 	m_slave=0;	
 	// If master is still open try to reconnect
