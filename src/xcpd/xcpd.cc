@@ -11,6 +11,7 @@
 #include "cportvlan_mapper.h"
 #include <string>
 
+
 using namespace rofl;
 using namespace xdpd;
 
@@ -71,6 +72,7 @@ int main(int argc, char** argv){
 	memset(s_dbg, 0, sizeof(s_dbg));
 	snprintf(s_dbg, sizeof(s_dbg)-1, "%d", (int)csyslog::DBG);
 
+	
 
 	{ //Make valgrind happy
 		cunixenv env_parser(argc, argv);

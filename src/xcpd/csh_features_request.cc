@@ -75,10 +75,8 @@ bool morpheus::csh_features_request::process_features_reply ( const rofl::cofdpt
 			virtualportlist.next() = p;
 			}
 		m_parent->send_features_reply(m_parent->get_ctl(), m_request_xid, dpid, msg->get_n_buffers(), msg->get_n_tables(), capabilities, 0, of10_actions_bitmap, virtualportlist );	// TODO get_action_bitmap is OF1.0 only
-		std::cout << "SENT" << std::endl;
 		m_completed = true;
 	}
-	std::cout << "DONE " << std::endl;
 	return m_completed;
 }
 

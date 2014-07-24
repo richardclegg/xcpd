@@ -60,7 +60,7 @@ sudo ./create_netns_config.sh
 #The three interfaces we care about in the default namespace are: C1_0, the control channel, LE1_0, the untagged "upstream" interface, and LV1_0 which is the OLT interface which is then split into interfaces which present untagged VLANs in the SW2 namespace
 
 In one terminal run xdpd (in default namespace):
-sudo xdpd -d all -c soft_xdpd_test.cfg
+sudo xdpd -c soft_xdpd_test.cfg
 
 In a second terminal run xcpd (in default namespace):
 sudo xcpd -c soft_xdpd_test.cfg
