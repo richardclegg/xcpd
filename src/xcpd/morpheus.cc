@@ -49,8 +49,6 @@ morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const ro
 	pthread_rwlock_init(&m_session_timers_lock, 0);
 	ctlmsgqueue= std::vector <rofl::cofmsg *> ();
 	dptmsgqueue= std::vector <rofl::cofmsg *> ();
-
-    
     dpt_state= PATH_CLOSED;
     ctl_state= PATH_CLOSED;
 }
@@ -158,7 +156,7 @@ uint32_t morpheus::get_supported_actions() {
 		// we have no information on supported actions from the DPE, so we're going to have to ask ourselves.
 		std::auto_ptr < morpheus::csh_features_request > s ( new morpheus::csh_features_request ( this ) );
 		{ rofl::RwLock lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); register_lifetime_session_timer(s.get(), max_session_lifetime); }
-		ROFL_DEBUG("%s: sent request for features. Waiting.\n");
+		ROFL_DEBUG("%s: sent request for features. Waiting.\n",__PRETTY_FUNCTION__);
 		unsigned wait_time = 5;
 		while(wait_time && !s->isCompleted()) {
 			sleep(1);	// TODO possible error - is crofbase a single thread, or is every call to a crofbase handler a new thread?
@@ -176,7 +174,7 @@ uint32_t morpheus::get_supported_actions() {
 
 void morpheus::set_ctl_watcher() {
     if (ctl_state != PATH_CLOSED) {
-        ROFL_DEBUG("%s: called but ctl not closed\n");
+        ROFL_DEBUG("%s: called but ctl not closed\n",__PRETTY_FUNCTION__);
         return;
     }
     ctl_state= PATH_WAIT;
@@ -194,6 +192,8 @@ void morpheus::set_ctl_watcher() {
 }
 
 void morpheus::set_dpt_watcher() {
+    std::cout << "SUPPORTED " << std::bitset<8>(supported_ofp_versions) << std::endl;
+    
     if (dpt_state != PATH_CLOSED) {
         ROFL_DEBUG("%s: called but dpt not closed\n",
 			__PRETTY_FUNCTION__);
@@ -458,6 +458,7 @@ void morpheus::check_locks()
 }
 
 #define HANDLE_REPLY_AFTER_REQUEST_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE, REPLY_FN) { \
+    ROFL_DEBUG("%s from %s : %s\n", func, src->c_str(), msg->c_str()); \
 	if(CTL_DPT) { \
 		ROFL_ERR("%s: message unexpectedly marked as control type\n",func); \
 		return; \

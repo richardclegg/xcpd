@@ -13,7 +13,8 @@ morpheus::csh_port_mod::csh_port_mod(morpheus * parent, rofl::cofctl * const src
 	}
 
 bool morpheus::csh_port_mod::process_port_mod ( rofl::cofctl * const src, rofl::cofmsg_port_mod * const msg ) {
-	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
+	ROFL_DEBUG("%s called.\n",__PRETTY_FUNCTION__);
+    if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
     int type= control_manager::Instance()->get_port_config_handling();
     if (type == control_manager::DROP_COMMAND) {
         m_completed= true;

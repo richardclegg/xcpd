@@ -35,37 +35,21 @@ ip netns exec SW ifconfig LE1_1 up
 ip netns exec SW route add default LE1_1
 
 ip link add vonuA_0 type veth peer name vonuA_1
+vconfig add vonuA_1 10
 ip link set vonuA_1 netns SW
 ifconfig vonuA_0 up
 ip netns exec SW ifconfig vonuA_1 up
 
 ip link add vonuB_0 type veth peer name vonuB_1
+vconfig add vonuB_1 11
 ip link set vonuB_1 netns SW
 ifconfig vonuB_0 up
 ip netns exec SW ifconfig vonuB_1 up
 
 ip link add vonuC_0 type veth peer name vonuC_1
+vconfig add vonuC_1 12
 ip link set vonuC_1 netns SW
 ifconfig vonuC_0 up
 ip netns exec SW ifconfig vonuC_1 up
 
-ip link add LV1_0 type veth peer name LV1_1
-sudo ifconfig LV1_0 up
-sudo ifconfig LV1_1 up
 
-vconfig add LV1_1 10
-vconfig add LV1_1 11
-vconfig add LV1_1 12
-
-brctl addbr br10
-brctl addbr br11
-brctl addbr br12
-
-brctl addif br10 LV1_1.10
-brctl addif br10 vonuA_0
-
-brctl addif br11 LV1_1.11
-brctl addif br11 vonuB_0
-
-brctl addif br12 LV1_1.12
-brctl addif br12 vonuC_0

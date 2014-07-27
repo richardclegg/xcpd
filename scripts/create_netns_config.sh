@@ -73,7 +73,9 @@ ip netns exec SW ifconfig vonuC_1.12 10.9.0.10/30 up
 arp -s 10.9.0.10 00:00:10:09:00:10
 ip netns exec SW arp -s 10.9.0.9 00:00:10:09:00:09
 
-brctl addbr LV1_0
-brctl addif LV1_0 vonuA_0 vonuB_0 vonuC_0 
+ip link add LV1_0 type veth peer name LV1_1
+
+brctl addbr br
+brctl addif br LV1_1 vonuA_0 vonuB_0 vonuC_0 
 
 ifconfig LV1_0 10.9.0.99/30 up

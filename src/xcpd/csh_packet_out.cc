@@ -26,10 +26,9 @@ bool morpheus::csh_packet_out::process_packet_out ( rofl::cofctl * const src, ro
 //	std::cout << "TP_" << __LINE__ << std::endl;
 
 	if(packet.cnt_vlan_tags()>0) {
-		std::cout << __FUNCTION__ << ": vlan tags in PacketOut packets not supported." << std::endl;
-		assert(false);
-		m_completed = true;
-		return m_completed;
+        
+		ROFL_INFO("%s:  vlan tags in PacketOut packets may not be supported\n",
+            __PRETTY_FUNCTION__);
 	}
 
 	const cportvlan_mapper & mapper = m_parent->get_mapper();
