@@ -245,10 +245,13 @@ void morpheus::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
 
 void morpheus::process_ctlqueue()
 {
+    rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); 
+	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); 
     ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
 	for(std::vector<rofl::cofmsg *>::iterator it = ctlmsgqueue.begin();
 		it != ctlmsgqueue.end(); ++it) {
-		cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *> (*it);
+        cofmsg *m (*it);
+		cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *> (m);
 		if (fr != 0) {
 			handle_features_request(m_master, fr);
 			continue;
@@ -263,11 +266,13 @@ void morpheus::process_ctlqueue()
 
 void morpheus::process_dptqueue()
 {
+     rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); 
+	 rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); 
      ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
-	for(std::vector<rofl::cofmsg *>::iterator it = dptmsgqueue.begin();
+	 for(std::vector<rofl::cofmsg *>::iterator it = dptmsgqueue.begin();
 		it != dptmsgqueue.end(); ++it) {
-		
-		cofmsg_get_config_reply *cr= dynamic_cast<cofmsg_get_config_reply *> (*it);
+		cofmsg *m (*it);
+		cofmsg_get_config_reply *cr= dynamic_cast<cofmsg_get_config_reply *> (m);
 		if (cr != 0) {
 			handle_get_config_reply(m_slave,cr);
 			continue;
@@ -434,11 +439,6 @@ void morpheus::handle_timeout ( int opaque ) {
 	}
 }
 
-void morpheus::check_locks() 
-{
-	rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); 
-	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE);
-}
 
 #undef STRINGIFY
 #undef TOSTRING
@@ -448,12 +448,13 @@ void morpheus::check_locks()
 // this is from a ctl if CTL_DPT is true, false otherwise
 #define HANDLE_REQUEST_WITH_REPLY_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE) { \
 	ROFL_DEBUG("%s from %s : %s\n", func, src->c_str(), msg->c_str()); \
-    check_locks(); \
+    rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
+	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
 		if (CTL_DPT) ctlmsgqueue.push_back(msg);   \
 		else dptmsgqueue.push_back(msg);   \
-        ROFL_DEBUG("%s: queued\n",func); \
+        ROFL_DEBUG("%s: queued message %s\n",func,msg->c_str()); \
 		return; \
 	} \
 	try { \
@@ -469,10 +470,12 @@ void morpheus::check_locks()
 		ROFL_ERR("%s: message unexpectedly marked as control type\n",func); \
 		return; \
 	} \
-	check_locks(); \
+	rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
+	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: No control/datapath queueing message\n",func); \
 		dptmsgqueue.push_back(msg); \
+        ROFL_DEBUG("%s: queued message to datapath %s\n",func,msg->c_str()); \
 		return; \
 	} \
 	chandlersession_base *b= get_chandlersession(msg); \
@@ -496,11 +499,13 @@ void morpheus::check_locks()
 
 #define HANDLE_MESSAGE_FORWARD_TEMPLATE(CTL_DPT, SESSION_TYPE) { \
 	ROFL_DEBUG("%s: from %s message %s\n", func, src->c_str(), msg->c_str()); \
-    	check_locks(); \
+    rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
+	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
 		if (CTL_DPT) ctlmsgqueue.push_back(msg);   \
 		else dptmsgqueue.push_back(msg);   \
+        ROFL_DEBUG("%s: queued message %s\n",func,msg->c_str()); \
 		return; \
 	} \
 	try { \
