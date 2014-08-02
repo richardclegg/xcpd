@@ -192,8 +192,7 @@ void morpheus::set_ctl_watcher() {
 }
 
 void morpheus::set_dpt_watcher() {
-    std::cout << "SUPPORTED " << std::bitset<8>(supported_ofp_versions) << std::endl;
-    
+  
     if (dpt_state != PATH_CLOSED) {
         ROFL_DEBUG("%s: called but dpt not closed\n",
 			__PRETTY_FUNCTION__);
@@ -219,7 +218,7 @@ void morpheus::set_dpt_watcher() {
 
 void morpheus::initialiseConnections(){
 	// set up connection to controller (active or passive)
-	set_ctl_watcher();
+	set_dpt_watcher();
 }
 
 rofl::cofdpt * morpheus::get_dpt() const { return m_slave; }
@@ -246,6 +245,7 @@ void morpheus::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
 
 void morpheus::process_ctlqueue()
 {
+    ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
 	for(std::vector<rofl::cofmsg *>::iterator it = ctlmsgqueue.begin();
 		it != ctlmsgqueue.end(); ++it) {
 		cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *> (*it);
@@ -263,6 +263,7 @@ void morpheus::process_ctlqueue()
 
 void morpheus::process_dptqueue()
 {
+     ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
 	for(std::vector<rofl::cofmsg *>::iterator it = dptmsgqueue.begin();
 		it != dptmsgqueue.end(); ++it) {
 		
@@ -339,8 +340,12 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	m_slave = src;
 	m_slave_dpid= xdpd::control_manager::Instance()->get_dpid();
 	m_dpid = m_slave_dpid;
-	process_ctlqueue();
 	process_dptqueue();
+    if (ctl_state == PATH_OPEN) {
+        process_ctlqueue();
+    } else {
+        set_ctl_watcher();
+    }
 }
 
 // TODO are all transaction IDs invalidated by a connection reset??
@@ -443,13 +448,14 @@ void morpheus::check_locks()
 // this is from a ctl if CTL_DPT is true, false otherwise
 #define HANDLE_REQUEST_WITH_REPLY_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE) { \
 	ROFL_DEBUG("%s from %s : %s\n", func, src->c_str(), msg->c_str()); \
+    check_locks(); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
 		if (CTL_DPT) ctlmsgqueue.push_back(msg);   \
 		else dptmsgqueue.push_back(msg);   \
+        ROFL_DEBUG("%s: queued\n",func); \
 		return; \
 	} \
-	check_locks(); \
 	try { \
 		new SESSION_TYPE ( this, src, msg ); /* this isn't a leak as the constructor of the session should register the xids and the pointer will stay in the  */ \
 	} catch(rofl::cerror &e) { \
@@ -463,12 +469,12 @@ void morpheus::check_locks()
 		ROFL_ERR("%s: message unexpectedly marked as control type\n",func); \
 		return; \
 	} \
+	check_locks(); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: No control/datapath queueing message\n",func); \
 		dptmsgqueue.push_back(msg); \
 		return; \
 	} \
-	check_locks(); \
 	chandlersession_base *b= get_chandlersession(msg); \
 	if (b == 0) { \
 		ROFL_ERR("%s: cannot find xid for %s\n",func, msg->c_str()); \
@@ -490,13 +496,13 @@ void morpheus::check_locks()
 
 #define HANDLE_MESSAGE_FORWARD_TEMPLATE(CTL_DPT, SESSION_TYPE) { \
 	ROFL_DEBUG("%s: from %s message %s\n", func, src->c_str(), msg->c_str()); \
+    	check_locks(); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
 		if (CTL_DPT) ctlmsgqueue.push_back(msg);   \
 		else dptmsgqueue.push_back(msg);   \
 		return; \
 	} \
-	check_locks(); \
 	try { \
 		new SESSION_TYPE ( this, src, msg ); \
 	} catch(rofl::cerror &e) { \
