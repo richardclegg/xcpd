@@ -245,60 +245,57 @@ void morpheus::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
 
 void morpheus::dptqueue(cofmsg *msg)
 {
-    cofmsg *m2 = new cofmsg();
-    dptmsgqueue.push_back(m2);
+    dptmsgqueue.push_back(msg);
+    ROFL_DEBUG("%s: copied message %s\n",__PRETTY_FUNCTION__,msg->c_str());
 }
 
 void morpheus::ctlqueue(cofmsg *msg)
 {
-    cofmsg *m2 = new cofmsg();
-    ctlmsgqueue.push_back(m2);
+    ctlmsgqueue.push_back(msg);
+    ROFL_DEBUG("%s: copied message %s\n",__PRETTY_FUNCTION__,msg->c_str());
 }
 
 void morpheus::process_ctlqueue()
 {
-    rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); 
-	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); 
     ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
 	for(std::vector<rofl::cofmsg *>::iterator it = ctlmsgqueue.begin();
 		it != ctlmsgqueue.end(); ++it) {
-        cofmsg *m (*it);
-        ROFL_DEBUG("%s: message is %s\n",__PRETTY_FUNCTION__,m->c_str());
-		cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *> (m);
+        cofmsg *m= (*it);
+        cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *>( (m) );
 		if (fr != 0) {
-			handle_features_request(m_master, fr);
-			continue;
-		}
+            handle_features_request(m_master, fr);
+            delete(m);
+            continue;
+        }
 		ROFL_DEBUG("%s: popping ctl message queue message not handled %s\n", 
-			__PRETTY_FUNCTION__,(*it)->c_str());
-		delete(*it);
-		
+			__PRETTY_FUNCTION__,m->c_str());
+		delete(m);
 	}
 	ctlmsgqueue= std::vector<rofl::cofmsg *> ();
 }
 
 void morpheus::process_dptqueue()
 {
-     rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); 
-	 rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); 
      ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
 	 for(std::vector<rofl::cofmsg *>::iterator it = dptmsgqueue.begin();
 		it != dptmsgqueue.end(); ++it) {
-		cofmsg *m= (*it);
+        cofmsg *m= (*it);
         ROFL_DEBUG("%s: message is %s\n",__PRETTY_FUNCTION__,m->c_str());
-		cofmsg_get_config_reply *cr= dynamic_cast<cofmsg_get_config_reply *> (m);
-		if (cr != 0) {
-			handle_get_config_reply(m_slave,cr);
-			continue;
-		}
-		cofmsg_features_reply *fr=  dynamic_cast<cofmsg_features_reply *> (*it);
-		if (fr != 0) {
-			handle_features_reply(m_slave, fr);
-			continue;
+		cofmsg_get_config_reply * cr = dynamic_cast<cofmsg_get_config_reply *> (m);
+        if (cr != 0) { 
+            handle_get_config_reply(m_slave,cr);
+            delete (m);
+            continue;
+        } 
+        cofmsg_features_reply * fr=  dynamic_cast<cofmsg_features_reply * > (m);
+        if (fr != 0) {
+            handle_features_reply(m_slave, fr);
+			delete (fr);
+            continue;
 		}
 		ROFL_DEBUG("%s: popping dpt message queue -- message not handled %s\n", 
-			__PRETTY_FUNCTION__,(*it)->c_str());
-		delete(*it);
+			__PRETTY_FUNCTION__,m->c_str());
+        delete(m);
 	}
 	dptmsgqueue= std::vector<rofl::cofmsg *> ();
 }
@@ -319,17 +316,20 @@ void morpheus::handle_ctrl_open (rofl::cofctl *src) {
 		return;
 	}
 	m_master= src;
-	try {
-		if (m_slave == 0) {
-			set_dpt_watcher();
-		}
-	} catch (rofl::eSocketBindFailed & e) {
-		ROFL_ERR("%s threw rofl::eSocketBind error\n",
-			__PRETTY_FUNCTION__);
-	} catch (rofl::cerror & e) {
-		ROFL_ERR("%s threw rofl::cerror\n",
-			__PRETTY_FUNCTION__);
-	}
+	if (m_slave == 0) {
+        try {
+            set_dpt_watcher();
+        } catch (rofl::eSocketBindFailed & e) {
+            ROFL_ERR("%s threw rofl::eSocketBind error\n",
+                __PRETTY_FUNCTION__);
+        } catch (rofl::cerror & e) {
+            ROFL_ERR("%s threw rofl::cerror\n",
+                __PRETTY_FUNCTION__);
+        }
+    } else {
+        process_ctlqueue();
+        process_dptqueue();
+    }
 	ROFL_DEBUG("%s finished.\n",__PRETTY_FUNCTION__);
 }
 
@@ -359,9 +359,9 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	m_slave = src;
 	m_slave_dpid= xdpd::control_manager::Instance()->get_dpid();
 	m_dpid = m_slave_dpid;
-	process_dptqueue();
     if (ctl_state == PATH_OPEN) {
         process_ctlqueue();
+        process_dptqueue();
     } else {
         set_ctl_watcher();
     }
@@ -468,7 +468,6 @@ void morpheus::handle_timeout ( int opaque ) {
 		if (CTL_DPT) ctlqueue(msg);   \
 		else dptqueue(msg);   \
         ROFL_DEBUG("%s: queued message %s\n",func,msg->c_str()); \
-        delete(msg); \
 		return; \
 	} \
 	try { \
@@ -488,7 +487,6 @@ void morpheus::handle_timeout ( int opaque ) {
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: No control/datapath queueing message\n",func); \
 		dptqueue(msg); \
-        delete(msg); \
         ROFL_DEBUG("%s: queued message to datapath %s\n",func,msg->c_str()); \
 		return; \
 	} \
@@ -520,7 +518,6 @@ void morpheus::handle_timeout ( int opaque ) {
 		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
 		if (CTL_DPT) ctlqueue(msg);   \
 		else dptqueue(msg);   \
-        delete(msg); \
         ROFL_DEBUG("%s: queued message %s\n",func,msg->c_str()); \
 		return; \
 	} \

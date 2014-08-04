@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh 
 ID=/usr/bin/id
 [ -z "$UID" ] && UID=`$ID -u`
 ROOT_UID=0
@@ -19,59 +19,59 @@ ip netns add SW
 ip netns exec SW ip link set dev lo up
 
 ip link add C_0 type veth peer name C_1
-ifconfig C_0 hw ether 00:00:10:99:00:01
-ifconfig C_1 hw ether 00:00:10:99:00:02
+ifconfig C_0 hw ether 00:00:00:00:02:01
+ifconfig C_1 hw ether 00:00:00:00:02:02
 ip link set C_1 netns SW
-ifconfig C_0 10.100.0.2/30 up
-ip netns exec SW ifconfig C_1 10.100.0.3/30 up
-arp -s 10.100.0.3 00:00:10:99:00:03
-ip netns exec SW arp -s 10.100.0.2 00:00:10:99:00:02
+ifconfig C_0 10.100.2.1/24 up
+ip netns exec SW ifconfig C_1 10.100.2.2/24 up
+arp -s 10.100.2.2 00:00:00:00:02:02
+ip netns exec SW arp -s 10.100.2.1 00:00:00:00:02:01
 
 ip link add LE1_0 type veth peer name LE1_1
-ifconfig LE1_0 hw ether 00:00:10:10:00:03
-ifconfig LE1_1 hw ether 00:00:10:10:00:02
-ifconfig LE1_0 10.10.0.3/30 up
+ifconfig LE1_0 hw ether 00:00:00:00:03:01
+ifconfig LE1_1 hw ether 00:00:00:00:03:02
+ifconfig LE1_0 10.100.3.1/24 up
 ip link set LE1_1 netns SW
-ip netns exec SW ifconfig LE1_1 10.10.0.2/30 up
+ip netns exec SW ifconfig LE1_1 10.100.3.2/24 up
 ip netns exec SW route add default LE1_1
-arp -s 10.10.0.2 00:00:10:10:00:02
-ip netns exec SW arp -s 10.10.0.3 00:00:10:10:00:03
+arp -s 10.100.3.2 00:00:00:00:03:02
+ip netns exec SW arp -s 10.100.3.1 00:00:00:00:03:01
 
 ip link add vonuA_0 type veth peer name vonuA_1
-ifconfig vonuA_0 hw ether 00:00:10:09:00:03
-ifconfig vonuA_1 hw ether 00:00:10:09:00:02
+ifconfig vonuA_0 hw ether 00:00:00:00:04:01
+ifconfig vonuA_1 hw ether 00:00:00:00:04:01
 vconfig add vonuA_1 10
 ip link set vonuA_1 netns SW
 ip link set vonuA_1.10 netns SW
-ifconfig vonuA_0 10.9.0.3/30 up
+ifconfig vonuA_0 10.100.4.1/24 up
 ip netns exec SW ifconfig vonuA_1 up
-ip netns exec SW ifconfig vonuA_1.10 10.9.0.2/30 up
-arp -s 10.9.0.2 00:00:10:09:00:02
-ip netns exec SW arp -s 10.9.0.3 00:00:10:09:00:03
+ip netns exec SW ifconfig vonuA_1.10 10.100.4.2/24 up
+arp -s 10.100.4.2 00:00:00:00:04:02
+ip netns exec SW arp -s 10.100.4.1 00:00:00:00:04:01
 
 ip link add vonuB_0 type veth peer name vonuB_1
-ifconfig vonuB_0 hw ether 00:00:10:09:00:07
-ifconfig vonuB_1 hw ether 00:00:10:09:00:06
+ifconfig vonuB_0 hw ether 00:00:00:00:05:01
+ifconfig vonuB_1 hw ether 00:00:00:00:05:02
 vconfig add vonuB_1 11
 ip link set vonuB_1 netns SW
 ip link set vonuB_1.11 netns SW
-ifconfig vonuB_0 10.9.0.7/30 up
+ifconfig vonuB_0 10.100.5.1/24 up
 ip netns exec SW ifconfig vonuB_1 up
-ip netns exec SW ifconfig vonuB_1.11 10.9.0.6/30 up
-arp -s 10.9.0.6 00:00:10:09:00:06
-ip netns exec SW arp -s 10.9.0.7 00:00:10:09:00:07
+ip netns exec SW ifconfig vonuB_1.11 10.100.5.2/24 up
+arp -s 10.100.5.2 00:00:00:00:05:02
+ip netns exec SW arp -s 10.100.5.1 00:00:00:00:05:01
 
 ip link add vonuC_0 type veth peer name vonuC_1
-ifconfig vonuC_0 hw ether 00:00:10:09:00:11
-ifconfig vonuC_1 hw ether 00:00:10:09:00:10
+ifconfig vonuC_0 hw ether 00:00:00:00:06:01
+ifconfig vonuC_1 hw ether 00:00:00:00:06:02
 vconfig add vonuC_1 12
 ip link set vonuC_1 netns SW
 ip link set vonuC_1.12 netns SW
-ifconfig vonuC_0 10.9.0.11/30 up
+ifconfig vonuC_0 10.100.6.1/24 up
 ip netns exec SW ifconfig vonuC_1 up
-ip netns exec SW ifconfig vonuC_1.12 10.9.0.10/30 up
-arp -s 10.9.0.10 00:00:10:09:00:10
-ip netns exec SW arp -s 10.9.0.11 00:00:10:09:00:11
+ip netns exec SW ifconfig vonuC_1.12 10.100.6.2/24 up
+arp -s 10.100.6.2 00:00:00:00:06:02
+ip netns exec SW arp -s 10.100.6.1 00:00:00:00:06:01
 
 ip link add LV1_0 type veth peer name LV1_1
 

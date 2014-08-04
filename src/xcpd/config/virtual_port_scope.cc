@@ -83,9 +83,10 @@ void one_port_scope::post_validate(libconfig::Setting& setting, bool dry_run){
             control_manager::Instance()->add_vport(vport);
         }
         if (setting.exists(VPORT_MAC)) {
-			std::string macstr= setting[VPORT_MAC];
-			rofl::cmacaddr mac= rofl::cmacaddr(macstr);
-			vport.set_mac(mac);
+        
+            std::string macstr= setting[VPORT_MAC];
+            //std::cout << macstr << std::endl;
+			vport.set_mac(rofl::cmacaddr(macstr.c_str()));
 		}
 		if (setting.exists(VPORT_NAME)) {
 			std::string name= setting[VPORT_NAME];
