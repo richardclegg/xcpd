@@ -56,6 +56,8 @@ private:
 	std::vector <rofl::cofmsg *> dptmsgqueue; // queue of messages going down to data path
 	
 	void check_locks();
+    void ctlqueue(rofl::cofmsg *msg);
+    void dptqueue(rofl::cofmsg *msg);
 	void process_ctlqueue();
 	void process_dptqueue();
     void wait_for_slave();

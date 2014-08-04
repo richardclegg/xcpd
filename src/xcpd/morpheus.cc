@@ -243,6 +243,18 @@ void morpheus::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
 	delete(msg);
 }
 
+void morpheus::dptqueue(cofmsg *msg)
+{
+    cofmsg *m2 = new cofmsg();
+    dptmsgqueue.push_back(m2);
+}
+
+void morpheus::ctlqueue(cofmsg *msg)
+{
+    cofmsg *m2 = new cofmsg();
+    ctlmsgqueue.push_back(m2);
+}
+
 void morpheus::process_ctlqueue()
 {
     rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); 
@@ -251,6 +263,7 @@ void morpheus::process_ctlqueue()
 	for(std::vector<rofl::cofmsg *>::iterator it = ctlmsgqueue.begin();
 		it != ctlmsgqueue.end(); ++it) {
         cofmsg *m (*it);
+        ROFL_DEBUG("%s: message is %s\n",__PRETTY_FUNCTION__,m->c_str());
 		cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *> (m);
 		if (fr != 0) {
 			handle_features_request(m_master, fr);
@@ -271,7 +284,8 @@ void morpheus::process_dptqueue()
      ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
 	 for(std::vector<rofl::cofmsg *>::iterator it = dptmsgqueue.begin();
 		it != dptmsgqueue.end(); ++it) {
-		cofmsg *m (*it);
+		cofmsg *m= (*it);
+        ROFL_DEBUG("%s: message is %s\n",__PRETTY_FUNCTION__,m->c_str());
 		cofmsg_get_config_reply *cr= dynamic_cast<cofmsg_get_config_reply *> (m);
 		if (cr != 0) {
 			handle_get_config_reply(m_slave,cr);
@@ -449,12 +463,12 @@ void morpheus::handle_timeout ( int opaque ) {
 #define HANDLE_REQUEST_WITH_REPLY_TEMPLATE(CTL_DPT, MSG_TYPE, SESSION_TYPE) { \
 	ROFL_DEBUG("%s from %s : %s\n", func, src->c_str(), msg->c_str()); \
     rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
-	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
-		if (CTL_DPT) ctlmsgqueue.push_back(msg);   \
-		else dptmsgqueue.push_back(msg);   \
+		if (CTL_DPT) ctlqueue(msg);   \
+		else dptqueue(msg);   \
         ROFL_DEBUG("%s: queued message %s\n",func,msg->c_str()); \
+        delete(msg); \
 		return; \
 	} \
 	try { \
@@ -471,10 +485,10 @@ void morpheus::handle_timeout ( int opaque ) {
 		return; \
 	} \
 	rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
-	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: No control/datapath queueing message\n",func); \
-		dptmsgqueue.push_back(msg); \
+		dptqueue(msg); \
+        delete(msg); \
         ROFL_DEBUG("%s: queued message to datapath %s\n",func,msg->c_str()); \
 		return; \
 	} \
@@ -488,6 +502,8 @@ void morpheus::handle_timeout ( int opaque ) {
 	if(!s) { \
 		ROFL_ERR("%s : Session resolved to wrong type discarded %s\n", \
 			func, b); \
+        delete(msg); \
+        return; \
 	} \
 	try { \
 		s->REPLY_FN( src, msg ); \
@@ -500,11 +516,11 @@ void morpheus::handle_timeout ( int opaque ) {
 #define HANDLE_MESSAGE_FORWARD_TEMPLATE(CTL_DPT, SESSION_TYPE) { \
 	ROFL_DEBUG("%s: from %s message %s\n", func, src->c_str(), msg->c_str()); \
     rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
-	rofl::RwLock session_timers_lock(&m_session_timers_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
 		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
-		if (CTL_DPT) ctlmsgqueue.push_back(msg);   \
-		else dptmsgqueue.push_back(msg);   \
+		if (CTL_DPT) ctlqueue(msg);   \
+		else dptqueue(msg);   \
+        delete(msg); \
         ROFL_DEBUG("%s: queued message %s\n",func,msg->c_str()); \
 		return; \
 	} \
