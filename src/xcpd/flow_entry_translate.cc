@@ -85,11 +85,10 @@ void flow_entry_translate::del_flow_entry(cflowentry &fe) {
 
 cflowentry flow_entry_translate::trans_flow_entry(cflowentry &fe) {
 
-    rofl::cflowentry entry(fe);
+    rofl::cflowentry entry(fe.get_version(), OFPMT_OXM);
+    entry= fe;
     entry.actions= trans_actions(fe.actions, fe.match);
-    entry.actions= fe.actions;
 	entry.match = trans_match(fe.match);
-    //entry.match= fe.match;
 	ROFL_DEBUG("%s: Sending flow mod %s\n",__PRETTY_FUNCTION__,
         entry.c_str());
     return entry;
@@ -230,29 +229,19 @@ rofl::cofmatch flow_entry_translate::trans_match(
     uint32_t old_inport= 0;
 	try {
         old_inport = newmatch.get_in_port();
-    } catch (rofl::cerror &e) {
-         ROFL_DEBUG("%s: caught error %s: %s\n",__PRETTY_FUNCTION__, 
-         typeid(e).name(),
-         e.desc.c_str());
-    }
-	try {
-        std::cout << "GET PORT " << old_inport << std::endl;
-		cportvlan_mapper::port_spec_t real_port = mapper.get_actual_port( old_inport ); // could throw std::out_of_range
-        
-		if(!real_port.vlanid_is_none()) {
+        cportvlan_mapper::port_spec_t real_port = mapper.get_actual_port( old_inport ); // could throw std::out_of_range
+        if(!real_port.vlanid_is_none()) {
 			// vlan is set in actual port - update the match
-            std::cout << "SET VLAN " << real_port.vlan << std::endl;
-			newmatch.set_vlan_vid( real_port.vlan );
-		}
+            newmatch.set_vlan_vid( real_port.vlan );
+        }
 		// update port
-        std::cout << "SET PORT " << real_port.port << std::endl;
-		newmatch.set_in_port( real_port.port );
+            newmatch.set_in_port( real_port.port );
 	} catch (std::out_of_range &) {
 		ROFL_DEBUG("%s: received a match request for an unknown port (%d) There are %d ports.  Sending error and dropping message. match:%s \n", 
-            oldmatch.get_in_port(), mapper.get_number_virtual_ports() , oldmatch.c_str());
-        throw rofl::eInval();
-	}
-    std::cout << "TRANS MATCH" << std::endl;
+            old_inport, mapper.get_number_virtual_ports() , oldmatch.c_str());
+    } catch ( rofl::eOFmatchNotFound &) {
+    }
+	
     return newmatch;
 }
 

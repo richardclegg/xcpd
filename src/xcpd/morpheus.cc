@@ -47,17 +47,19 @@ morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const ro
     fet= new flow_entry_translate(this);
 	pthread_rwlock_init(&m_sessions_lock, 0);
 	pthread_rwlock_init(&m_session_timers_lock, 0);
-	ctlmsgqueue= std::vector <rofl::cofmsg *> ();
-	dptmsgqueue= std::vector <rofl::cofmsg *> ();
     dpt_state= PATH_CLOSED;
     ctl_state= PATH_CLOSED;
+    
 }
 
 morpheus::~morpheus() {
-	// rpc_close_all();
+	rpc_close_all();
     ROFL_DEBUG("%s:  called.\n",__PRETTY_FUNCTION__);
 	pthread_rwlock_destroy(&m_sessions_lock);
 	pthread_rwlock_destroy(&m_session_timers_lock);
+    while (not m_sessions.empty()) {
+        delete (m_sessions.begin()->second);
+    }
     delete(fet);
 }
 
@@ -243,61 +245,44 @@ void morpheus::handle_error (rofl::cofdpt *src, rofl::cofmsg_error *msg) {
 	delete(msg);
 }
 
-void morpheus::dptqueue(cofmsg *msg)
+void morpheus::dptclosed(cofmsg *msg)
 {
-    dptmsgqueue.push_back(msg);
-    ROFL_DEBUG("%s: copied message %s\n",__PRETTY_FUNCTION__,msg->c_str());
+    cofmsg_get_config_reply * cr = dynamic_cast<cofmsg_get_config_reply *> (msg);
+    if (cr != 0) { 
+        //handle_get_config_reply(m_slave,cr);
+        return;
+    } 
+    cofmsg_features_reply * fr=  dynamic_cast<cofmsg_features_reply * > (msg);
+    if (fr != 0) {
+           
+        return;
+    }
+    ROFL_ERR("%s: unexpected message arrived when DPT path closed -- dropped %s\n",
+        __PRETTY_FUNCTION__,msg->c_str());
 }
 
-void morpheus::ctlqueue(cofmsg *msg)
+void morpheus::ctlclosed(cofmsg *msg)
 {
-    ctlmsgqueue.push_back(msg);
-    ROFL_DEBUG("%s: copied message %s\n",__PRETTY_FUNCTION__,msg->c_str());
+    cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *>(msg);
+    if (fr != 0) {
+        
+        return;
+    }
+    ROFL_ERR("%s: unexpected message arrived when CTL path closed -- dropped %s\n",
+        __PRETTY_FUNCTION__,msg->c_str());
 }
 
-void morpheus::process_ctlqueue()
+void morpheus::process_ctlopens()
 {
-    ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
-	for(std::vector<rofl::cofmsg *>::iterator it = ctlmsgqueue.begin();
-		it != ctlmsgqueue.end(); ++it) {
-        cofmsg *m= (*it);
-        cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *>( (m) );
-		if (fr != 0) {
-            handle_features_request(m_master, fr);
-            delete(m);
-            continue;
-        }
-		ROFL_DEBUG("%s: popping ctl message queue message not handled %s\n", 
-			__PRETTY_FUNCTION__,m->c_str());
-		delete(m);
-	}
-	ctlmsgqueue= std::vector<rofl::cofmsg *> ();
+    ROFL_DEBUG("%s: procesing newly open ctl path\n",__PRETTY_FUNCTION__);
+	
+    // send features request
 }
 
-void morpheus::process_dptqueue()
+void morpheus::process_dptopens()
 {
-     ROFL_DEBUG("%s: procesing queue\n",__PRETTY_FUNCTION__);
-	 for(std::vector<rofl::cofmsg *>::iterator it = dptmsgqueue.begin();
-		it != dptmsgqueue.end(); ++it) {
-        cofmsg *m= (*it);
-        ROFL_DEBUG("%s: message is %s\n",__PRETTY_FUNCTION__,m->c_str());
-		cofmsg_get_config_reply * cr = dynamic_cast<cofmsg_get_config_reply *> (m);
-        if (cr != 0) { 
-            handle_get_config_reply(m_slave,cr);
-            delete (m);
-            continue;
-        } 
-        cofmsg_features_reply * fr=  dynamic_cast<cofmsg_features_reply * > (m);
-        if (fr != 0) {
-            handle_features_reply(m_slave, fr);
-			delete (fr);
-            continue;
-		}
-		ROFL_DEBUG("%s: popping dpt message queue -- message not handled %s\n", 
-			__PRETTY_FUNCTION__,m->c_str());
-        delete(m);
-	}
-	dptmsgqueue= std::vector<rofl::cofmsg *> ();
+     ROFL_DEBUG("%s: procesing newly open dpth\n",__PRETTY_FUNCTION__);
+
 }
 
 
@@ -312,7 +297,10 @@ void morpheus::handle_ctrl_open (rofl::cofctl *src) {
 	}	
 	else if (m_master != 0) {
 		ROFL_DEBUG("%s : received replacement controller.\n");
-		process_ctlqueue();
+        if (m_slave != 0) {
+            process_ctlopens();
+            process_dptopens();
+        }
 		return;
 	}
 	m_master= src;
@@ -327,8 +315,8 @@ void morpheus::handle_ctrl_open (rofl::cofctl *src) {
                 __PRETTY_FUNCTION__);
         }
     } else {
-        process_ctlqueue();
-        process_dptqueue();
+        process_ctlopens();
+        process_dptopens();
     }
 	ROFL_DEBUG("%s finished.\n",__PRETTY_FUNCTION__);
 }
@@ -339,7 +327,7 @@ void morpheus::handle_ctrl_close (rofl::cofctl *src) {
 		(src?src->c_str():"NULL"));
     ctl_state= PATH_CLOSED;
 	// controller disconnected - now disconnect from switch.
-	rpc_disconnect_from_dpt(m_slave);
+	
 	
 	// this socket disconnecting could just be a temporary thing - mark it is dead, but expect a possible auto reconnect
 	if(src!=m_master) {
@@ -349,6 +337,8 @@ void morpheus::handle_ctrl_close (rofl::cofctl *src) {
 		);
 	}
 	m_master=0;	
+    sleep(1);
+    set_ctl_watcher();
 }
 
 void morpheus::handle_dpath_open (rofl::cofdpt *src) {
@@ -360,8 +350,8 @@ void morpheus::handle_dpath_open (rofl::cofdpt *src) {
 	m_slave_dpid= xdpd::control_manager::Instance()->get_dpid();
 	m_dpid = m_slave_dpid;
     if (ctl_state == PATH_OPEN) {
-        process_ctlqueue();
-        process_dptqueue();
+        process_ctlopens();
+        process_dptopens();
     } else {
         set_ctl_watcher();
     }
@@ -464,10 +454,9 @@ void morpheus::handle_timeout ( int opaque ) {
 	ROFL_DEBUG("%s from %s : %s\n", func, src->c_str(), msg->c_str()); \
     rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
-		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
-		if (CTL_DPT) ctlqueue(msg);   \
-		else dptqueue(msg);   \
-        ROFL_DEBUG("%s: queued message %s\n",func,msg->c_str()); \
+		if (CTL_DPT) ctlclosed(msg);   \
+		else dptclosed(msg);   \
+        delete(msg); \
 		return; \
 	} \
 	try { \
@@ -485,9 +474,8 @@ void morpheus::handle_timeout ( int opaque ) {
 	} \
 	rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
-		ROFL_DEBUG("%s: No control/datapath queueing message\n",func); \
-		dptqueue(msg); \
-        ROFL_DEBUG("%s: queued message to datapath %s\n",func,msg->c_str()); \
+		dptclosed(msg); \
+        delete(msg); \
 		return; \
 	} \
 	chandlersession_base *b= get_chandlersession(msg); \
@@ -515,16 +503,16 @@ void morpheus::handle_timeout ( int opaque ) {
 	ROFL_DEBUG("%s: from %s message %s\n", func, src->c_str(), msg->c_str()); \
     rofl::RwLock session_lock(&m_sessions_lock, rofl::RwLock::RWLOCK_WRITE); \
 	if((!m_slave)||(!m_master)) { \
-		ROFL_DEBUG("%s: queueing message due to lack of dpt/ctl\n",func); \
-		if (CTL_DPT) ctlqueue(msg);   \
-		else dptqueue(msg);   \
-        ROFL_DEBUG("%s: queued message %s\n",func,msg->c_str()); \
+		if (CTL_DPT) ctlclosed(msg);   \
+		else dptclosed(msg);   \
+        delete(msg); \
 		return; \
 	} \
 	try { \
-		new SESSION_TYPE ( this, src, msg ); \
+		SESSION_TYPE ( this, src, msg ); \
 	} catch(rofl::cerror &e) { \
 		ROFL_ERR("%s: unhandled cerror %s\n",func,e.desc.c_str()); assert(false); \
+        delete(msg); \
 	} \
 	delete(msg); \
 }
