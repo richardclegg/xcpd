@@ -49,6 +49,9 @@ morpheus::morpheus(const cportvlan_mapper & mapper_, const bool indpt_, const ro
 	pthread_rwlock_init(&m_session_timers_lock, 0);
     dpt_state= PATH_CLOSED;
     ctl_state= PATH_CLOSED;
+    conf_reply_received= false;
+    features_reply_received= false;
+    features_request_received= false;
     
 }
 
@@ -249,12 +252,13 @@ void morpheus::dptclosed(cofmsg *msg)
 {
     cofmsg_get_config_reply * cr = dynamic_cast<cofmsg_get_config_reply *> (msg);
     if (cr != 0) { 
-        //handle_get_config_reply(m_slave,cr);
+        conf_reply_received= true;
+   
         return;
     } 
     cofmsg_features_reply * fr=  dynamic_cast<cofmsg_features_reply * > (msg);
     if (fr != 0) {
-           
+        features_reply_received= true;
         return;
     }
     ROFL_ERR("%s: unexpected message arrived when DPT path closed -- dropped %s\n",
@@ -265,7 +269,9 @@ void morpheus::ctlclosed(cofmsg *msg)
 {
     cofmsg_features_request *fr=  dynamic_cast<cofmsg_features_request *>(msg);
     if (fr != 0) {
-        
+        if (m_slave != 0) {
+            
+        }
         return;
     }
     ROFL_ERR("%s: unexpected message arrived when CTL path closed -- dropped %s\n",

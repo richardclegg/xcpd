@@ -44,7 +44,7 @@ bool morpheus::csh_features_request::process_features_reply ( const rofl::cofdpt
 		// first check whether we have the ones we need, then rewrite them anyway
 		ROFL_DEBUG ("%s Capabilities of DPE reported as: %s.\n",
 			__PRETTY_FUNCTION__,capabilities_to_string(capabilities).c_str());
-		uint32_t of10_actions_bitmap = msg->get_actions_bitmap();	// 	TODO ofp10 only
+		uint32_t of10_actions_bitmap = msg->get_actions_bitmap();	
 		ROFL_DEBUG("%s : supported actions of DPE reported as: %s.\n",
 			__PRETTY_FUNCTION__,
 			action_mask_to_string(of10_actions_bitmap).c_str());

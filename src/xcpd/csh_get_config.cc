@@ -3,7 +3,7 @@
 #include <rofl/common/utils/c_logger.h>
 
 morpheus::csh_get_config::csh_get_config(morpheus * parent, const rofl::cofctl * const src, const rofl::cofmsg_get_config_request * const msg):chandlersession_base(parent, msg->get_xid()) {
-	std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
+	ROFL_DEBUG ("%s: called\n",__PRETTY_FUNCTION__);
 	process_config_request(src, msg);
 	}
 

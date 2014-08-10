@@ -61,6 +61,10 @@ private:
     void wait_for_master();
 	chandlersession_base * get_chandlersession(rofl::cofmsg *);
 
+    bool conf_reply_received;
+    bool features_reply_received;
+    bool features_request_received;
+
 protected:
     
     typedef std::map < std::pair< uint32_t, uint32_t >, chandlersession_base * >        xid_session_map_t;
