@@ -17,7 +17,5 @@ ip link del C_0
 ip link del vonuA_0
 ip link del vonuB_0
 ip link del vonuC_0
-ip link del LV1_0
-brctl delbr br10
-brctl delbr br11
-brctl delbr br12
+brctl delbr LV1_0
+

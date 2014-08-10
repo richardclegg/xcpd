@@ -14,6 +14,7 @@ morpheus::csh_port_stats::csh_port_stats(morpheus * parent, rofl::cofctl * const
 
 bool morpheus::csh_port_stats::process_port_stats_request ( rofl::cofctl * const src, rofl::cofmsg_port_stats_request *const msg ) 
 {
+    ROFL_DEBUG("%s: called\n",__PRETTY_FUNCTION__);
 	if(msg->get_version() != OFP10_VERSION) throw rofl::eBadVersion();
 	int type= control_manager::Instance()->get_port_config_handling();
     set_port( msg->get_port_stats().get_portno());

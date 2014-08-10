@@ -1,8 +1,9 @@
 AC_INIT(xcpd, 0.3, richard@richardclegg.org, xcpd)
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign ])
-AC_GNU_SOURCE
 AC_CONFIG_MACRO_DIR([m4])
+AC_GNU_SOURCE
+
 AC_PROG_INSTALL
 AC_PROG_CC
 AC_PROG_CXX
